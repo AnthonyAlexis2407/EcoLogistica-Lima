@@ -101,6 +101,9 @@ Columnas del flujo de trabajo a configurar: **Pendiente → En curso → En revi
 - **Historias asociadas:** las 20 historias/enablers (EL-7 a EL-26) del backlog priorizado (sección 2), vinculadas a esta versión como entregable de fin de proyecto (23 nov 2026, según Documento 02).
 
 **[ 📷 EVIDENCIA 5 — GESTIÓN DE VERSIONES/RELEASE: pegar aquí la captura recortada exclusivamente al módulo de Releases del proyecto EL, mostrando la versión `v1.0.0-MVP` creada y su asociación de historias. ]**
+<img width="1515" height="417" alt="image" src="https://github.com/user-attachments/assets/1ea159c1-ad9c-4ce6-a11e-92def7bfa7bd" />
+<img width="1402" height="795" alt="image" src="https://github.com/user-attachments/assets/3425c914-e729-40e7-8bcd-c2e5dd2a3206" />
+
 
 ---
 
