@@ -53,6 +53,7 @@
 **Total del backlog: 116 Story Points**, verificados por consulta JQL (`project = EL ORDER BY key ASC`) contra el proyecto real.
 
 **[ 📷 EVIDENCIA 2 — BACKLOG PRIORIZADO: entrar a `https://metaupsworkspace-33172362.atlassian.net/jira/software/projects/EL/boards/.../backlog` y pegar aquí la captura recortada exclusivamente al panel de Backlog, mostrando la columna de Story Points y las épicas agrupadas. ]**
+<img width="1518" height="856" alt="image" src="https://github.com/user-attachments/assets/0ee491a4-3c96-4538-90a7-31315e0a3be0" />
 
 ## 3. Roadmap del Proyecto (Épicas en Línea de Tiempo) — PENDIENTE (manual)
 
@@ -68,6 +69,8 @@
 Pendiente de ubicar en la Hoja de Ruta de Jira (no expuesto por API; hacerlo manualmente arrastrando cada épica a su rango de fechas).
 
 **[ 📷 EVIDENCIA 1 — ROADMAP DEL PROYECTO: pegar aquí la captura recortada exclusivamente al panel de Hoja de Ruta de Jira, mostrando las 6 épicas (EL-1 a EL-6) ubicadas en la línea de tiempo. ]**
+<img width="1005" height="700" alt="image" src="https://github.com/user-attachments/assets/b56e0bae-9dc2-43d5-aa13-a78e1f2c9bb6" />
+
 
 ## 4. Sprint 1: Planificación y Objetivo — PENDIENTE (manual)
 
@@ -78,12 +81,19 @@ Pendiente de ubicar en la Hoja de Ruta de Jira (no expuesto por API; hacerlo man
 > "Al finalizar el Sprint 1, el equipo habrá habilitado el registro y autenticación segura de usuarios, la gestión básica de flota (CRUD de vehículos) y el registro de pedidos con validación de capacidad — sobre una base de seguridad verificada (JWT + cifrado de datos personales) — y contará con los resultados del *spike* comparativo de metaheurísticas que reduce el riesgo RSK-05 antes de comprometer el diseño del motor de optimización en el Sprint 2."
 
 **[ 📷 EVIDENCIA 3 — SPRINT PLANNING & SPRINT GOAL: pegar aquí la captura recortada exclusivamente al panel de planificación del Sprint 1 en Jira, mostrando los ítems seleccionados (EL-18, EL-24, EL-7, EL-9) y el Sprint Goal redactado en la cabecera. ]**
+<img width="1487" height="557" alt="image" src="https://github.com/user-attachments/assets/d87fc41a-b0b8-4413-84fe-0abdc54e44a9" />
+
+
+
 
 ## 5. Tablero Scrum Activo — PENDIENTE (manual)
 
 Columnas del flujo de trabajo a configurar: **Pendiente → En curso → En revisión/QA → Hecho**.
 
 **[ 📷 EVIDENCIA 4 — TABLERO SCRUM ACTIVO: pegar aquí la captura recortada exclusivamente al panel del tablero del proyecto EL, mostrando tarjetas distribuidas en las 4 columnas durante el Sprint 1 en curso. ]**
+<img width="1518" height="840" alt="image" src="https://github.com/user-attachments/assets/824be354-8ca6-4062-a07a-d095c05f0c40" />
+
+
 
 ## 6. Gestión de Versiones / Release — PENDIENTE (manual)
 
