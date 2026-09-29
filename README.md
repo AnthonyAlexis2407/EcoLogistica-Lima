@@ -15,7 +15,7 @@ Sistema web para optimizar rutas de última milla con enfoque sostenible, aplica
 - [Selección del enfoque del proyecto](docs/01%20Inicio/01.%20Selecci%C3%B3n%20del%20enfoque%20del%20proyecto%20V_1_0_0.md)
 - [Acta de constitución](docs/01%20Inicio/02.%20Acta%20de%20constituci%C3%B3n%20V_1_0_0.md)
 - [Declaración de la visión](docs/01%20Inicio/03.%20Declaraci%C3%B3n%20de%20la%20visi%C3%B3n%20V_1_0_0.md)
-- [Registro de supuestos y restricciones](docs/01%20Inicio/04.%20Registro%20de%20supuestos%20y%20restricciones%20V_1_1_0.md)
+- [Registro de supuestos y restricciones](docs/01%20Inicio/04.%20Registro%20de%20supuestos%20y%20restricciones%20V_1_0_0.md)
 - [Registro de interesados](docs/01%20Inicio/05.%20Registro%20de%20interesados%20V_1_0_0.md)
 - [Requisitos funcionales](docs/01%20Inicio/06.%20Requisitos%20funcionales%20V_1_0_0.md)
 - [Requisitos no funcionales](docs/01%20Inicio/07.%20Requisitos%20no%20funcionales%20V_1_0_0.md)
@@ -28,7 +28,21 @@ Sistema web para optimizar rutas de última milla con enfoque sostenible, aplica
 
 ## Fase 02: Planificación del Proyecto
 
-- [Transformando a ágil](docs/02%20Planificaci%C3%B3n/01%20Transformando%20a%20%C3%A1gil%20V_1_0_0.md)
-- [Artefactos Jira](docs/02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_0_0.md)
-- [Registro de riesgos](docs/02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md)
-- [Presupuesto del proyecto](docs/02%20Planificaci%C3%B3n/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md)
+- [Transformando a ágil](docs/02%20Planificacion/01%20Transformando%20a%20%C3%A1gil%20V_1_0_0.md)
+- [Artefactos Jira](docs/02%20Planificacion/02%20Artefactos%20Jira%20V_1_0_0.md)
+- [Registro de riesgos](docs/02%20Planificacion/03%20Registro%20de%20riesgos%20V_1_0_0.md)
+- [Presupuesto del proyecto](docs/02%20Planificacion/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md)
+
+## Fase 03: Implementación - Sprint 1
+
+Los informes siguientes consolidan el estado documental disponible al 29/09/2026. La planificación define historias candidatas, pero el repositorio no contiene evidencia suficiente para declarar historias completadas ni una demostración realizada.
+
+- [Informe de estado del proyecto](docs/03%20Implementacion/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
+- [Registro de Impedimentos](docs/03%20Implementacion/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
+- [Revisión del Sprint](docs/03%20Implementacion/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+- [Retrospectiva del Sprint](docs/03%20Implementacion/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+
+## Estructura del código fuente
+
+- [Frontend](src/frontend/README.md): aplicación web React/TypeScript prevista.
+- [Backend](src/backend/README.md): API FastAPI/Python prevista.
