@@ -1,73 +1,48 @@
-# React + TypeScript + Vite
+# Frontend — EcoLogística Lima
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Panel web de EcoLogística Lima, construido con **React 18, TypeScript y Vite 6**, con React Router 7 y CSS propio (`src/index.css`).
 
-Currently, two official plugins are available:
+## Estado al 05/10/2026
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Ruta | Pantalla | Historia | Estado |
+|---|---|---|---|
+| `/login` | Inicio de sesión (JWT) | EN-002 | Funcional |
+| `/` | Inicio: conteos de vehículos y pedidos por estado | - | Funcional; la tarjeta "Impacto CO₂" es un marcador sin datos |
+| `/vehiculos` | Gestión de flota | US-001 | Funcional |
+| `/pedidos` | Registro y consulta de pedidos | US-003 | Funcional; la ubicación se captura como latitud/longitud (sin mapa) |
 
-## React Compiler
+Las rutas están protegidas por sesión. Aún no hay mapa, rutas optimizadas, dashboard ambiental, reportes ni app del conductor (EP-03 a EP-05).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> El bloque "Resumen del Sprint 1" del inicio es texto fijo; no es evidencia de aceptación. El estado verificado de cada historia está en `docs/03 Implementación`.
 
-## Expanding the ESLint configuration
+## Cómo correrlo
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd src/frontend
+npm ci
+npm run dev        # http://localhost:5173
+npm run build      # compilación de producción (carpeta dist/, ignorada por Git)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+El backend debe estar corriendo (`src/backend`). Si no usa `http://localhost:8000`, crear un archivo `.env` (ignorado por Git) con:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+VITE_API_URL=http://localhost:8000
+```
+
+## Estructura
+
+```
+src/
+├── main.tsx            # Punto de entrada
+├── App.tsx             # Rutas, ruta protegida y barra lateral
+├── AuthContext.tsx     # Sesión y token
+├── api.ts              # Cliente HTTP hacia la API (auth, vehículos, pedidos)
+├── index.css           # Estilos
+└── pages/              # LoginPage, DashboardPage, VehiculosPage, PedidosPage
+```
+
+## Pendientes
+
+- Script de lint: existe `eslint.config.js`, pero falta el script en `package.json` y las dependencias de ESLint.
+- Pruebas del frontend y ejecución en CI (ver IMP-009 del Registro de Impedimentos).

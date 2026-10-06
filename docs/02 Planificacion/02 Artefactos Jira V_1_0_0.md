@@ -6,14 +6,14 @@
   - Fernandez Condor Jhon Smith
   - Perez Ordoñez Anthony Alexis
   - Tovar Arias Michael Aldo
-- **Fecha:** 08 de septiembre de 2026
-- **Versión:** 1.0.0
+- **Fecha:** 08 de septiembre de 2026 (actualizado el 05 de octubre de 2026)
+- **Versión:** 1.1.0
 
 [← Volver al README Principal](../../README.md)
 
 ---
 
-> ✅ **Estado actual:** el proyecto Scrum **EL — "EcoLogística Lima"** ya existe en `https://metaupsworkspace-33172362.atlassian.net`, con las 6 épicas y las 20 historias/enablers del backlog **creados vía API y verificados**. Lo que falta (Sprint 1, Hoja de ruta, columnas del tablero, Versión de release) requiere pasos manuales en la interfaz de Jira — no hay endpoint de API disponible para crearlos automáticamente. Las 5 evidencias fotográficas siguen pendientes: deben tomarse de este mismo proyecto real, recortadas exclusivamente al panel del elemento a demostrar (sin escritorio, sin pestañas del navegador — penalización del 50% de la sección si se incumple).
+> ✅ **Estado verificado en Jira el 05/10/2026 (consulta por API):** el proyecto Scrum **EL — "EcoLogística Lima"** (`https://metaupsworkspace-33172362.atlassian.net`) contiene las 6 épicas y los 20 ítems del backlog con sus Story Points (116 pts); existe el sprint **EL Sprint 1** (tablero 2, 08/09 al 22/09/2026, objetivo registrado, 5 ítems asignados) y la versión **v1.0.0-MVP** (no lanzada) asociada a los 20 ítems. **Sigue sin resolverse:** EL Sprint 1 permanece "activo" después de su fecha de fin, sus 5 ítems continúan "En curso" y no existe Sprint 2 (IMP-004 del Registro de Impedimentos). Las capturas de Roadmap, tablero y versiones son evidencia aportada por el equipo; la API disponible no permite consultar esos tres paneles.
 
 ---
 
@@ -52,10 +52,10 @@
 
 **Total del backlog: 116 Story Points**, verificados por consulta JQL (`project = EL ORDER BY key ASC`) contra el proyecto real.
 
-**[ 📷 EVIDENCIA 2 — BACKLOG PRIORIZADO: entrar a `https://metaupsworkspace-33172362.atlassian.net/jira/software/projects/EL/boards/.../backlog` y pegar aquí la captura recortada exclusivamente al panel de Backlog, mostrando la columna de Story Points y las épicas agrupadas. ]**
+**Evidencia 2 — Backlog Priorizado (captura del equipo).**
 <img width="1518" height="856" alt="image" src="https://github.com/user-attachments/assets/0ee491a4-3c96-4538-90a7-31315e0a3be0" />
 
-## 3. Roadmap del Proyecto (Épicas en Línea de Tiempo) — PENDIENTE (manual)
+## 3. Roadmap del Proyecto (Épicas en Línea de Tiempo) — captura adjunta
 
 | Épica | Inicio | Fin | Iteración |
 |---|---|---|---|
@@ -66,55 +66,64 @@
 | EL-4 Visualización y Geolocalización | 06 oct 2026 | 26 oct 2026 | Iteración 3 |
 | EL-5 Sostenibilidad, Dashboard y Reportes | 06 oct 2026 | 16 nov 2026 | Iteraciones 3-4 |
 
-Pendiente de ubicar en la Hoja de Ruta de Jira (no expuesto por API; hacerlo manualmente arrastrando cada épica a su rango de fechas).
+La ubicación de las épicas en la Hoja de Ruta no es consultable con la API disponible; la evidencia es la captura adjunta. Nota: según estas fechas, EP-02 y EP-03 correspondían a la Iteración 2 (hasta el 05/10/2026); al corte del Sprint 2 solo EP-02 tiene avance parcial (US-003) y EP-03 no tiene avance (IMP-010).
 
-**[ 📷 EVIDENCIA 1 — ROADMAP DEL PROYECTO: pegar aquí la captura recortada exclusivamente al panel de Hoja de Ruta de Jira, mostrando las 6 épicas (EL-1 a EL-6) ubicadas en la línea de tiempo. ]**
+**Evidencia 1 — Roadmap del Proyecto (captura del equipo).**
 <img width="1005" height="700" alt="image" src="https://github.com/user-attachments/assets/b56e0bae-9dc2-43d5-aa13-a78e1f2c9bb6" />
 
 
-## 4. Sprint 1: Planificación y Objetivo — PENDIENTE (manual)
+## 4. Sprint 1: Planificación y Objetivo — CREADO e INICIADO (verificado en Jira el 05/10/2026; sigue activo)
 
-- **Duración:** 2 semanas (08 sep 2026 – 21 sep 2026).
-- **Ítems a incluir:** EL-18 (5), EL-24 (5), EL-7 (3), EL-9 (5), y opcionalmente un *spike* acotado sobre EL-17 (≈21 puntos).
+- **Duración registrada en Jira:** 2 semanas (08 sep 2026 – 22 sep 2026).
+- **Ítems asignados en Jira:** EL-7 (3 pts), EL-9 (5), EL-17 (8), EL-18 (5) y EL-24 (5): 26 puntos. EL-17 (EN-001, spike del motor) quedó dentro del sprint, aunque sin avance.
 
-**Sprint Goal (pegar en el campo "Objetivo del sprint" al crear el Sprint 1 en Jira):**
-> "Al finalizar el Sprint 1, el equipo habrá habilitado el registro y autenticación segura de usuarios, la gestión básica de flota (CRUD de vehículos) y el registro de pedidos con validación de capacidad — sobre una base de seguridad verificada (JWT + cifrado de datos personales) — y contará con los resultados del *spike* comparativo de metaheurísticas que reduce el riesgo RSK-05 antes de comprometer el diseño del motor de optimización en el Sprint 2."
+**Sprint Goal registrado en Jira (EL Sprint 1):**
+> "Al finalizar el Sprint 1, el equipo habrá habilitado el registro y autenticación segura de usuarios, la gestión básica de flota y el registro de pedidos con validación de capacidad, sobre una base de seguridad verificada, reduciendo el riesgo RSK-05 antes del Sprint 2."
 
-**[ 📷 EVIDENCIA 3 — SPRINT PLANNING & SPRINT GOAL: pegar aquí la captura recortada exclusivamente al panel de planificación del Sprint 1 en Jira, mostrando los ítems seleccionados (EL-18, EL-24, EL-7, EL-9) y el Sprint Goal redactado en la cabecera. ]**
+**Evidencia 3 — Sprint Planning & Sprint Goal (captura del equipo).**
 <img width="1487" height="557" alt="image" src="https://github.com/user-attachments/assets/d87fc41a-b0b8-4413-84fe-0abdc54e44a9" />
 
 
 
 
-## 5. Tablero Scrum Activo — PENDIENTE (manual)
+## 5. Tablero Scrum — captura adjunta
 
-Columnas del flujo de trabajo a configurar: **Pendiente → En curso → En revisión/QA → Hecho**.
+Flujo de trabajo previsto: **Por hacer → En curso → En revisión/QA → Hecho**. Estados observados por API al 05/10/2026: *Por hacer* (15 ítems y 6 épicas) y *En curso* (5 ítems del Sprint 1); ningún ítem en *Hecho*.
 
-**[ 📷 EVIDENCIA 4 — TABLERO SCRUM ACTIVO: pegar aquí la captura recortada exclusivamente al panel del tablero del proyecto EL, mostrando tarjetas distribuidas en las 4 columnas durante el Sprint 1 en curso. ]**
+**Evidencia 4 — Tablero Scrum Activo (captura del equipo).**
 <img width="1518" height="840" alt="image" src="https://github.com/user-attachments/assets/824be354-8ca6-4062-a07a-d095c05f0c40" />
 
 
 
-## 6. Gestión de Versiones / Release — PENDIENTE (manual)
+## 6. Gestión de Versiones / Release — CREADA (verificado por API el 05/10/2026)
 
-- **Versión a crear en Jira:** `v1.0.0-MVP`
-- **Historias asociadas:** las 20 historias/enablers (EL-7 a EL-26) del backlog priorizado (sección 2), vinculadas a esta versión como entregable de fin de proyecto (23 nov 2026, según Documento 02).
+- **Versión en Jira:** `v1.0.0-MVP` (id 10000, no lanzada).
+- **Historias asociadas:** las 20 historias/enablers (EL-7 a EL-26) del backlog priorizado (sección 2), vinculadas a esta versión como entregable de fin de proyecto (23 nov 2026, según Documento 02). Comprobado por API: los 20 ítems EL-7 a EL-26 tienen `v1.0.0-MVP` como versión de corrección.
 
-**[ 📷 EVIDENCIA 5 — GESTIÓN DE VERSIONES/RELEASE: pegar aquí la captura recortada exclusivamente al módulo de Releases del proyecto EL, mostrando la versión `v1.0.0-MVP` creada y su asociación de historias. ]**
+**Evidencia 5 — Gestión de Versiones/Release (captura del equipo).**
 <img width="1515" height="417" alt="image" src="https://github.com/user-attachments/assets/1ea159c1-ad9c-4ce6-a11e-92def7bfa7bd" />
 <img width="1402" height="795" alt="image" src="https://github.com/user-attachments/assets/3425c914-e729-40e7-8bcd-c2e5dd2a3206" />
 
 
 ---
 
-## Pasos manuales pendientes antes de la entrega
+## Estado de los pasos al 05/10/2026
 
-1. **Backlog:** ✅ Ya creado y verificado — no requiere acción.
-2. **Sprint 1:** crear el sprint desde el Backlog, arrastrar los ítems de la sección 4, redactar el Sprint Goal y pulsar "Iniciar sprint".
-3. **Hoja de ruta:** ubicar las 6 épicas en el Roadmap con las fechas de la sección 3.
-4. **Tablero:** confirmar/ajustar las 4 columnas en Configuración del tablero → Columnas.
-5. **Versión:** crear `v1.0.0-MVP` en Releases y asignarla a las 20 historias/enablers.
-6. Tomar las 5 capturas **recortadas exclusivamente al panel correspondiente** y reemplazar cada marcador `[ 📷 EVIDENCIA N ]` de este archivo por la imagen real, en el mismo orden.
+| Paso | Estado | Fuente de verificación |
+|---|---|---|
+| Backlog (6 épicas, 20 ítems, 116 pts) | Completo | Consulta JQL por API |
+| Sprint 1 creado, con objetivo y 5 ítems | Completo; **sigue activo después del 22/09/2026** | Consulta por API (sprint id 1, tablero 2) |
+| Cierre de Sprint 1 y creación de Sprint 2 | **Pendiente** (IMP-004); acción manual en Jira | Consulta por API: no existe Sprint 2 |
+| Hoja de ruta con las 6 épicas | Captura adjunta | No consultable por API |
+| Tablero con columnas del flujo | Captura adjunta | No consultable por API |
+| Versión `v1.0.0-MVP` asociada a los 20 ítems | Completo (no lanzada) | Consulta por API |
+
+## Historial de Control de Cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| 1.0.0 | 08/09/2026 | Creación del documento con el backlog, los pasos manuales pendientes y los marcadores de evidencia; capturas aportadas por el equipo el 29/09/2026. |
+| 1.1.0 | 05/10/2026 | Sincronización con el estado real de Jira: sprint creado y activo con 5 ítems (26 pts) y objetivo registrado; versión v1.0.0-MVP asociada; se corrigen fechas del sprint (22/09/2026), se sustituyen los marcadores de captura por pies de figura y se registra el sprint vencido sin cerrar. |
 
 ---
 

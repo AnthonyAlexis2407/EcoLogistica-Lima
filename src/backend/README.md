@@ -69,7 +69,7 @@ src/backend/
 
 | Método | Ruta | Descripción | Historia |
 |---|---|---|---|
-| POST | /api/auth/register | Registrar usuario | EN-002 |
+| POST | /api/auth/register | Registrar usuario (público solo con rol BODEGA; otros roles requieren un ADMIN_FLOTA autenticado) | EN-002 |
 | POST | /api/auth/login | Login con JWT | EN-002 |
 | GET | /api/auth/me | Perfil actual | EN-002 |
 | GET | /api/vehiculos/ | Listar vehículos | US-001 |
@@ -80,3 +80,14 @@ src/backend/
 | POST | /api/pedidos/ | Registrar pedido | US-003 |
 | PUT | /api/pedidos/{id} | Actualizar pedido | US-003 |
 | DELETE | /api/pedidos/{id} | Cancelar pedido | US-003 |
+## Pruebas
+
+```bash
+python -m pytest -q --cov=app    # 16 passed; cobertura 67 % (05/10/2026)
+```
+
+- `tests/test_api.py`: pruebas de integración básicas (usan una sesión de base de datos compartida).
+- `tests/test_criterios_aceptacion.py`: escenarios de aceptación con la dependencia `get_db` real y los roles del seed (ADMIN_FLOTA, OPERADOR, BODEGA): US-001, US-003, EN-002 y RN-010.
+- Incluye pruebas de regresión de los defectos corregidos en el Sprint 2: **DEF-001** (el bloqueo de cuenta no persistía), **DEF-002** (una BODEGA registraba pedidos para otra bodega) y **DEF-003** (el registro público permitía autoasignarse un rol de administración).
+
+El estado por historia y los impedimentos están en `docs/03 Implementación`.

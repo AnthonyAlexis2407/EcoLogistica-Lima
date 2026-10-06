@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import (
     create_access_token,
     get_current_user,
+    get_optional_user,
     hash_password,
     is_account_locked,
     register_failed_attempt,
@@ -24,8 +25,24 @@ router = APIRouter(prefix="/api/auth", tags=["Autenticación"])
 
 
 @router.post("/register", response_model=UsuarioOut, status_code=status.HTTP_201_CREATED)
-async def register(payload: UsuarioCreate, db: AsyncSession = Depends(get_db)):
-    """Registra un nuevo usuario con contraseña hasheada (EN-008)."""
+async def register(
+    payload: UsuarioCreate,
+    db: AsyncSession = Depends(get_db),
+    actor: Usuario | None = Depends(get_optional_user),
+):
+    """
+    Registra un nuevo usuario con contraseña hasheada (EN-008).
+
+    DEF-003: el registro público solo admite el rol BODEGA; crear usuarios con
+    cualquier otro rol exige un ADMIN_FLOTA autenticado (Documento 08).
+    """
+    es_administrador = actor is not None and actor.rol in ("ADMIN_FLOTA", "ADMINISTRADOR")
+    if payload.rol != "BODEGA" and not es_administrador:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Solo un administrador de flota puede crear usuarios con el rol {payload.rol}. "
+                   "El registro público únicamente permite el rol BODEGA.",
+        )
     # Verificar email único
     exists = await db.execute(select(Usuario).where(Usuario.email == payload.email))
     if exists.scalar_one_or_none():
@@ -69,6 +86,9 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     # Verificar contraseña
     if not verify_password(payload.password, user.password_hash):
         await register_failed_attempt(user, db)
+        # Persistir el contador ANTES de lanzar la excepción: get_db hace rollback
+        # ante cualquier excepción y, sin este commit, el bloqueo nunca se acumulaba.
+        await db.commit()
         remaining = max(0, 3 - user.login_attempts)
         raise HTTPException(
             status_code=401,

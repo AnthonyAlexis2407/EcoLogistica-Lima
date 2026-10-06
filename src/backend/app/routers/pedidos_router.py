@@ -95,6 +95,17 @@ async def crear_pedido(
     Registra un pedido nuevo.
     Valida que el peso no exceda la capacidad máxima de la flota (RF-002).
     """
+    # Aislamiento por bodega al escribir (RN-010 / DEF-002): una BODEGA solo registra
+    # pedidos a nombre de su propia bodega.
+    if user.rol == "BODEGA":
+        propia_result = await db.execute(select(Bodega).where(Bodega.usuario_id == user.usuario_id))
+        propia = propia_result.scalar_one_or_none()
+        if not propia or propia.bodega_id != payload.bodega_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Solo puede registrar pedidos a nombre de su propia bodega",
+            )
+
     # Verificar que la bodega existe
     bodega_result = await db.execute(select(Bodega).where(Bodega.bodega_id == payload.bodega_id))
     if not bodega_result.scalar_one_or_none():
