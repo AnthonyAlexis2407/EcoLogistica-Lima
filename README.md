@@ -28,38 +28,21 @@ Sistema web para optimizar rutas de última milla con enfoque sostenible, aplica
 
 ## Fase 02: Planificación del Proyecto
 
-- [Transformando a ágil](docs/02%20Planificaci%C3%B3n/01%20Transformando%20a%20%C3%A1gil%20V_1_0_0.md)
-- [Artefactos Jira](docs/02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_0_0.md)
-- [Registro de riesgos](docs/02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md)
-- [Presupuesto del proyecto](docs/02%20Planificaci%C3%B3n/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md)
+- [Transformando a ágil](docs/02%20Planificacion/01%20Transformando%20a%20%C3%A1gil%20V_1_0_0.md)
+- [Artefactos Jira](docs/02%20Planificacion/02%20Artefactos%20Jira%20V_1_0_0.md)
+- [Registro de riesgos](docs/02%20Planificacion/03%20Registro%20de%20riesgos%20V_1_0_0.md)
+- [Presupuesto del proyecto](docs/02%20Planificacion/04%20Presupuesto%20del%20proyecto%20V_1_0_0.md)
 
-## Fase 03: Implementación - Sprint 2
+## Fase 03: Implementación - Sprint 1
 
-Los informes siguientes corresponden al Sprint 2 y están actualizados al 05/10/2026 (versión 2.1.0 de cada documento; el historial de cada uno conserva la versión 1.0.0 del Sprint 1). Se basan en evidencia verificada: pruebas del backend (16 pasan, cobertura 67 %), compilación del frontend y consulta a Jira. No se declara demostración a stakeholders ni aceptación del Product Owner porque el repositorio no contiene evidencia de ellas.
+Los informes siguientes consolidan el estado documental disponible al 29/09/2026. La planificación define historias candidatas, pero el repositorio no contiene evidencia suficiente para declarar historias completadas ni una demostración realizada.
 
-- [Informe de estado del proyecto](docs/03%20Implementaci%C3%B3n/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
-- [Registro de Impedimentos](docs/03%20Implementaci%C3%B3n/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
-- [Revisión del Sprint](docs/03%20Implementaci%C3%B3n/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
-- [Retrospectiva del Sprint](docs/03%20Implementaci%C3%B3n/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+- [Informe de estado del proyecto](docs/03%20Implementacion/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
+- [Registro de Impedimentos](docs/03%20Implementacion/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
+- [Revisión del Sprint](docs/03%20Implementacion/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+- [Retrospectiva del Sprint](docs/03%20Implementacion/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
 
 ## Estructura del código fuente
 
-- [Frontend](src/frontend/README.md): React 18, TypeScript y Vite; inicio de sesión, vehículos y pedidos consumiendo la API.
-- [Backend](src/backend/README.md): FastAPI con SQLAlchemy asíncrono; autenticación JWT, vehículos, pedidos y pruebas de aceptación y regresión.
-
-## Convención de versionado y nombres de archivo
-
-- El **nombre** de cada archivo conserva el sufijo `V_1_0_0` que exigen las consignas de entrega. La **versión vigente** (Semantic Versioning) de cada documento está en su encabezado (`Versión`) y en su historial (*Historial de Control de Cambios* o *Control de versiones*).
-- En los 4 informes de Implementación la versión mayor coincide con el número de sprint: `2.x.x` = Sprint 2.
-- Documentos con versión distinta de 1.0.0 al 05/10/2026:
-
-| Documento | Versión | Última actualización | Motivo |
-|---|---|---|---|
-| Fase 01 · 04 Registro de supuestos y restricciones | 1.1.0 | 08/09/2026 | Corrección de R01 (presupuesto S/ 16,300) |
-| Fase 01 · 08 Usuarios | 1.2.0 | 05/10/2026 | RBAC implementado; DEF-002 y DEF-003 corregidos |
-| Fase 01 · 10 Stack tecnológico | 1.1.0 | 05/10/2026 | Decisiones de implementación (ORM, SQLite en desarrollo, bcrypt/JWT) |
-| Fase 01 · 11 Base de datos | 1.1.0 | 05/10/2026 | Modelo implementado frente al DDL; campos de bloqueo de cuenta |
-| Fase 01 · 12 Modelo C4 | 1.1.0 | 05/10/2026 | Estado de implementación por contenedor |
-| Fase 02 · 02 Artefactos Jira | 1.1.0 | 05/10/2026 | Estado real de Jira (sprint, versión, fechas) |
-| Fase 02 · 03 Registro de riesgos | 1.1.0 | 05/10/2026 | Reevaluación de RSK-05 y nuevos RSK-09 a RSK-11 |
-| Fase 03 · 01 a 04 (informes del sprint) | 2.1.0 | 05/10/2026 | Sprint 2 |
+- [Frontend](src/frontend/README.md): aplicación web React/TypeScript prevista.
+- [Backend](src/backend/README.md): API FastAPI/Python prevista.

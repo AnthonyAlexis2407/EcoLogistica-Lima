@@ -2,74 +2,48 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
-**Sprint:** Sprint 2 (periodo de trabajo del 23/09/2026 al 06/10/2026, contiguo al Sprint 1 de Jira: 08/09/2026 - 22/09/2026)  
-**Fecha de corte del informe:** 05/10/2026  
-**Versión del documento:** 2.1.0
+**Sprint:** Sprint 1 (planificado del 08/09/2026 al 21/09/2026)  
+**Fecha de corte del informe:** 29/09/2026  
+**Versión del documento:** 1.0.0
 
 [← Volver al README Principal](../../README.md)
 
 ## Resumen ejecutivo
 
-**Estado general: en riesgo de cronograma, con avance técnico verificable.** El 29/09/2026 se versionó el primer incremento de código (commits `f9887dc` y `2cb7d36`: API FastAPI, interfaz React y pruebas). Durante el Sprint 2 ese incremento se verificó contra los criterios de aceptación del backlog y se corrigieron tres defectos de seguridad encontrados en la verificación: DEF-001 (el bloqueo de cuenta no persistía), DEF-002 (una bodega podía registrar pedidos a nombre de otra) y DEF-003 (el registro público permitía autoasignarse un rol de administración). Cada uno quedó protegido por una prueba de regresión.
+El plan de Sprint 1 priorizó la seguridad de acceso y datos, el registro de vehículos y el registro de pedidos con ventana horaria y ubicación. Sin embargo, la evidencia versionada disponible no permite confirmar que el sprint se haya creado/iniciado en Jira, que alguna historia haya sido aceptada ni que se haya realizado una demostración. El documento de planificación de Jira del 08/09/2026 señalaba como tareas manuales pendientes la creación del sprint y la captura de sus evidencias; al corte de este informe no hay en el repositorio tablero exportado, actas, capturas ni implementación bajo `src/` que prueben su cierre.
 
-Base de comparación en Jira (consulta del 05/10/2026, proyecto EL): el sprint **EL Sprint 1** (tablero 2) corrió del 08/09 al 22/09/2026 con 5 ítems y 26 puntos (EL-7, EL-9, EL-17, EL-18, EL-24), pero **sigue en estado "activo" y los 5 ítems continúan "En curso"**; no existe aún un Sprint 2 en Jira. Por eso este informe reporta el trabajo del periodo contra los criterios de aceptación del Documento 01 de Planificación y no contra estados de Jira.
-
-| Indicador al corte (05/10/2026) | Valor | Referencia | Lectura |
-|---|---|---|---|
-| Puntos del Sprint 1 con criterios de aceptación verificados por prueba automatizada | 8 de 26 (31 %): US-001 y US-003 | 26 pts comprometidos | Avance real, pendiente de aceptación del Product Owner |
-| Pruebas automatizadas del backend | 16 pasan, ninguna marcada `xfail` | Todas en verde | Cumple |
-| Cobertura de código (`app/`) | 67 % | DoD: ≥ 80 % | Brecha de 13 puntos |
-| Compilación del frontend (`vite build`) | Correcta (1599 módulos) | Build sin errores | Cumple |
-| Análisis estático / CI | No configurado (sin script de lint ni pipeline) | DoD: análisis estático sin vulnerabilidades críticas | Brecha |
-| Historias aceptadas por el PO en Jira | 0 | - | Pendiente |
-| Backlog total sin criterios verificados | 18 de 20 ítems (108 de 116 pts), incluido todo el motor de optimización | Entrega 23/11/2026 | Riesgo de cronograma (ver RSK-09) |
+Por rigor, el avance de historias se informa como **no verificable**, no como cero esfuerzo ni como completado. Se requiere confirmación del equipo y consulta del Jira vigente para establecer el estado real.
 
 ## Historias de Usuario completadas en este Sprint
 
-Se considera **"completada con evidencia"** una historia cuyos escenarios Gherkin del Documento 01 de Planificación están cubiertos por pruebas automatizadas que pasan. Ninguna figura todavía como "Hecho" en Jira ni aceptada por el Product Owner.
+**Historias completadas con evidencia verificable en este repositorio: ninguna confirmada.** Las siguientes son historias previstas para Sprint 1, no resultados de implementación:
 
-| ID | Jira | Historia | Criterios de aceptación (Doc. 01) | Evidencia verificable | Estado al corte |
-|---|---|---|---|---|---|
-| US-001 | EL-7 | Registrar y administrar vehículos de la flota | Registro exitoso con placa única; rechazo de placa duplicada | `test_us001_registro_valido_y_rechazo_de_placa_duplicada` (201 y 409) y `test_us001_baja_logica_conserva_el_registro`; `vehiculos_router.py`; `VehiculosPage.tsx` | **Criterios verificados**; pendiente de aceptación del PO |
-| US-003 | EL-9 | Registrar pedidos con ventana horaria y ubicación | Registro válido en estado Pendiente; rechazo por exceso de capacidad | `test_us003_pedido_valido_y_rechazo_por_exceso_de_capacidad` (201 y 422); `pedidos_router.py`; `PedidosPage.tsx` (ubicación por coordenadas) | **Criterios verificados**; pendiente de aceptación del PO. Defecto relacionado DEF-002 corregido, con prueba de regresión |
-| EN-002 | EL-18 | Hardening de autenticación y protección OWASP | Bloqueo tras 3 intentos fallidos por 15 min; pentest sin hallazgos críticos | JWT, bcrypt y RBAC en `auth.py`; `test_en002_cuenta_se_bloquea_tras_tres_intentos_fallidos` pasa desde la corrección `fix(auth)` de este sprint (DEF-001); no se ejecutó pentest; el registro público ya solo admite el rol BODEGA (DEF-003 corregido) | **Parcial**: 1 de 2 criterios verificado |
-| EN-008 | EL-24 | Cifrado y anonimización de datos personales | Campos personales cifrados (AES-256 / TLS 1.3); anonimización en ≤ 5 días hábiles | Solo hash bcrypt de contraseñas; TLS depende del despliegue y no está versionado; sin cifrado de campos ni anonimización | **Parcial**: criterios del enabler no verificados |
-| EN-001 | EL-17 | Spike del motor de optimización dentro de 45 s | Resultados reproducibles de GA, Búsqueda Tabú y/u OR-Tools | No hay código, datos ni resultados en el repositorio | **No iniciado** (en Jira figura "En curso") |
+| ID interno | Jira | Historia planificada | Criterio de aceptación relevante | Estado verificable al corte |
+|---|---|---|---|---|
+| EN-002 | EL-18 | Hardening de autenticación y protección OWASP | Acceso autenticado protegido frente a ataques contemplados en RNF-002 | No verificable; no hay pruebas, código ni evidencia de Jira adjunta |
+| EN-008 | EL-24 | Cifrado y anonimización de datos personales | Datos personales protegidos conforme a RNF-008 y Ley N.° 29733 | No verificable; no hay pruebas, código ni evidencia de Jira adjunta |
+| US-001 | EL-7 | Registrar y administrar vehículos de la flota | Alta válida de vehículo y rechazo de placa duplicada | No verificable; no hay aplicación ni pruebas adjuntas |
+| US-003 | EL-9 | Registrar pedidos con ventana horaria y ubicación | Registro de pedido válido y validación de capacidad | No verificable; no hay aplicación ni pruebas adjuntas |
+| EN-001 (spike opcional) | EL-17 | Comparar alternativas del motor dentro del SLA de 45 segundos | Resultados reproducibles de GA, Búsqueda Tabú y/o OR-Tools | No se confirma que fuera comprometido o ejecutado; no hay resultados adjuntos |
 
-Nota de trazabilidad: el panel de inicio de la interfaz (`DashboardPage.tsx`) muestra ✅ fijo para US-001, US-003, EN-002 y EN-008. Esta verificación respalda el ✅ solo para US-001 y US-003; EN-002 quedó verificable recién tras corregir DEF-001 y EN-008 es parcial.
+La selección y objetivo originales constan en [Artefactos Jira](../02%20Planificacion/02%20Artefactos%20Jira%20V_1_0_0.md). Los IDs y criterios se mantienen vinculados al backlog; no se presentan como entregas aceptadas.
 
 ## Demostración del trabajo completado
 
-**Demostración técnica reproducible (verificación del 05/10/2026).** Cualquier integrante puede reproducirla con los comandos siguientes; los resultados reportados arriba salen de esta ejecución:
+No se encontró acta, captura, enlace de demo ni evidencia de aceptación de stakeholders. En consecuencia, **no se puede afirmar que se haya realizado una demostración**. La demo de cierre deberá mostrar, si ya están implementados, los flujos de autenticación segura, alta/edición de vehículos y registro de pedidos con sus validaciones; deberá acompañarse de resultados de pruebas y confirmación de aceptación del Product Owner académico/cliente.
 
-```bash
-cd src/backend && python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python -m pytest -q --cov=app          # 16 passed; cobertura 67 %
-python -m app.seed && uvicorn app.main:app --reload --port 8000
-
-cd ../frontend && npm ci && npm run build   # compilación correcta
-npm run dev                                 # http://localhost:5173
-```
-
-Guion para la revisión con stakeholders: (1) iniciar sesión con un rol del seed; (2) registrar un vehículo y reintentar la misma placa para mostrar el rechazo; (3) registrar un pedido válido y otro cuyo peso exceda la capacidad de la flota; (4) fallar tres veces el inicio de sesión y mostrar el bloqueo de 15 minutos; (5) mostrar la suite de pruebas y que una bodega no puede registrar pedidos para otra ni crear usuarios administradores desde el registro público.
-
-**Demostración a stakeholders:** no existe acta, captura, enlace ni registro de aceptación del docente/Product Owner o del cliente ficticio DistriRápido en el repositorio ni en Jira. Por eso **no se declara realizada**; queda pendiente de agendar y documentar (IMP-003). No se atribuyen comentarios ni aprobaciones a ningún stakeholder.
+La demostración queda pendiente de coordinación y registro. No se atribuyen comentarios ni aprobación a stakeholders sin evidencia.
 
 ## Pendientes
 
-- **Gestión en Jira (IMP-004):** cerrar EL Sprint 1, mover lo no terminado, crear y arrancar el Sprint 2 con objetivo y alcance, y actualizar los estados con la decisión del PO. Las herramientas de API disponibles no permiten crear ni cerrar sprints; es una acción manual del líder del proyecto.
-- **Aceptación del PO:** presentar US-001 y US-003 y registrar su decisión; luego pasarlas a "Hecho" en Jira.
-- **EN-002:** ejecutar la revisión OWASP/pentest del criterio pendiente. **EN-008:** implementar cifrado de campos personales y el procedimiento de anonimización.
-- **EN-001 (RSK-05, riesgo alto):** iniciar el spike GA vs. Búsqueda Tabú vs. OR-Tools; es la dependencia crítica de US-005 y del cronograma (IMP-010).
-- **Calidad:** subir la cobertura de 67 % a ≥ 80 % (los routers están entre 35 % y 46 %), agregar lint/CI y registrar revisión por pares con Pull Requests (IMP-005, IMP-009).
-- **Alineación documental:** decidir si el rol `ADMINISTRADOR` (codificado en `require_roles` y usado en `tests/test_api.py`) se elimina o se documenta; ajustar los ✅ estáticos del panel de inicio (IMP-008).
-- **Propuesta para el siguiente sprint (sujeta a planificación con el PO):** spike EN-001, cierre de EN-002 (revisión OWASP) y EN-008 y arranque de US-005.
+- Confirmar en Jira si Sprint 1 se creó e inició, su alcance definitivo, responsables, estados, cierre y aceptación.
+- Adjuntar evidencias del tablero, historias aceptadas, pruebas de seguridad y funcionales, resultados del spike si fue ejecutado, y acta/captura de la demo.
+- Si no se ejecutaron las historias planificadas, acordar con el Product Owner su replanificación y actualizar el backlog sin alterar retroactivamente la línea base.
+- Registrar decisiones, impedimentos reales, responsables y fechas de resolución; actualizar este informe cuando exista evidencia.
+- Mantener el objetivo de negocio: facilitar las operaciones de última milla de DistriRápido en Lima, reduciendo recorridos e impacto ambiental sin vulnerar ventanas horarias, capacidad vehicular, privacidad ni restricciones viales.
 
 ## Control de versiones
 
 | Versión | Fecha | Cambio |
 |---|---|---|
-| 1.0.0 | 29/09/2026 | Sprint 1: informe documental con corte al 29/09/2026 (commit `246e72d`); el avance se declaraba no verificable por falta de evidencia. |
-| 2.0.0 | 05/10/2026 | Sprint 2: reescritura con evidencia verificada (pruebas, cobertura, compilación, consulta a Jira) y estado por historia; reemplaza el estado "no verificable" de la 1.0.0. |
-| 2.1.0 | 05/10/2026 | Se registran como corregidos DEF-002 y DEF-003 (con pruebas de regresión); la suite pasa a 16 pruebas en verde y se retiran los pendientes asociados. |
+| 1.0.0 | 29/09/2026 | Creación del informe con corte al 29/09/2026; se separa explícitamente lo planificado de lo verificable. |

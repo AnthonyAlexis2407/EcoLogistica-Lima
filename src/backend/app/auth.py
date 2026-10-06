@@ -23,8 +23,6 @@ from app.database import get_db
 from app.models import Usuario
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-# Variante que no exige token: permite endpoints públicos con comportamiento distinto si hay sesión.
-oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 # ── Hashing (EN-008) ──────────────────────────────────────────────────
 def hash_password(plain: str) -> str:
@@ -81,16 +79,6 @@ async def get_current_user(
     return user
 
 
-async def get_optional_user(
-    token: Optional[str] = Depends(oauth2_scheme_optional),
-    db: AsyncSession = Depends(get_db),
-) -> Optional[Usuario]:
-    """Devuelve el usuario autenticado o None si no hay token (token inválido → 401)."""
-    if not token:
-        return None
-    return await get_current_user(token=token, db=db)
-
-
 # ── Dependency factory: verificar rol (RBAC — Documento 08) ──────────
 def require_roles(*allowed_roles: str):
     """
@@ -110,13 +98,9 @@ def require_roles(*allowed_roles: str):
 # ── Lógica de lockout (EN-002 — RNF-002) ─────────────────────────────
 def is_account_locked(user: Usuario) -> bool:
     """Verifica si la cuenta está bloqueada por intentos fallidos."""
-    locked_until = user.locked_until
-    if locked_until is None:
-        return False
-    # SQLite (BD de desarrollo) devuelve datetimes sin zona horaria: se asumen UTC.
-    if locked_until.tzinfo is None:
-        locked_until = locked_until.replace(tzinfo=timezone.utc)
-    return locked_until > datetime.now(timezone.utc)
+    if user.locked_until and user.locked_until > datetime.now(timezone.utc):
+        return True
+    return False
 
 
 async def register_failed_attempt(user: Usuario, db: AsyncSession) -> None:
