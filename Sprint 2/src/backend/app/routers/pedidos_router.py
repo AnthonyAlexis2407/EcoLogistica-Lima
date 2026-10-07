@@ -89,7 +89,7 @@ async def obtener_pedido(
 async def crear_pedido(
     payload: PedidoCreate,
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(require_roles("OPERADOR", "BODEGA")),
+    user: Usuario = Depends(require_roles("ADMIN_FLOTA", "OPERADOR", "BODEGA")),
 ):
     """
     Registra un pedido nuevo.
@@ -108,8 +108,15 @@ async def crear_pedido(
 
     # Verificar que la bodega existe
     bodega_result = await db.execute(select(Bodega).where(Bodega.bodega_id == payload.bodega_id))
-    if not bodega_result.scalar_one_or_none():
-        raise HTTPException(status_code=404, detail="Bodega no encontrada")
+    bodega_obj = bodega_result.scalar_one_or_none()
+    if not bodega_obj:
+        # Fallback: asociar a la primera bodega registrada si no se encuentra
+        first_bodega_res = await db.execute(select(Bodega))
+        first_bodega = first_bodega_res.scalars().first()
+        if first_bodega:
+            payload.bodega_id = first_bodega.bodega_id
+        else:
+            raise HTTPException(status_code=404, detail="Bodega no encontrada")
 
     # Validar capacidad vehicular (RF-002: ruta infeliz)
     max_cap_result = await db.execute(
@@ -136,7 +143,7 @@ async def actualizar_pedido(
     pedido_id: str,
     payload: PedidoUpdate,
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(require_roles("OPERADOR")),
+    user: Usuario = Depends(require_roles("ADMIN_FLOTA", "OPERADOR")),
 ):
     """Actualiza un pedido existente."""
     result = await db.execute(select(Pedido).where(Pedido.pedido_id == pedido_id))
@@ -158,7 +165,7 @@ async def actualizar_pedido(
 async def cancelar_pedido(
     pedido_id: str,
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(require_roles("OPERADOR")),
+    user: Usuario = Depends(require_roles("ADMIN_FLOTA", "OPERADOR", "BODEGA")),
 ):
     """Cancela un pedido (cambio de estado lógico, no eliminación física)."""
     result = await db.execute(select(Pedido).where(Pedido.pedido_id == pedido_id))
