@@ -18,8 +18,7 @@ jobs:
       - name: Pruebas del backend con cobertura
         run: |
           set -o pipefail
-          PYTHONPATH=src/backend python -m pytest src/backend/tests --cov=src/backend/app --cov-config=.coveragerc --cov-report=xml:src/backend/coverage.xml --cov-fail-under=80 -q 2>&1 | tee pytest.log || { echo "::error title=pytest::$(grep -E 'FAILED|ERROR|Error|assert|fail-under|TOTAL' pytest.log | head -12 | tr '
-' '|' | cut -c1-900)"; exit 1; }
+          PYTHONPATH=src/backend python -m pytest src/backend/tests --cov=src/backend/app --cov-config=.coveragerc --cov-report=xml:src/backend/coverage.xml --cov-fail-under=80 -q 2>&1 | tee pytest.log || { echo "::error title=pytest::$(grep -E 'FAILED|ERROR|Error|assert|fail-under|TOTAL' pytest.log | head -12 | paste -sd'|' | cut -c1-900)"; exit 1; }
       - run: pip-audit -r src/backend/requirements.txt
         continue-on-error: true
 
