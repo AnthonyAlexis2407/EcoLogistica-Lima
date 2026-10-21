@@ -3,6 +3,7 @@ EcoLogística Lima — Punto de entrada de la API REST (FastAPI).
 Sprint 2: Hardening OWASP (EN-002), Cifrado (EN-008), Vehículos (US-001), Pedidos (US-003).
 """
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -16,6 +17,10 @@ from app.routers import auth_router, vehiculos_router, pedidos_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Inicializa la BD al arrancar y cierra recursos al terminar."""
+    if settings.SECRET_KEY.startswith("dev-secret-key"):
+        logging.getLogger("ecologistica.security").warning(
+            "SECRET_KEY usa el valor por defecto de desarrollo; defina una clave propia en .env antes de desplegar"
+        )
     await init_db()
     yield
 

@@ -3,6 +3,8 @@ Router de Autenticación — EN-002.
 Endpoints: registro de usuario, login con JWT, perfil del usuario actual.
 """
 
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,6 +24,9 @@ from app.models import Usuario
 from app.schemas import LoginRequest, Token, UsuarioCreate, UsuarioOut
 
 router = APIRouter(prefix="/api/auth", tags=["Autenticación"])
+
+# Registro de eventos de seguridad (OWASP A09). No se escriben correos ni contraseñas (Ley N° 29733).
+security_log = logging.getLogger("ecologistica.security")
 
 
 @router.post("/register", response_model=UsuarioOut, status_code=status.HTTP_201_CREATED)
@@ -60,6 +65,10 @@ async def register(
     db.add(user)
     await db.flush()
     await db.refresh(user)
+    security_log.info(
+        "usuario_creado usuario_id=%s rol=%s creado_por=%s",
+        user.usuario_id, user.rol, actor.usuario_id if actor else "registro_publico",
+    )
     return user
 
 
@@ -74,10 +83,12 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
 
     if not user:
+        security_log.warning("login_fallido motivo=usuario_inexistente")
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
     # Verificar lockout
     if is_account_locked(user):
+        security_log.warning("login_rechazado motivo=cuenta_bloqueada usuario_id=%s", user.usuario_id)
         raise HTTPException(
             status_code=status.HTTP_423_LOCKED,
             detail=f"Cuenta bloqueada por múltiples intentos fallidos. Intente nuevamente en {user.locked_until}",
@@ -90,6 +101,10 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
         # ante cualquier excepción y, sin este commit, el bloqueo nunca se acumulaba.
         await db.commit()
         remaining = max(0, 3 - user.login_attempts)
+        security_log.warning(
+            "login_fallido motivo=clave_incorrecta usuario_id=%s intentos=%s bloqueada=%s",
+            user.usuario_id, user.login_attempts, remaining == 0,
+        )
         raise HTTPException(
             status_code=401,
             detail=f"Credenciales inválidas. Intentos restantes: {remaining}",

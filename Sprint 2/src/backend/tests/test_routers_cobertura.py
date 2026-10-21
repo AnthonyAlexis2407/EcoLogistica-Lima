@@ -231,3 +231,26 @@ async def test_pedido_de_bodega_sin_bodega_id_se_asocia_a_su_propia_bodega(api):
     res = await api.client.post("/api/pedidos/", json=pedido, headers=bodega_a)
     assert res.status_code == 201
     assert res.json()["bodega_id"] == api.bodega_a
+
+
+@pytest.mark.asyncio
+async def test_eventos_de_seguridad_se_registran_sin_datos_personales(api, caplog):
+    """OWASP A09: fallos de acceso, bloqueo y altas dejan rastro sin correos ni claves."""
+    with caplog.at_level("INFO", logger="ecologistica.security"):
+        await api.client.post("/api/auth/login", json={"email": "nadie@test.pe", "password": "ClaveSecreta1"})
+        for _ in range(3):
+            await api.client.post("/api/auth/login", json={"email": "operador@test.pe", "password": "ClaveSecreta1"})
+        await api.client.post("/api/auth/login", json={"email": "operador@test.pe", "password": "ClaveSecreta1"})
+        admin = await _login(api.client, "admin@test.pe")
+        await api.client.post(
+            "/api/auth/register",
+            json={"nombre": "Nuevo", "email": "nuevo@test.pe", "password": "Clave12345", "rol": "OPERADOR"},
+            headers=admin,
+        )
+
+    texto = caplog.text
+    assert "motivo=usuario_inexistente" in texto
+    assert "motivo=clave_incorrecta" in texto and "bloqueada=True" in texto
+    assert "motivo=cuenta_bloqueada" in texto
+    assert "usuario_creado" in texto and "rol=OPERADOR" in texto
+    assert "@test.pe" not in texto and "ClaveSecreta1" not in texto

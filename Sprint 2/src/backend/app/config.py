@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # --- Aplicación ---
     APP_NAME: str = "EcoLogística Lima API"
     APP_VERSION: str = "2.1.0"
-    DEBUG: bool = True
+    DEBUG: bool = False  # True activa el eco de SQL; actívelo solo en desarrollo (.env)
 
     # --- Base de datos (SQLite por defecto para desarrollo) ---
     DATABASE_URL: str = "sqlite+aiosqlite:///./ecologistica.db"
