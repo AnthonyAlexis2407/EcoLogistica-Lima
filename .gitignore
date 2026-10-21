@@ -43,3 +43,15 @@ coverage/
 # SonarQube / cobertura
 .scannerwork/
 coverage.xml
+
+# Archivos temporales y de respaldo (por ejemplo .gitignore~)
+*~
+*.bak
+*.tmp
+*.log
+*.swp
+
+# Entregables comprimidos y salidas de cobertura
+*.zip
+src/backend/coverage.xml
+src/frontend/coverage/
