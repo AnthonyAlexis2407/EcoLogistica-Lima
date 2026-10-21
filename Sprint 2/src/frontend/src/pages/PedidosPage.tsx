@@ -50,6 +50,14 @@ export default function PedidosPage() {
 
   useEffect(() => { void load(); }, [token, filter]);
 
+  // Teclado (WCAG 2.1.1): Escape cierra el modal.
+  useEffect(() => {
+    if (!showModal) return;
+    const alPresionar = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowModal(false); };
+    document.addEventListener('keydown', alPresionar);
+    return () => document.removeEventListener('keydown', alPresionar);
+  }, [showModal]);
+
   const showToast = (type: string, msg: string) => {
     setToast({ type, msg });
     setTimeout(() => setToast(null), 4500);
@@ -144,6 +152,7 @@ export default function PedidosPage() {
           </div>
 
           <select
+            aria-label="Filtrar por estado"
             className="form-input form-select"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -245,7 +254,7 @@ export default function PedidosPage() {
           <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Registrar Nuevo Pedido</h3>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)} aria-label="Cerrar ventana" title="Cerrar">
                 <X size={18} />
               </button>
             </div>

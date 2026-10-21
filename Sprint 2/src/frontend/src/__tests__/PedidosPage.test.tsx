@@ -147,6 +147,18 @@ describe('PedidosPage (US-003)', () => {
     expect(enviado.bodega_id).toBeUndefined();
   });
 
+  it('el filtro y el botón de cierre tienen nombre accesible y Escape cierra el modal (WCAG)', async () => {
+    const usuario = userEvent.setup();
+    render(<PedidosPage />);
+    await screen.findByText(/Los Pinos 123/);
+    expect(screen.getByRole('combobox', { name: 'Filtrar por estado' })).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('button', { name: /Registrar Pedido/ }));
+    expect(screen.getByRole('button', { name: 'Cerrar ventana' })).toBeInTheDocument();
+    await usuario.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('cierra el modal haciendo clic fuera del cuadro', async () => {
     const usuario = userEvent.setup();
     render(<PedidosPage />);

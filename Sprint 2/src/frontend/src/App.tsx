@@ -2,8 +2,10 @@
  * App — Componente raíz con routing y layout (sidebar + topbar).
  */
 
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
+import { healthApi } from './api';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import VehiculosPage from './pages/VehiculosPage';
@@ -28,6 +30,11 @@ const pageTitles: Record<string, string> = {
 function AppLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [apiOnline, setApiOnline] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    healthApi.check().then(() => setApiOnline(true)).catch(() => setApiOnline(false));
+  }, []);
   const title = pageTitles[location.pathname] || 'EcoLogística Lima';
 
   const initials = user?.nombre
@@ -76,7 +83,7 @@ function AppLayout() {
           </NavLink>
 
           <div className="sidebar-section-title">Seguridad</div>
-          <div className="sidebar-link" style={{ cursor: 'default', opacity: 0.6 }}>
+          <div className="sidebar-link" style={{ cursor: 'default' }}>
             <Shield size={18} /> JWT + RBAC
             <span className="badge badge-green" style={{ marginLeft: 'auto', fontSize: '0.6rem' }}>Activo</span>
           </div>
@@ -101,9 +108,9 @@ function AppLayout() {
         <header className="topbar">
           <h2>{title}</h2>
           <div className="topbar-actions">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(16, 185, 129, 0.12)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '0.75rem', color: '#34d399', fontWeight: 600 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(16, 185, 129, 0.12)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', border: '1px solid rgba(16, 185, 129, 0.3)', fontSize: '0.75rem', color: apiOnline === false ? '#b91c1c' : '#047857', fontWeight: 600 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981', display: 'inline-block' }}></span>
-              API Online · 100% Operativo
+              {apiOnline === null ? 'Verificando API…' : apiOnline ? 'API conectada' : 'API sin conexión'}
             </div>
             <span className="badge badge-teal">Sprint 2</span>
             <span className="badge badge-green">v2.1.0</span>

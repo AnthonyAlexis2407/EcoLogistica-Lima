@@ -55,6 +55,14 @@ export default function VehiculosPage() {
 
   useEffect(() => { void load(); }, [token]);
 
+  // Teclado (WCAG 2.1.1): Escape cierra el modal.
+  useEffect(() => {
+    if (!showModal) return;
+    const alPresionar = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowModal(false); };
+    document.addEventListener('keydown', alPresionar);
+    return () => document.removeEventListener('keydown', alPresionar);
+  }, [showModal]);
+
   const showToast = (type: string, msg: string) => {
     setToast({ type, msg });
     setTimeout(() => setToast(null), 4500);
@@ -152,6 +160,7 @@ export default function VehiculosPage() {
           </div>
 
           <select
+            aria-label="Filtrar por estado"
             className="form-input form-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -252,7 +261,7 @@ export default function VehiculosPage() {
           <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{editId ? 'Editar Vehículo' : 'Registrar Nuevo Vehículo'}</h3>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)} aria-label="Cerrar ventana" title="Cerrar">
                 <X size={18} />
               </button>
             </div>

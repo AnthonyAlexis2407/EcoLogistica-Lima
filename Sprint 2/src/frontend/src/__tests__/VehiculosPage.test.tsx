@@ -106,6 +106,18 @@ describe('VehiculosPage (US-001)', () => {
     expect(await screen.findByText(/actualizado exitosamente/)).toBeInTheDocument();
   });
 
+  it('el filtro y el botón de cierre tienen nombre accesible y Escape cierra el modal (WCAG)', async () => {
+    const usuario = userEvent.setup();
+    render(<VehiculosPage />);
+    await screen.findByText('ABC-123');
+    expect(screen.getByRole('combobox', { name: 'Filtrar por estado' })).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('button', { name: /Registrar Vehículo/ }));
+    expect(screen.getByRole('button', { name: 'Cerrar ventana' })).toBeInTheDocument();
+    await usuario.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('cierra el modal con Cancelar', async () => {
     const usuario = userEvent.setup();
     render(<VehiculosPage />);

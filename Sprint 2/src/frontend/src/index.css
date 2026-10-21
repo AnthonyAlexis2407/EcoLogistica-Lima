@@ -18,8 +18,8 @@
   --color-surface-hover: #f1f5f9;
   --color-surface-alt: #f8fafc;
   
-  --color-primary: #059669;
-  --color-primary-hover: #047857;
+  --color-primary: #047857;
+  --color-primary-hover: #065f46;
   --color-primary-light: #10b981;
   --color-primary-bg: #ecfdf5;
   --color-primary-border: #a7f3d0;
@@ -33,7 +33,7 @@
   
   --color-text: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  --color-text-muted: #64748b;
   
   /* Status Colors */
   --color-success: #10b981;
@@ -52,7 +52,7 @@
   --color-amber-bg: #fffbeb;
   --color-amber-text: #b45309;
   
-  --color-danger: #ef4444;
+  --color-danger: #dc2626;
   --color-danger-bg: #fef2f2;
   --color-danger-text: #b91c1c;
 
@@ -829,4 +829,47 @@ tbody tr:hover {
   margin-top: 1.5rem;
   color: var(--color-text-secondary);
   font-size: 0.775rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Diseño adaptable (WCAG 1.4.10 Reflow — RES-06): sin desplazamiento
+   horizontal de la página hasta 320 px. Las tablas conservan su propio
+   desplazamiento dentro de .table-container.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .app-layout { flex-direction: column; }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.5rem 0.875rem;
+  }
+
+  .sidebar-section-title { display: none; }
+
+  .sidebar-footer { padding: 0.75rem 1rem; }
+
+  .topbar {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .topbar-actions { flex-wrap: wrap; }
+
+  .page-content { padding: 1rem; }
+
+  .hero-banner { padding: 1.25rem; }
+
+  .stats-grid { grid-template-columns: 1fr; }
 }

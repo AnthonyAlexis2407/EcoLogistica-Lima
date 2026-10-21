@@ -185,7 +185,7 @@ export default function DashboardPage() {
             <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-teal-bg)', border: '1px solid #99f6e4' }}>
               <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-teal-text)', marginBottom: '0.5rem' }}>⚡ Pruebas Automatizadas</h4>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                33 pruebas del backend (`pytest`) y 56 del frontend (Vitest) en verde, con 96,9 % de cobertura según SonarQube.
+                34 pruebas del backend (`pytest`) y 60 del frontend (Vitest) en verde, con 92,8 % de cobertura según SonarQube.
               </p>
             </div>
           </div>

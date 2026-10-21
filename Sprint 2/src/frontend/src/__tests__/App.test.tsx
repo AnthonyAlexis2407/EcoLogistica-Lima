@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { authApi, pedidosApi, vehiculosApi } from '../api';
+import { authApi, healthApi, pedidosApi, vehiculosApi } from '../api';
 
 vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
   authApi: { me: vi.fn(), login: vi.fn() },
+  healthApi: { check: vi.fn() },
   vehiculosApi: { count: vi.fn(), list: vi.fn() },
   pedidosApi: { count: vi.fn(), list: vi.fn() },
 }));
@@ -16,6 +17,7 @@ const usuario = { usuario_id: 'u1', nombre: 'Ana Pérez', email: 'ana@eco.pe', r
 beforeEach(() => {
   vi.resetAllMocks();
   window.history.pushState({}, '', '/');
+  vi.mocked(healthApi.check).mockResolvedValue({ status: 'ok' });
   vi.mocked(vehiculosApi.count).mockResolvedValue({});
   vi.mocked(pedidosApi.count).mockResolvedValue({});
   vi.mocked(vehiculosApi.list).mockResolvedValue([]);
@@ -44,6 +46,21 @@ describe('App', () => {
 
     await user.click(screen.getByRole('link', { name: /Pedidos/ }));
     expect(await screen.findByRole('heading', { name: 'Gestión de Pedidos' })).toBeInTheDocument();
+  });
+
+  it('muestra el estado real de la API en la barra superior', async () => {
+    localStorage.setItem('token', 'tok');
+    vi.mocked(authApi.me).mockResolvedValue(usuario);
+    render(<App />);
+    expect(await screen.findByText('API conectada')).toBeInTheDocument();
+  });
+
+  it('avisa cuando la API no responde', async () => {
+    localStorage.setItem('token', 'tok');
+    vi.mocked(authApi.me).mockResolvedValue(usuario);
+    vi.mocked(healthApi.check).mockRejectedValue(new Error('caída'));
+    render(<App />);
+    expect(await screen.findByText('API sin conexión')).toBeInTheDocument();
   });
 
   it('cierra la sesión y vuelve al login', async () => {
