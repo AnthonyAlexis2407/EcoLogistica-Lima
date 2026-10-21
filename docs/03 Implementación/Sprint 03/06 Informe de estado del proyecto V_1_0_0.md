@@ -10,12 +10,12 @@
 
 ## Resumen ejecutivo
 
-**Estado general: calidad técnica en verde, cronograma en riesgo.** El Sprint 3 evaluó el código con SonarQube, OWASP Top 10:2025 y WCAG 2.2 AA y corrigió lo encontrado. El Quality Gate está en PASSED, con 0 bugs, 0 vulnerabilidades y 92,8 % de cobertura. La brecha principal sigue siendo funcional: el motor de optimización (EN-001, US-005) no se ha iniciado y la entrega es el 23/11/2026 (RSK-05, RSK-09).
+**Estado general: calidad técnica en verde, cronograma en riesgo.** El Sprint 3 evaluó el código con SonarQube, OWASP Top 10:2025 y WCAG 2.2 AA y corrigió lo encontrado. El Quality Gate está en PASSED, con 0 bugs, 0 vulnerabilidades y 92,7 % de cobertura. La brecha principal sigue siendo funcional: el motor de optimización (EN-001, US-005) no se ha iniciado y la entrega es el 23/11/2026 (RSK-05, RSK-09).
 
 | Indicador al corte (20/10/2026) | Valor | Referencia | Lectura |
 |---|---|---|---|
 | Pruebas del backend / frontend | 36 / 60 pasan | Todas en verde | Cumple (Sprint 2: 16 / 0) |
-| Cobertura global (SonarQube) | 92,8 % | DoD: ≥ 80 % | Cumple (Sprint 2: 67 % solo backend) |
+| Cobertura global (SonarQube) | 92,7 % | DoD: ≥ 80 % | Cumple (Sprint 2: 67 % solo backend) |
 | Quality Gate | PASSED | PASSED | Cumple ([Doc. 03](03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md)) |
 | Bugs / vulnerabilidades / hotspots | 0 / 0 / 0 | 0 | Cumple (primer análisis: 7 bugs, 4 code smells) |
 | Duplicación / deuda técnica | 2,2 % / 0 min | ≤ 3 % / 0 | Cumple |

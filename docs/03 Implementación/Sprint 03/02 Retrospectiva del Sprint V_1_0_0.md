@@ -14,7 +14,7 @@
 
 | Acción del Sprint 2 | Resultado | Evidencia |
 |---|---|---|
-| Subir la cobertura de 67 % a ≥ 80 % | **Cumplida** (92,8 %) | [Doc. 03](03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md) |
+| Subir la cobertura de 67 % a ≥ 80 % | **Cumplida** (92,7 %) | [Doc. 03](03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md) |
 | Configurar CI y lint | **Parcial**: CI creado en este sprint; el lint sigue sin script | `.github/workflows/ci.yml`, IMP-009 |
 | Trabajar con ramas y Pull Requests con revisor | **Parcial**: GitFlow documentado y rama `feature/` usada; faltan los Pull Requests en el remoto y la protección de `main` | [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) |
 | Ratificar el diseño de DEF-002 y DEF-003 | **Cumplida**: documentado en el Documento 08 versión 1.3.0 | [Doc. 08](../../01%20Inicio/08.%20Usuarios%20V_1_0_0.md) |
@@ -49,7 +49,7 @@
 
 ## ¿Qué estamos haciendo bien?
 
-- Se pasó de 0 pruebas del frontend y 16 del backend a **60 y 36** en verde, con cobertura global de **92,8 %** y Quality Gate en PASSED.
+- Se pasó de 0 pruebas del frontend y 16 del backend a **60 y 36** en verde, con cobertura global de **92,7 %** y Quality Gate en PASSED.
 - Cada hallazgo se corrigió y quedó protegido por una prueba o una regla (por ejemplo, el registro de eventos de seguridad y el rol inexistente tienen su prueba).
 - Backend y frontend están separados en `src/backend` y `src/frontend`, con un `.gitignore` que excluye dependencias, bases locales, secretos, copias temporales (`*~`) e informes de cobertura, y sin carpetas duplicadas por sprint.
 - Los documentos conservan su historial de versiones y distinguen lo corregido de lo pendiente, sin declarar demostraciones ni pruebas que no se hicieron.
