@@ -44,7 +44,7 @@ Pruebas que lo respaldan: `test_us001_*`, `test_us003_*`, `test_rn010_*`, `test_
 |---|---|---|---|---|
 | Pruebas del backend | 16 | **36** pasan | todas en verde | `pytest` |
 | Pruebas del frontend | 0 | **60** pasan | todas en verde | Vitest 5 |
-| Cobertura global | 67 % (solo backend) | **92,8 %** (Sonar); backend 86 %, frontend 94,4 % | ≥ 80 % | SonarQube, `pytest --cov`, Vitest |
+| Cobertura global | 67 % (solo backend) | **92,7 %** (Sonar); backend 86 %, frontend 94,4 % | ≥ 80 % | SonarQube, `pytest --cov`, Vitest |
 | Quality Gate | no configurado | **PASSED** | PASSED | [Doc. 03](03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md) |
 | Bugs / Code smells (primer análisis → final) | sin medir | 7 → **0** / 4 → **0** | 0 | [Doc. 03](03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md) |
 | Vulnerabilidades y Security Hotspots | sin medir | **0** / **0** | 0 | SonarQube |
