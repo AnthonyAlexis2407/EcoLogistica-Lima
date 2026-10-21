@@ -48,7 +48,7 @@ export default function PedidosPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [token, filter]);
+  useEffect(() => { void load(); }, [token, filter]);
 
   const showToast = (type: string, msg: string) => {
     setToast({ type, msg });
@@ -88,7 +88,7 @@ export default function PedidosPage() {
       await pedidosApi.create(token, payload);
       showToast('success', 'Pedido registrado exitosamente');
       setShowModal(false);
-      load();
+      await load();
     } catch (err) {
       if (err instanceof ApiError) {
         setFormError(err.detail);
@@ -104,7 +104,7 @@ export default function PedidosPage() {
     try {
       await pedidosApi.cancel(token, p.pedido_id);
       showToast('success', 'Pedido cancelado');
-      load();
+      await load();
     } catch (err) {
       if (err instanceof ApiError) showToast('error', err.detail);
     }
@@ -242,8 +242,8 @@ export default function PedidosPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" role="presentation" onClick={() => setShowModal(false)}>
+          <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Registrar Nuevo Pedido</h3>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}>

@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     };
-    verifyToken();
+    void verifyToken();
   }, [token]);
 
   const login = async (email: string, password: string) => {

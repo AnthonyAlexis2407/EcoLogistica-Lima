@@ -40,3 +40,6 @@ pnpm-debug.log*
 .idea/
 coverage/
 .coverage
+# SonarQube / cobertura
+.scannerwork/
+coverage.xml

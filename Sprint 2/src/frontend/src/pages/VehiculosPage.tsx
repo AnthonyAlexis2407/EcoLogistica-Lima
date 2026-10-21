@@ -52,7 +52,7 @@ export default function VehiculosPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [token]);
+  useEffect(() => { void load(); }, [token]);
 
   const showToast = (type: string, msg: string) => {
     setToast({ type, msg });
@@ -99,7 +99,7 @@ export default function VehiculosPage() {
         showToast('success', `Vehículo ${form.placa} registrado en la flota`);
       }
       setShowModal(false);
-      load();
+      await load();
     } catch (err) {
       if (err instanceof ApiError) {
         setFormError(err.detail);
@@ -115,7 +115,7 @@ export default function VehiculosPage() {
     try {
       await vehiculosApi.delete(token, v.vehiculo_id);
       showToast('success', `Vehículo ${v.placa} dado de baja`);
-      load();
+      await load();
     } catch (err) {
       if (err instanceof ApiError) showToast('error', err.detail);
     }
@@ -247,8 +247,8 @@ export default function VehiculosPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" role="presentation" onClick={() => setShowModal(false)}>
+          <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{editId ? 'Editar Vehículo' : 'Registrar Nuevo Vehículo'}</h3>
               <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}>
