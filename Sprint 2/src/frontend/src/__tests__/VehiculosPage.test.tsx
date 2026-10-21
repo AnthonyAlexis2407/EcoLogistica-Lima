@@ -4,8 +4,9 @@ import userEvent from '@testing-library/user-event';
 import VehiculosPage from '../pages/VehiculosPage';
 import { ApiError, vehiculosApi, type Vehiculo } from '../api';
 
+const sesion = vi.hoisted(() => ({ rol: 'ADMIN_FLOTA' }));
 vi.mock('../AuthContext', () => ({
-  useAuth: () => ({ token: 'tok', user: { nombre: 'Ana', rol: 'ADMIN_FLOTA' } }),
+  useAuth: () => ({ token: 'tok', user: { nombre: 'Ana', rol: sesion.rol } }),
 }));
 vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
@@ -18,6 +19,7 @@ const flota: Vehiculo[] = [
 ];
 
 beforeEach(() => {
+  sesion.rol = 'ADMIN_FLOTA';
   vi.resetAllMocks();
   vi.mocked(vehiculosApi.list).mockResolvedValue(flota);
 });
@@ -141,6 +143,16 @@ describe('VehiculosPage (US-001)', () => {
 
     await usuario.click(screen.getByTitle('Dar de baja'));
     expect(await screen.findByText(/Sin permiso/)).toBeInTheDocument();
+  });
+
+  it.each(['OPERADOR', 'AUDITOR'])('el rol %s solo consulta: sin botones de alta, edición ni baja (RBAC)', async (rol) => {
+    sesion.rol = rol;
+    render(<VehiculosPage />);
+    await screen.findByText('ABC-123');
+
+    expect(screen.queryByRole('button', { name: /Registrar Vehículo/ })).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Editar')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Dar de baja')).not.toBeInTheDocument();
   });
 
   it('tolera un fallo al cargar la lista', async () => {

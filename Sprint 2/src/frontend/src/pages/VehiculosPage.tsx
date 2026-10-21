@@ -30,7 +30,8 @@ const emptyForm: VehiculoForm = {
 
 export default function VehiculosPage() {
   const { token, user } = useAuth();
-  const isAdmin = true; // Habilitado para demostración fluida
+  // RBAC (Documento 08): solo ADMIN_FLOTA modifica la flota; OPERADOR y AUDITOR leen.
+  const isAdmin = user?.rol === 'ADMIN_FLOTA';
 
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [loading, setLoading] = useState(true);

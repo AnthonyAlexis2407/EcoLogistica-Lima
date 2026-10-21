@@ -16,7 +16,6 @@ const estadoBadge: Record<string, string> = {
 };
 
 const emptyForm: PedidoForm = {
-  bodega_id: '038bb42a-4a26-4497-ae1f-97837027a346',
   direccion: 'Av. Javier Prado Este 2465, San Borja, Lima',
   latitud: -12.0864,
   longitud: -77.0012,
@@ -27,7 +26,8 @@ const emptyForm: PedidoForm = {
 
 export default function PedidosPage() {
   const { token, user } = useAuth();
-  const canCreate = true;
+  // RBAC (Documento 08): ADMIN_FLOTA, OPERADOR y BODEGA registran pedidos.
+  const canCreate = ['ADMIN_FLOTA', 'OPERADOR', 'BODEGA'].includes(user?.rol ?? '');
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +56,7 @@ export default function PedidosPage() {
   };
 
   const openCreate = () => {
-    const defaultBodega = pedidos[0]?.bodega_id || '038bb42a-4a26-4497-ae1f-97837027a346';
+    const defaultBodega = pedidos[0]?.bodega_id;
     const now = new Date();
     const startStr = new Date(now.getTime() + 3600000).toISOString().slice(0, 16);
     const endStr = new Date(now.getTime() + 18000000).toISOString().slice(0, 16);
@@ -79,10 +79,9 @@ export default function PedidosPage() {
     if (!token) return;
     setFormError('');
 
-    const payload = {
-      ...form,
-      bodega_id: form.bodega_id || pedidos[0]?.bodega_id || '038bb42a-4a26-4497-ae1f-97837027a346',
-    };
+    // Sin bodega conocida se omite: el servidor usa la bodega del usuario (rol BODEGA).
+    const bodegaId = form.bodega_id || pedidos[0]?.bodega_id;
+    const payload = { ...form, bodega_id: bodegaId };
 
     try {
       await pedidosApi.create(token, payload);

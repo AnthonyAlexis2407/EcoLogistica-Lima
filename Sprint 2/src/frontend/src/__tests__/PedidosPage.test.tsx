@@ -4,8 +4,9 @@ import userEvent from '@testing-library/user-event';
 import PedidosPage from '../pages/PedidosPage';
 import { ApiError, pedidosApi, type Pedido } from '../api';
 
+const sesion = vi.hoisted(() => ({ rol: 'OPERADOR' }));
 vi.mock('../AuthContext', () => ({
-  useAuth: () => ({ token: 'tok', user: { nombre: 'Ana', rol: 'OPERADOR' } }),
+  useAuth: () => ({ token: 'tok', user: { nombre: 'Ana', rol: sesion.rol } }),
 }));
 vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
@@ -24,6 +25,7 @@ const lista = [
 ];
 
 beforeEach(() => {
+  sesion.rol = 'OPERADOR';
   vi.resetAllMocks();
   vi.mocked(pedidosApi.list).mockResolvedValue(lista);
 });
@@ -124,6 +126,25 @@ describe('PedidosPage (US-003)', () => {
 
     await usuario.click(screen.getByRole('button', { name: 'Cancelar' }));
     expect(await screen.findByText(/ya se encuentra cancelado/)).toBeInTheDocument();
+  });
+
+  it('un rol sin permiso de registro no ve el botón de alta (RBAC)', async () => {
+    sesion.rol = 'AUDITOR';
+    render(<PedidosPage />);
+    await screen.findByText(/Los Pinos 123/);
+    expect(screen.queryByRole('button', { name: /Registrar Pedido/ })).not.toBeInTheDocument();
+  });
+
+  it('sin pedidos previos no envía una bodega inventada: la decide el servidor', async () => {
+    const usuario = userEvent.setup();
+    vi.mocked(pedidosApi.list).mockResolvedValue([]);
+    vi.mocked(pedidosApi.create).mockResolvedValue(lista[0]);
+    render(<PedidosPage />);
+    await usuario.click(await screen.findByRole('button', { name: /Registrar Pedido/ }));
+    await usuario.click(within(screen.getByRole('dialog')).getByRole('button', { name: /Registrar/ }));
+
+    const enviado = vi.mocked(pedidosApi.create).mock.calls[0][1];
+    expect(enviado.bodega_id).toBeUndefined();
   });
 
   it('cierra el modal haciendo clic fuera del cuadro', async () => {

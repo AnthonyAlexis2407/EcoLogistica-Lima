@@ -130,7 +130,7 @@ class VehiculoOut(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════
 
 class PedidoCreate(BaseModel):
-    bodega_id: str
+    bodega_id: Optional[str] = None
     direccion: str = Field(..., min_length=3)
     latitud: Decimal = Field(..., ge=-90, le=90)
     longitud: Decimal = Field(..., ge=-180, le=180)

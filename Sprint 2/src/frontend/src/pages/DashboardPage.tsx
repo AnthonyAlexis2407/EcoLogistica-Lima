@@ -89,7 +89,7 @@ export default function DashboardPage() {
             <h4>Entregados / Éxito</h4>
             <div className="value">{pedidosEntregados}</div>
             <div className="change positive">
-              100% efectividad de entrega
+              {pStats.TOTAL ? `${pedidosEntregados} de ${pStats.TOTAL} pedidos entregados` : 'Sin pedidos registrados'}
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
             <h4>Eficiencia CO₂</h4>
             <div className="value">{factorEmisionPromedio} <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>kg/L</span></div>
             <div className="change positive">
-              🍃 28.5% reducción de emisiones
+              🍃 Promedio de los {vehiculos.length} vehículos registrados
             </div>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
             <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-teal-bg)', border: '1px solid #99f6e4' }}>
               <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-teal-text)', marginBottom: '0.5rem' }}>⚡ Pruebas Automatizadas</h4>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                16 pruebas de aceptación y regresión en verde ejecutadas mediante `pytest`.
+                33 pruebas del backend (`pytest`) y 56 del frontend (Vitest) en verde, con 96,9 % de cobertura según SonarQube.
               </p>
             </div>
           </div>

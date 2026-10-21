@@ -100,6 +100,8 @@ async def crear_pedido(
     if user.rol == "BODEGA":
         propia_result = await db.execute(select(Bodega).where(Bodega.usuario_id == user.usuario_id))
         propia = propia_result.scalar_one_or_none()
+        if propia and payload.bodega_id is None:
+            payload.bodega_id = propia.bodega_id
         if not propia or propia.bodega_id != payload.bodega_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

@@ -32,6 +32,7 @@ describe('DashboardPage', () => {
     expect(await screen.findByText('4 pendientes · 2 en ruta')).toBeInTheDocument();
     expect(screen.getByText(/2 unidades operativas \(1[.,\s]?500 kg\)/)).toBeInTheDocument();
     expect(screen.getByText('1.50')).toBeInTheDocument();
+    expect(screen.getByText('1 de 7 pedidos entregados')).toBeInTheDocument();
   });
 
   it('usa valores por defecto si la API falla', async () => {
@@ -44,5 +45,6 @@ describe('DashboardPage', () => {
 
     expect(await screen.findByText('0 pendientes · 0 en ruta')).toBeInTheDocument();
     expect(screen.getByText('1.78')).toBeInTheDocument();
+    expect(screen.getByText('Sin pedidos registrados')).toBeInTheDocument();
   });
 });

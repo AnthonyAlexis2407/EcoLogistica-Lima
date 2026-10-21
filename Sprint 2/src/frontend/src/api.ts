@@ -141,7 +141,7 @@ export interface Pedido {
 }
 
 export interface PedidoForm {
-  bodega_id: string;
+  bodega_id?: string;
   direccion: string;
   latitud: number;
   longitud: number;

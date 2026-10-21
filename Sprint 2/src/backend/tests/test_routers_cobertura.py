@@ -220,3 +220,14 @@ async def test_pedido_con_ventana_invalida_es_rechazado(api):
     pedido["ventana_fin"] = pedido["ventana_inicio"]
     res = await api.client.post("/api/pedidos/", json=pedido, headers=operador)
     assert res.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_pedido_de_bodega_sin_bodega_id_se_asocia_a_su_propia_bodega(api):
+    bodega_a = await _login(api.client, "bodega.a@test.pe")
+    pedido = _pedido(api.bodega_a, 10)
+    del pedido["bodega_id"]
+
+    res = await api.client.post("/api/pedidos/", json=pedido, headers=bodega_a)
+    assert res.status_code == 201
+    assert res.json()["bodega_id"] == api.bodega_a
