@@ -3,7 +3,11 @@
  * Base URL configurable via env var VITE_API_URL.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// VITE_API_URL vacío = mismo origen (la API sirve el frontend compilado); sin definir = desarrollo local.
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+
+/** Registros por página en los listados (Informe Green IT: bloques controlados de 12). */
+export const PAGE_SIZE = 12;
 
 interface RequestOptions {
   method?: string;
@@ -21,7 +25,7 @@ class ApiError extends Error {
   }
 }
 
-async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+async function requestRaw(endpoint: string, options: RequestOptions = {}): Promise<Response> {
   const { method = 'GET', body, token } = options;
 
   const headers: Record<string, string> = {
@@ -43,7 +47,40 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     throw new ApiError(res.status, data.detail || `Error ${res.status}`);
   }
 
-  return res.json();
+  return res;
+}
+
+async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  return (await requestRaw(endpoint, options)).json();
+}
+
+/** Página de resultados: los registros y el total que el servidor informa en X-Total-Count. */
+export interface Pagina<T> {
+  items: T[];
+  total: number;
+}
+
+export interface OpcionesListado {
+  estado?: string;
+  q?: string;
+  page?: number;
+  limit?: number;
+}
+
+function consulta(opciones: OpcionesListado): string {
+  const params = new URLSearchParams();
+  if (opciones.estado) params.set('estado', opciones.estado);
+  if (opciones.q) params.set('q', opciones.q);
+  if (opciones.page) params.set('page', String(opciones.page));
+  if (opciones.limit) params.set('limit', String(opciones.limit));
+  const texto = params.toString();
+  return texto ? `?${texto}` : '';
+}
+
+async function requestPagina<T>(endpoint: string, token: string): Promise<Pagina<T>> {
+  const res = await requestRaw(endpoint, { token });
+  const items: T[] = await res.json();
+  return { items, total: Number(res.headers.get('X-Total-Count') ?? items.length) };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -105,7 +142,10 @@ export interface VehiculoForm {
 
 export const vehiculosApi = {
   list: (token: string, estado?: string) =>
-    request<Vehiculo[]>(`/api/vehiculos/${estado ? `?estado=${estado}` : ''}`, { token }),
+    request<Vehiculo[]>(`/api/vehiculos/${consulta({ estado })}`, { token }),
+
+  listPage: (token: string, opciones: OpcionesListado = {}) =>
+    requestPagina<Vehiculo>(`/api/vehiculos/${consulta({ limit: PAGE_SIZE, ...opciones })}`, token),
 
   get: (token: string, id: string) =>
     request<Vehiculo>(`/api/vehiculos/${id}`, { token }),
@@ -152,7 +192,10 @@ export interface PedidoForm {
 
 export const pedidosApi = {
   list: (token: string, estado?: string) =>
-    request<Pedido[]>(`/api/pedidos/${estado ? `?estado=${estado}` : ''}`, { token }),
+    request<Pedido[]>(`/api/pedidos/${consulta({ estado })}`, { token }),
+
+  listPage: (token: string, opciones: OpcionesListado = {}) =>
+    requestPagina<Pedido>(`/api/pedidos/${consulta({ limit: PAGE_SIZE, ...opciones })}`, token),
 
   get: (token: string, id: string) =>
     request<Pedido>(`/api/pedidos/${id}`, { token }),

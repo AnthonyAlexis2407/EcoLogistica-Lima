@@ -7,11 +7,12 @@ RBAC (Documento 08):
 - ADMIN_FLOTA: solo lectura
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import require_roles
+from app.consultas import LIKE_ESCAPE, patron_like
 from app.database import get_db
 from app.models import Bodega, Pedido, Usuario, Vehiculo
 from app.schemas import MensajeResponse, PedidoCreate, PedidoOut, PedidoUpdate
@@ -19,34 +20,51 @@ from app.schemas import MensajeResponse, PedidoCreate, PedidoOut, PedidoUpdate
 router = APIRouter(prefix="/api/pedidos", tags=["Pedidos (US-003)"])
 
 
+# Solo las columnas que expone PedidoOut: no se hidratan entidades ORM (equivalente a select + lean).
+_COLUMNAS = (
+    Pedido.pedido_id, Pedido.bodega_id, Pedido.direccion, Pedido.latitud, Pedido.longitud,
+    Pedido.peso_kg, Pedido.ventana_inicio, Pedido.ventana_fin, Pedido.estado, Pedido.creado_en,
+)
+
+
 @router.get("/", response_model=list[PedidoOut])
 async def listar_pedidos(
+    response: Response,
     estado: str | None = Query(None, description="Filtrar por estado"),
     bodega_id: str | None = Query(None, description="Filtrar por bodega"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=100),
+    q: str | None = Query(None, max_length=100, description="Buscar por dirección"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(12, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
     user: Usuario = Depends(require_roles("ADMIN_FLOTA", "OPERADOR", "BODEGA")),
 ):
-    """Lista pedidos con filtros opcionales. Bodega solo ve los propios (RN-010)."""
-    query = select(Pedido)
+    """Lista pedidos por páginas de 12; el total viaja en X-Total-Count. Bodega solo ve los propios (RN-010)."""
+    filtros = []
 
     # Aislamiento por bodega (RN-010)
     if user.rol == "BODEGA":
         bodega_result = await db.execute(select(Bodega).where(Bodega.usuario_id == user.usuario_id))
         bodega = bodega_result.scalar_one_or_none()
         if not bodega:
+            response.headers["X-Total-Count"] = "0"
             return []
-        query = query.where(Pedido.bodega_id == bodega.bodega_id)
+        filtros.append(Pedido.bodega_id == bodega.bodega_id)
     elif bodega_id:
-        query = query.where(Pedido.bodega_id == bodega_id)
+        filtros.append(Pedido.bodega_id == bodega_id)
 
     if estado:
-        query = query.where(Pedido.estado == estado.upper())
+        filtros.append(Pedido.estado == estado.upper())
+    if q and q.strip():
+        filtros.append(Pedido.direccion.ilike(patron_like(q), escape=LIKE_ESCAPE))
 
-    query = query.order_by(Pedido.creado_en.desc()).offset(skip).limit(limit)
-    result = await db.execute(query)
-    return result.scalars().all()
+    total = await db.scalar(select(func.count()).select_from(Pedido).where(*filtros))
+    filas = await db.execute(
+        select(*_COLUMNAS).where(*filtros)
+        .order_by(Pedido.creado_en.desc(), Pedido.pedido_id)
+        .offset((page - 1) * limit).limit(limit)
+    )
+    response.headers["X-Total-Count"] = str(total or 0)
+    return [dict(fila) for fila in filas.mappings()]
 
 
 @router.get("/count")

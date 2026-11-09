@@ -3,8 +3,11 @@ import { ApiError, authApi, healthApi, pedidosApi, vehiculosApi } from '../api';
 
 const fetchMock = vi.fn();
 
-function respuesta(body: unknown, status = 200) {
-  return { ok: status < 400, status, json: () => Promise.resolve(body) } as Response;
+function respuesta(body: unknown, status = 200, cabeceras: Record<string, string> = {}) {
+  return {
+    ok: status < 400, status, json: () => Promise.resolve(body),
+    headers: { get: (nombre: string) => cabeceras[nombre] ?? null },
+  } as unknown as Response;
 }
 
 beforeEach(() => {
@@ -26,6 +29,16 @@ describe('cliente HTTP', () => {
     expect(url).toContain('/api/vehiculos/');
     expect(init.headers.Authorization).toBe('Bearer tok-1');
     expect(init.method).toBe('GET');
+  });
+
+  it('listPage devuelve los registros y el total de la cabecera X-Total-Count', async () => {
+    fetchMock.mockResolvedValue(respuesta([{ placa: 'A' }, { placa: 'B' }], 200, { 'X-Total-Count': '37' }));
+    expect(await vehiculosApi.listPage('tok')).toEqual({ items: [{ placa: 'A' }, { placa: 'B' }], total: 37 });
+  });
+
+  it('listPage usa la cantidad de registros si el servidor no informa el total', async () => {
+    fetchMock.mockResolvedValue(respuesta([{ pedido_id: 'p1' }]));
+    expect((await pedidosApi.listPage('tok')).total).toBe(1);
   });
 
   it('serializa el cuerpo en POST y no envía Authorization sin token', async () => {
@@ -76,6 +89,8 @@ describe('rutas de cada recurso', () => {
     ['vehiculos.delete', () => vehiculosApi.delete('t', 'v1'), 'DELETE', '/api/vehiculos/v1'],
     ['vehiculos.count', () => vehiculosApi.count('t'), 'GET', '/api/vehiculos/count'],
     ['pedidos.list filtrado', () => pedidosApi.list('t', 'PENDIENTE'), 'GET', '/api/pedidos/?estado=PENDIENTE'],
+    ['vehiculos.listPage', () => vehiculosApi.listPage('t', { page: 2, q: 'abc', estado: 'DISPONIBLE' }), 'GET', '/api/vehiculos/?estado=DISPONIBLE&q=abc&page=2&limit=12'],
+    ['pedidos.listPage', () => pedidosApi.listPage('t'), 'GET', '/api/pedidos/?limit=12'],
     ['pedidos.get', () => pedidosApi.get('t', 'p1'), 'GET', '/api/pedidos/p1'],
     ['pedidos.create', () => pedidosApi.create('t', { bodega_id: 'b', direccion: 'd', latitud: 0, longitud: 0, peso_kg: 1, ventana_inicio: 'i', ventana_fin: 'f' }), 'POST', '/api/pedidos/'],
     ['pedidos.update', () => pedidosApi.update('t', 'p1', { estado: 'ASIGNADO' }), 'PUT', '/api/pedidos/p1'],

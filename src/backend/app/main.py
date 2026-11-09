@@ -7,11 +7,13 @@ Sprint 3: configuración endurecida (OWASP A02), cabeceras de seguridad y CORS a
 import logging
 from contextlib import asynccontextmanager
 
+from brotli_asgi import BrotliMiddleware
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
+from app.rendimiento import montar_frontend, politica_http
 from app.routers import auth_router, vehiculos_router, pedidos_router
 
 
@@ -50,19 +52,15 @@ app.add_middleware(
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Authorization", "Content-Type", "If-None-Match"],
+    expose_headers=["X-Total-Count", "ETag"],
 )
 
-
-@app.middleware("http")
-async def cabeceras_de_seguridad(request, call_next):
-    """Añade cabeceras de seguridad a cada respuesta (OWASP A02)."""
-    response = await call_next(request)
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["Referrer-Policy"] = "no-referrer"
-    response.headers["Cache-Control"] = "no-store"
-    return response
+# ── Rendimiento y seguridad HTTP (Informe Green IT) ──────────────────
+# Orden: politica_http (ETag, caché, cabeceras) queda dentro; la compresión Brotli/Gzip, fuera,
+# para comprimir el cuerpo final. Solo se comprimen respuestas de 1 KB o más.
+app.middleware("http")(politica_http)
+app.add_middleware(BrotliMiddleware, quality=5, minimum_size=1000, gzip_fallback=True)
 
 # ── Routers ───────────────────────────────────────────────────────────
 app.include_router(auth_router.router)
@@ -78,3 +76,7 @@ async def health_check():
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
     }
+
+
+# El frontend compilado se registra al final: su ruta comodín no debe tapar la API.
+montar_frontend(app, settings.FRONTEND_DIST)

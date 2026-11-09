@@ -7,11 +7,12 @@ RBAC (Documento 08):
 - AUDITOR: solo lectura
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import require_roles
+from app.consultas import LIKE_ESCAPE, patron_like
 from app.database import get_db
 from app.models import Usuario, Vehiculo
 from app.schemas import MensajeResponse, VehiculoCreate, VehiculoOut, VehiculoUpdate
@@ -19,21 +20,39 @@ from app.schemas import MensajeResponse, VehiculoCreate, VehiculoOut, VehiculoUp
 router = APIRouter(prefix="/api/vehiculos", tags=["Vehículos (US-001)"])
 
 
+# Solo las columnas que expone VehiculoOut: no se hidratan entidades ORM (equivalente a select + lean).
+_COLUMNAS = (
+    Vehiculo.vehiculo_id, Vehiculo.placa, Vehiculo.capacidad_kg,
+    Vehiculo.tipo_combustible, Vehiculo.factor_emision_co2, Vehiculo.estado,
+)
+
+
 @router.get("/", response_model=list[VehiculoOut])
 async def listar_vehiculos(
+    response: Response,
     estado: str | None = Query(None, description="Filtrar por estado"),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=100),
+    q: str | None = Query(None, max_length=50, description="Buscar por placa o combustible"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(12, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
     user: Usuario = Depends(require_roles("ADMIN_FLOTA", "OPERADOR", "AUDITOR")),
 ):
-    """Lista todos los vehículos del catálogo con paginación y filtro opcional."""
-    query = select(Vehiculo)
+    """Lista vehículos por páginas de 12; el total viaja en la cabecera X-Total-Count."""
+    filtros = []
     if estado:
-        query = query.where(Vehiculo.estado == estado.upper())
-    query = query.offset(skip).limit(limit)
-    result = await db.execute(query)
-    return result.scalars().all()
+        filtros.append(Vehiculo.estado == estado.upper())
+    if q and q.strip():
+        patron = patron_like(q)
+        filtros.append(or_(
+            Vehiculo.placa.ilike(patron, escape=LIKE_ESCAPE),
+            Vehiculo.tipo_combustible.ilike(patron, escape=LIKE_ESCAPE),
+        ))
+    total = await db.scalar(select(func.count()).select_from(Vehiculo).where(*filtros))
+    filas = await db.execute(
+        select(*_COLUMNAS).where(*filtros).order_by(Vehiculo.placa).offset((page - 1) * limit).limit(limit)
+    )
+    response.headers["X-Total-Count"] = str(total or 0)
+    return [dict(fila) for fila in filas.mappings()]
 
 
 @router.get("/count")

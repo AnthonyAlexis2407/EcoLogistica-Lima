@@ -4,7 +4,9 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../AuthContext';
-import { vehiculosApi, ApiError, type Vehiculo, type VehiculoForm } from '../api';
+import { vehiculosApi, ApiError, PAGE_SIZE, type Vehiculo, type VehiculoForm } from '../api';
+import { useDebounced } from '../useDebounced';
+import Paginador from '../components/Paginador';
 import { Plus, Pencil, Trash2, Truck, X, AlertCircle, Search, Fuel } from 'lucide-react';
 
 const TIPOS = ['DIESEL', 'GASOLINA', 'GLP', 'HIBRIDO', 'ELECTRICO'];
@@ -41,19 +43,25 @@ export default function VehiculosPage() {
   const [formError, setFormError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const busqueda = useDebounced(searchTerm.trim());
   const [toast, setToast] = useState<{ type: string; msg: string } | null>(null);
 
   const load = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const data = await vehiculosApi.list(token);
-      setVehiculos(data);
+      const data = await vehiculosApi.listPage(token, {
+        estado: statusFilter || undefined, q: busqueda || undefined, page, limit: PAGE_SIZE,
+      });
+      setVehiculos(data.items);
+      setTotal(data.total);
     } catch { /* ignore */ }
     setLoading(false);
   };
 
-  useEffect(() => { void load(); }, [token]);
+  useEffect(() => { void load(); }, [token, page, statusFilter, busqueda]);
 
   // Teclado (WCAG 2.1.1): Escape cierra el modal.
   useEffect(() => {
@@ -130,13 +138,6 @@ export default function VehiculosPage() {
     }
   };
 
-  const filtered = vehiculos.filter((v) => {
-    const matchSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        v.tipo_combustible.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchStatus = !statusFilter || v.estado === statusFilter;
-    return matchSearch && matchStatus;
-  });
-
   return (
     <>
       {toast && (
@@ -155,7 +156,7 @@ export default function VehiculosPage() {
               style={{ paddingLeft: '2.25rem' }}
               placeholder="Buscar por placa..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
             />
           </div>
 
@@ -163,7 +164,7 @@ export default function VehiculosPage() {
             aria-label="Filtrar por estado"
             className="form-input form-select"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             style={{ width: 'auto' }}
           >
             <option value="">Todos los estados</option>
@@ -185,7 +186,7 @@ export default function VehiculosPage() {
         <div className="table-container">
           {loading ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>Cargando catálogo de flota...</div>
-          ) : filtered.length === 0 ? (
+          ) : vehiculos.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center' }}>
               <Truck size={48} style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }} />
               <h4 style={{ fontSize: '1.125rem', fontWeight: 700 }}>Sin vehículos que coincidan</h4>
@@ -204,7 +205,7 @@ export default function VehiculosPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((v) => (
+                {vehiculos.map((v) => (
                   <tr key={v.vehiculo_id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -253,6 +254,7 @@ export default function VehiculosPage() {
             </table>
           )}
         </div>
+        <Paginador page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* Modal */}

@@ -10,7 +10,7 @@ vi.mock('../AuthContext', () => ({
 }));
 vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
-  pedidosApi: { list: vi.fn(), create: vi.fn(), cancel: vi.fn() },
+  pedidosApi: { listPage: vi.fn(), create: vi.fn(), cancel: vi.fn() },
 }));
 
 const pedido = (id: string, direccion: string, estado: string): Pedido => ({
@@ -27,7 +27,7 @@ const lista = [
 beforeEach(() => {
   sesion.rol = 'OPERADOR';
   vi.resetAllMocks();
-  vi.mocked(pedidosApi.list).mockResolvedValue(lista);
+  vi.mocked(pedidosApi.listPage).mockResolvedValue({ items: lista, total: lista.length });
 });
 
 describe('PedidosPage (US-003)', () => {
@@ -38,14 +38,28 @@ describe('PedidosPage (US-003)', () => {
     expect(screen.getByText(/Av. Lima 456/)).toBeInTheDocument();
   });
 
-  it('filtra por dirección en la tabla', async () => {
+  it('pide al servidor la búsqueda por dirección', async () => {
     const usuario = userEvent.setup();
     render(<PedidosPage />);
     await screen.findByText(/Los Pinos 123/);
 
     await usuario.type(screen.getByPlaceholderText('Buscar por dirección...'), 'ate');
-    expect(screen.queryByText(/Los Pinos 123/)).not.toBeInTheDocument();
-    expect(screen.getByText(/Av. Lima 456/)).toBeInTheDocument();
+    await vi.waitFor(() => expect(pedidosApi.listPage).toHaveBeenLastCalledWith(
+      'tok', { estado: undefined, q: 'ate', page: 1, limit: 12 },
+    ));
+  });
+
+  it('pagina de 12 en 12 y consulta la página pedida', async () => {
+    const usuario = userEvent.setup();
+    vi.mocked(pedidosApi.listPage).mockResolvedValue({ items: lista, total: 25 });
+    render(<PedidosPage />);
+    await screen.findByText(/Los Pinos 123/);
+    expect(screen.getByText('Página 1 de 3 · 25 registros')).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('button', { name: 'Siguiente' }));
+    await vi.waitFor(() => expect(pedidosApi.listPage).toHaveBeenLastCalledWith(
+      'tok', { estado: undefined, q: undefined, page: 2, limit: 12 },
+    ));
   });
 
   it('pide al servidor solo el estado elegido', async () => {
@@ -54,7 +68,7 @@ describe('PedidosPage (US-003)', () => {
     await screen.findByText(/Los Pinos 123/);
 
     await usuario.selectOptions(screen.getByRole('combobox'), 'CANCELADO');
-    await vi.waitFor(() => expect(pedidosApi.list).toHaveBeenLastCalledWith('tok', 'CANCELADO'));
+    await vi.waitFor(() => expect(pedidosApi.listPage).toHaveBeenLastCalledWith('tok', { estado: 'CANCELADO', q: undefined, page: 1, limit: 12 }));
   });
 
   it('registra un pedido con el formulario prellenado', async () => {
@@ -137,7 +151,7 @@ describe('PedidosPage (US-003)', () => {
 
   it('sin pedidos previos no envía una bodega inventada: la decide el servidor', async () => {
     const usuario = userEvent.setup();
-    vi.mocked(pedidosApi.list).mockResolvedValue([]);
+    vi.mocked(pedidosApi.listPage).mockResolvedValue({ items: [], total: 0 });
     vi.mocked(pedidosApi.create).mockResolvedValue(lista[0]);
     render(<PedidosPage />);
     await usuario.click(await screen.findByRole('button', { name: /Registrar Pedido/ }));

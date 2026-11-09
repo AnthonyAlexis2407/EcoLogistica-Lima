@@ -1,0 +1,64 @@
+# Auditoría Green IT y rendimiento con Lighthouse CI (LHCI).
+# Guía: "guía_github_actions" (permisos mínimos, versiones fijas, caché de dependencias, secretos).
+name: Green IT & Performance Audit
+
+on:
+  push:
+    branches: [main, develop, "feature/**", "fix/**"]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# Principio de mínimo privilegio: el token solo lee el repositorio.
+permissions:
+  contents: read
+
+concurrency:
+  group: green-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: src/backend/requirements.txt
+
+      - name: Instalar dependencias del frontend
+        working-directory: src/frontend
+        run: npm ci
+
+      - name: Compilar el frontend (mismo origen que la API)
+        working-directory: src/frontend
+        env:
+          VITE_API_URL: ""
+        run: npm run build
+
+      - name: Instalar dependencias del backend
+        run: pip install -r src/backend/requirements.txt
+
+      - name: Ejecutar Lighthouse CI
+        run: npx --yes @lhci/cli@0.14.0 autorun --config=lighthouserc.json
+
+      - name: Publicar el reporte de auditoría
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-lighthouse
+          path: .lighthouseci/
+          if-no-files-found: ignore
+          retention-days: 14

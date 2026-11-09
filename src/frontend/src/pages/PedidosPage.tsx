@@ -4,7 +4,9 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../AuthContext';
-import { pedidosApi, ApiError, type Pedido, type PedidoForm } from '../api';
+import { pedidosApi, ApiError, PAGE_SIZE, type Pedido, type PedidoForm } from '../api';
+import { useDebounced } from '../useDebounced';
+import Paginador from '../components/Paginador';
 import { Plus, Package, X, AlertCircle, MapPin, Clock, Search } from 'lucide-react';
 
 const estadoBadge: Record<string, string> = {
@@ -37,18 +39,24 @@ export default function PedidosPage() {
   const [toast, setToast] = useState<{ type: string; msg: string } | null>(null);
   const [filter, setFilter] = useState('');
   const [searchAddress, setSearchAddress] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const busqueda = useDebounced(searchAddress.trim());
 
   const load = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const data = await pedidosApi.list(token, filter || undefined);
-      setPedidos(data);
+      const data = await pedidosApi.listPage(token, {
+        estado: filter || undefined, q: busqueda || undefined, page, limit: PAGE_SIZE,
+      });
+      setPedidos(data.items);
+      setTotal(data.total);
     } catch { /* ignore */ }
     setLoading(false);
   };
 
-  useEffect(() => { void load(); }, [token, filter]);
+  useEffect(() => { void load(); }, [token, page, filter, busqueda]);
 
   // Teclado (WCAG 2.1.1): Escape cierra el modal.
   useEffect(() => {
@@ -125,10 +133,6 @@ export default function PedidosPage() {
     });
   };
 
-  const filteredPedidos = pedidos.filter((p) =>
-    p.direccion.toLowerCase().includes(searchAddress.toLowerCase())
-  );
-
   return (
     <>
       {toast && (
@@ -147,7 +151,7 @@ export default function PedidosPage() {
               style={{ paddingLeft: '2.25rem' }}
               placeholder="Buscar por dirección..."
               value={searchAddress}
-              onChange={(e) => setSearchAddress(e.target.value)}
+              onChange={(e) => { setSearchAddress(e.target.value); setPage(1); }}
             />
           </div>
 
@@ -155,7 +159,7 @@ export default function PedidosPage() {
             aria-label="Filtrar por estado"
             className="form-input form-select"
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => { setFilter(e.target.value); setPage(1); }}
             style={{ width: 'auto' }}
           >
             <option value="">Todos los estados</option>
@@ -179,7 +183,7 @@ export default function PedidosPage() {
         <div className="table-container">
           {loading ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>Cargando cola de pedidos...</div>
-          ) : filteredPedidos.length === 0 ? (
+          ) : pedidos.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center' }}>
               <Package size={48} style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }} />
               <h4 style={{ fontSize: '1.125rem', fontWeight: 700 }}>Sin pedidos registrados</h4>
@@ -198,7 +202,7 @@ export default function PedidosPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredPedidos.map((p) => (
+                {pedidos.map((p) => (
                   <tr key={p.pedido_id}>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
@@ -246,6 +250,7 @@ export default function PedidosPage() {
             </table>
           )}
         </div>
+        <Paginador page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* Modal */}
