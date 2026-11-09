@@ -13,6 +13,17 @@
 
 Reglas: no se hace commit directo a `main` ni a `develop`; todo Pull Request necesita un revisor distinto del autor y el CI en verde.
 
+## Pull Requests
+
+1. Se crea la rama desde `develop` (`git checkout -b feature/<tema>`), se trabaja con commits descriptivos y se sube con `git push -u origin feature/<tema>`.
+2. En GitHub se pulsa **Compare & pull request**, se verifica `base` y `compare`, se completa la plantilla de [`.github/pull_request_template.md`](.github/pull_request_template.md), se elige al menos un revisor y se crea el Pull Request.
+3. El revisor inspecciona la pestaña **Files changed** y elige **Comment**, **Request changes** o **Approve**; si pide cambios, el autor sube un commit nuevo y el Pull Request se actualiza solo.
+4. Con **Approved** y el CI en verde se integra con **Squash and merge**, se elimina la rama remota y se limpia la local (`git checkout main`, `git pull origin main`, `git branch -d feature/<tema>`).
+
+### Protección de `main`
+
+En *Settings, Branches* se crea una regla para `main` con: **Require a pull request before merging** con 1 aprobación, **Dismiss stale pull request approvals when new commits are pushed** y **Require status checks to pass before merging** con los controles `backend`, `frontend` y `audit`.
+
 ## Mensajes de commit
 
 Formato `tipo(ámbito): resumen`, con tipos `feat`, `fix`, `docs`, `test`, `refactor` y `chore`. Ejemplo: `fix(auth): persistir el contador de intentos antes de lanzar la excepción`.
@@ -25,6 +36,12 @@ Formato `tipo(ámbito): resumen`, con tipos `feat`, `fix`, `docs`, `test`, `refa
 4. Sin incumplimientos WCAG AA en axe-core.
 5. Documentos afectados actualizados y versionados (ver abajo).
 6. Aceptación del Product Owner.
+
+## Automatización
+
+- `.github/workflows/ci.yml`: pruebas, cobertura, tipos, *build* y auditoría de dependencias.
+- `.github/workflows/green-audit.yml`: Lighthouse CI sobre la aplicación servida por FastAPI (umbrales en [`lighthouserc.json`](lighthouserc.json)).
+- Ambos usan permisos mínimos (`contents: read`), versiones fijas de las acciones y caché de dependencias.
 
 ## Comprobaciones locales antes de abrir un Pull Request
 

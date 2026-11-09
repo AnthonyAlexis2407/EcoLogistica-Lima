@@ -95,6 +95,15 @@ def montar_frontend(app: FastAPI, dist: Path) -> bool:
     if not indice.is_file():
         return False
 
+    def entregar(request: Request, archivo: Path, cache: str, extra: dict | None = None) -> Response:
+        """FileResponse con revalidación: responde 304 si el ETag del archivo coincide."""
+        estado = archivo.stat()
+        etag = '"' + hashlib.sha256(f"{estado.st_mtime_ns}-{estado.st_size}".encode()).hexdigest()[:32] + '"'
+        cabeceras = {"Cache-Control": cache, "ETag": etag, **(extra or {})}
+        if _coincide_etag(request.headers.get("if-none-match"), etag):
+            return Response(status_code=304, headers=cabeceras)
+        return FileResponse(archivo, headers=cabeceras)
+
     async def manejar_404(request: Request, exc: StarletteHTTPException):
         ruta = request.url.path.lstrip("/")
         if request.method not in ("GET", "HEAD") or ruta == "api" or ruta.startswith("api/"):
@@ -102,12 +111,9 @@ def montar_frontend(app: FastAPI, dist: Path) -> bool:
         candidato = (raiz / ruta).resolve()
         if ruta and candidato.is_file() and raiz in candidato.parents:
             cache = CACHE_INMUTABLE if ruta.startswith("assets/") else CACHE_REVALIDAR
-            return FileResponse(candidato, headers={"Cache-Control": cache})
+            return entregar(request, candidato, cache)
         # Rutas de la SPA (React Router): se entrega index.html.
-        return FileResponse(indice, headers={
-            "Cache-Control": CACHE_REVALIDAR,
-            "Content-Security-Policy": CSP_FRONTEND,
-        })
+        return entregar(request, indice, CACHE_REVALIDAR, {"Content-Security-Policy": CSP_FRONTEND})
 
     app.add_exception_handler(404, manejar_404)
     return True

@@ -20,10 +20,14 @@ docs/
     Sprint 01/          informes del Sprint 1
     Sprint 02/          informes del Sprint 2
     Sprint 03/          informes y evaluaciones del Sprint 3
+    reduccion del impacto ambiental/   informe Green IT y estándares de ingeniería de software
 src/
   backend/              API FastAPI (Python)
   frontend/             interfaz React + TypeScript + Vite
-.github/workflows/      integración continua
+.github/workflows/      integración continua (ci.yml) y auditoría Green IT (green-audit.yml)
+.github/pull_request_template.md   plantilla de Pull Request
+lighthouserc.json       umbrales de Lighthouse CI
+scripts/                medición de la API, cálculo SWDM v4 y normalización de cobertura
 CONTRIBUTING.md         flujo de ramas, DoD y versionado
 sonar-project.properties, .coveragerc
 ```
@@ -76,11 +80,18 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 - [06 Informe de estado del proyecto](docs/03%20Implementaci%C3%B3n/Sprint%2003/06%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
 - [07 Registro de Impedimentos](docs/03%20Implementaci%C3%B3n/Sprint%2003/07%20Registro%20de%20Impedimentos%20V_1_0_0.md)
 
+## Reducción del impacto ambiental (Green IT)
+
+Carpeta `docs/03 Implementación/reduccion del impacto ambiental/`; cada documento enlaza de regreso a este README y entre sí.
+
+- [01 Informe de reducción del impacto ambiental](docs/03%20Implementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md): ocho optimizaciones con código ANTES y DESPUÉS, mediciones con Lighthouse y cálculo SWDM v4.
+- [02 Estándares de ingeniería de software y guía de desarrollo verde](docs/03%20Implementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/02%20Estandares%20Ingenier%C3%ADa%20de%20software%20V_1_0_0.md): ISO/IEC 25010, GSF, W3C WSG, matriz de mapeo y flujos de CI/CD.
+
 ## Código fuente
 
 - [Frontend](src/frontend/README.md): React 18, TypeScript y Vite.
 - [Backend](src/backend/README.md): FastAPI con SQLAlchemy asíncrono, autenticación JWT, vehículos y pedidos.
-- [Guía de contribución](CONTRIBUTING.md): GitFlow, definición de hecho y versionado.
+- [Guía de contribución](CONTRIBUTING.md): GitFlow, Pull Requests, definición de hecho y versionado.
 
 ## Convención de versionado y nombres de archivo
 
@@ -91,7 +102,7 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 |---|---|---|---|
 | Inicio · 04 Registro de supuestos y restricciones | 1.1.0 | 08/09/2026 | Corrección de R01 (presupuesto S/ 16,300) |
 | Inicio · 08 Usuarios | 1.3.0 | 20/10/2026 | Se elimina el rol `ADMINISTRADOR` (IMP-008) |
-| Inicio · 10 Stack tecnológico | 1.2.0 | 20/10/2026 | Herramientas de calidad y CI del Sprint 3 |
+| Inicio · 10 Stack tecnológico | 1.3.0 | 09/11/2026 | Compresión, caché y auditoría Green IT |
 | Inicio · 11 Base de datos | 1.1.0 | 05/10/2026 | Modelo implementado frente al DDL |
 | Inicio · 12 Modelo C4 | 1.1.0 | 05/10/2026 | Estado de implementación por contenedor |
 | Planificación · 02 Artefactos Jira | 1.1.0 | 05/10/2026 | Estado real de Jira |
@@ -100,6 +111,10 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 | Sprint 02 · Informe de estado, Revisión y Retrospectiva | 2.2.0 | 20/10/2026 | Criterios por ruta, cierre de sprint y rutas |
 | Sprint 02 · Registro de Impedimentos | 2.1.0 | 05/10/2026 | DEF-002 y DEF-003 corregidos |
 | Sprint 03 · 01 Revisión y 02 Retrospectiva | 1.1.0 | 20/10/2026 | Cierre formal, DoD y rutas de aceptación |
-| Sprint 03 · 03 Calidad de código y 04 OWASP | 1.1.0 | 20/10/2026 | Correcciones de configuración y pruebas nuevas |
+| Sprint 03 · 03 Calidad de código | 1.2.0 | 21/10/2026 | Medición real con SonarQube |
+| Sprint 03 · 04 OWASP | 1.2.0 | 09/11/2026 | CSP aplicada al frontend servido por la API |
 | Sprint 03 · 05 WCAG | 1.0.0 | 20/10/2026 | Primera evaluación |
-| Sprint 03 · 06 Informe de estado y 07 Registro de Impedimentos | 3.1.0 | 20/10/2026 | Sprint 3 |
+| Sprint 03 · 06 Informe de estado | 3.1.0 | 20/10/2026 | Sprint 3 |
+| Sprint 03 · 07 Registro de Impedimentos | 3.2.0 | 09/11/2026 | Solo impedimentos ajenos a la intervención del equipo |
+| Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 09/11/2026 | Primera versión |
+| Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 09/11/2026 | Primera versión |

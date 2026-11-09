@@ -10,7 +10,7 @@
 
 ## Cierre formal del sprint
 
-El Sprint 3 se cerró el **20/10/2026**, antes de esta revisión y de la retrospectiva ([Documento 02](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)), con la etiqueta Git `sprint-3-cierre` sobre el último commit del sprint. Los sprints anteriores quedaron cerrados con `sprint-1-cierre` (29/09/2026) y `sprint-2-cierre` (06/10/2026). El tablero de Jira se sincroniza aparte (IMP-004, administrativo): la revisión y la retrospectiva no dependen de él.
+El Sprint 3 se cerró el **20/10/2026**, antes de esta revisión y de la retrospectiva ([Documento 02](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)), con la etiqueta Git `sprint-3-cierre` sobre el último commit del sprint. Los sprints anteriores quedaron cerrados con `sprint-1-cierre` (29/09/2026) y `sprint-2-cierre` (06/10/2026). El tablero de Jira se sincroniza aparte (administrativo): la revisión y la retrospectiva no dependen de él.
 
 ## Objetivo del sprint
 
@@ -68,7 +68,7 @@ Pruebas que lo respaldan: `test_us001_*`, `test_us003_*`, `test_rn010_*`, `test_
 5. **Seguridad:** mostrar las cabeceras de seguridad de la API y que `/docs` desaparece con `ENVIRONMENT=production`.
 6. **Calidad:** mostrar SonarQube (Quality Gate PASSED, 0 bugs, 0 vulnerabilidades) y el reporte de axe-core sin incumplimientos.
 
-**Registro de la demostración a stakeholders.** Se completa cuando se realice; hasta entonces no se declara como hecha ni se atribuyen observaciones a terceros (IMP-003):
+**Registro de la demostración a stakeholders.** Se completa cuando se realice; hasta entonces no se declara como hecha ni se atribuyen observaciones a terceros:
 
 | Fecha | Asistentes | Incremento mostrado | Observaciones | Decisión por historia (US-001 / US-003) |
 |---|---|---|---|---|
@@ -76,12 +76,12 @@ Pruebas que lo respaldan: `test_us001_*`, `test_us003_*`, `test_rn010_*`, `test_
 
 ## Pendientes
 
-- **Aceptación del Product Owner (IMP-003):** realizar la demostración, completar la tabla anterior y pasar US-001 y US-003 a "Hecho".
-- **EN-001 (RSK-05, ruta crítica):** iniciar el spike GA / Búsqueda Tabú / OR-Tools frente al límite de 45 s; sin él no puede comenzar US-005 (IMP-010).
+- **Aceptación del Product Owner:** realizar la demostración, completar la tabla anterior y pasar US-001 y US-003 a "Hecho".
+- **EN-001 (RSK-05, ruta crítica):** iniciar el spike GA / Búsqueda Tabú / OR-Tools frente al límite de 45 s; sin él no puede comenzar US-005.
 - **EN-002:** ejecutar la prueba de penetración. **EN-008:** cifrado de campos personales y anonimización.
-- **Seguridad (Doc. 04):** CSP y HSTS en el despliegue con TLS, rotar la `SECRET_KEY`, fijar versiones del backend y revisar el resultado de `pip-audit` (IMP-012, IMP-014).
-- **Accesibilidad (Doc. 05):** prueba con lector de pantalla, trampa de foco en modales y tamaño de objetivos táctiles (IMP-013).
-- **Calidad (IMP-009):** añadir SonarQube al CI y activar la protección de la rama `main` con revisor obligatorio.
+- **Seguridad (Doc. 04):** CSP y HSTS en el despliegue con TLS, rotar la `SECRET_KEY`, fijar versiones del backend y revisar el resultado de `pip-audit`.
+- **Accesibilidad (Doc. 05):** prueba con lector de pantalla, trampa de foco en modales y tamaño de objetivos táctiles.
+- **Calidad:** añadir SonarQube al CI y activar la protección de la rama `main` con revisor obligatorio.
 - **Backlog sin iniciar:** 15 ítems (US-002, US-004 a US-010, EN-003 a EN-007, EN-009, EN-010), entre ellos el motor de optimización y el cálculo de CO₂.
 
 ## Control de versiones

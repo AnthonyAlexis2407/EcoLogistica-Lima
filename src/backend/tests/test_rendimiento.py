@@ -184,6 +184,21 @@ async def test_frontend_assets_con_cache_inmutable_e_index_con_revalidacion(fron
 
 
 @pytest.mark.asyncio
+async def test_frontend_revalida_con_304_cuando_el_archivo_no_cambio(frontend):
+    async with AsyncClient(transport=ASGITransport(app=frontend), base_url="http://t") as c:
+        indice = await c.get("/")
+        etag = indice.headers["etag"]
+        igual = await c.get("/", headers={"If-None-Match": etag})
+        assert igual.status_code == 304 and igual.content == b""
+        assert igual.headers["cache-control"] == CACHE_REVALIDAR
+        assert "content-security-policy" in igual.headers
+        asset = await c.get("/assets/index-abc123.js", headers={"If-None-Match": (await c.get("/assets/index-abc123.js")).headers["etag"]})
+        assert asset.status_code == 304
+        otro = await c.get("/", headers={"If-None-Match": '"distinto"'})
+        assert otro.status_code == 200
+
+
+@pytest.mark.asyncio
 async def test_frontend_rutas_de_la_spa_devuelven_index_y_la_api_inexistente_404(frontend):
     async with AsyncClient(transport=ASGITransport(app=frontend), base_url="http://t") as c:
         assert "EcoLogística" in (await c.get("/vehiculos")).text
