@@ -518,7 +518,7 @@ Estas cifras son **modestas** porque la aplicación ya es liviana; el informe de
 | Vulnerabilidades en dependencias (`npm audit`) | 0 |
 | Funcionamiento en navegador | Inicio de sesión con usuario de datos semilla en un servidor local, Dashboard con la ilustración AVIF, sin errores de consola ni violaciones de la política CSP |
 | Flujo CI en GitHub Actions (`ci.yml`) | En verde en la rama `feature/green-it` |
-| Flujo `green-audit.yml` con Lighthouse CI | En verde en la rama `feature/green-it` (ver el estado actual en la pestaña *Actions*) |
+| Flujo `green-audit.yml` con Lighthouse CI | **En verde en GitHub Actions** (ejecución 42628243459, commit `da3b873`): puntaje ≥ 0,9, FCP ≤ 1,0 s, LCP ≤ 1,4 s, TBT ≤ 85 ms, CLS ≤ 0,02 y peso ≤ 1,1 MB, todos como errores bloqueantes sobre la mediana de 3 corridas en el ejecutor de GitHub |
 | Benchmark de la API | `scripts/medir_api.py` (resultados en la sección 4) |
 | Cálculo de carbono | `scripts/calcular_swdm.py` (resultados en la sección 6) |
 | Variantes de la ilustración | `scripts/generar_ilustracion_hero.py` (resultados en la sección 4.3) |
