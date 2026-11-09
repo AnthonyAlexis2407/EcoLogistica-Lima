@@ -29,11 +29,13 @@ def emisiones_g(bytes_transferidos: float) -> float:
 
 ESCENARIOS = {
     "Carga inicial, ANTES (Lighthouse móvil)": 105_397,
-    "Carga inicial, DESPUÉS (API con Brotli)": 68_867,
+    "Carga inicial, DESPUÉS (API con Brotli)": 68_966,
     "Listado de vehículos (50 filas), ANTES": 8_601,
     "Listado de vehículos, DESPUÉS (página de 12, Brotli)": 446,
     "Listado de pedidos (50 filas), ANTES": 18_001,
     "Listado de pedidos, DESPUÉS (página de 12, Brotli)": 555,
+    "Ilustración del Dashboard, ANTES (PNG 560 px)": 39_905,
+    "Ilustración del Dashboard, DESPUÉS (AVIF 560 px)": 7_958,
 }
 
 if __name__ == "__main__":
@@ -48,6 +50,11 @@ if __name__ == "__main__":
         ahorro = (emisiones_g(antes) - emisiones_g(despues)) * visitas / 1000
         print(f"Ahorro con {visitas:>7,} cargas iniciales/año: {ahorro:8.3f} kg CO2e "
               f"(antes {emisiones_g(antes) * visitas / 1000:.3f} kg, después {emisiones_g(despues) * visitas / 1000:.3f} kg)")
+    png, avif = ESCENARIOS["Ilustración del Dashboard, ANTES (PNG 560 px)"], ESCENARIOS["Ilustración del Dashboard, DESPUÉS (AVIF 560 px)"]
+    print(f"Reducción de la ilustración PNG a AVIF: {100 * (1 - avif / png):.1f} %")
+    for vistas in (50_000, 500_000):
+        print(f"Ahorro de la ilustración con {vistas:>7,} vistas del Dashboard/año: "
+              f"{(emisiones_g(png) - emisiones_g(avif)) * vistas / 1000:.3f} kg CO2e")
     print("\nSegmentos de la carga inicial DESPUÉS (mg CO2e):")
     for nombre in OPERACION:
         e = (OPERACION[nombre] + FABRICACION[nombre]) * despues / GB

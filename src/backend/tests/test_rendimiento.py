@@ -3,6 +3,9 @@ Pruebas de rendimiento y sostenibilidad (Informe Green IT): paginación de 12, E
 compresión, cabeceras de caché y servicio del frontend compilado.
 """
 
+import base64
+import hashlib
+
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
@@ -159,11 +162,17 @@ async def test_respuestas_grandes_se_comprimen_con_gzip_o_brotli(api):
 
 
 # ── Frontend compilado (optimizaciones 7 y 8) ─────────────────────────
+ARRANQUE = "console.log('arranque en linea')"
+
+
 @pytest.fixture
 def frontend(tmp_path):
     dist = tmp_path / "dist"
     (dist / "assets").mkdir(parents=True)
-    (dist / "index.html").write_text("<!doctype html><title>EcoLogística</title>", encoding="utf-8")
+    (dist / "index.html").write_text(
+        f'<!doctype html><title>EcoLogística</title><script>{ARRANQUE}</script><script src="/assets/index-abc123.js"></script>',
+        encoding="utf-8",
+    )
     (dist / "assets" / "index-abc123.js").write_text("console.log('ok')", encoding="utf-8")
     (dist / "robots.txt").write_text("User-agent: *", encoding="utf-8")
     (tmp_path / "secreto.txt").write_text("no se debe exponer", encoding="utf-8")
@@ -196,6 +205,15 @@ async def test_frontend_revalida_con_304_cuando_el_archivo_no_cambio(frontend):
         assert asset.status_code == 304
         otro = await c.get("/", headers={"If-None-Match": '"distinto"'})
         assert otro.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_csp_autoriza_solo_por_hash_los_scripts_en_linea(frontend):
+    esperado = "'sha256-" + base64.b64encode(hashlib.sha256(ARRANQUE.encode()).digest()).decode() + "'"
+    async with AsyncClient(transport=ASGITransport(app=frontend), base_url="http://t") as c:
+        csp = (await c.get("/")).headers["content-security-policy"]
+    script_src = next(d.strip() for d in csp.split(";") if d.strip().startswith("script-src"))
+    assert script_src == f"script-src 'self' {esperado}"  # sin 'unsafe-inline' y con un solo hash
 
 
 @pytest.mark.asyncio

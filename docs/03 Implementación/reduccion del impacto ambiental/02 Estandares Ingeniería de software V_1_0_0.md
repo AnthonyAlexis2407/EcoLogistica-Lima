@@ -21,25 +21,25 @@ Este documento fundamenta las refactorizaciones del [Informe de reducción del i
 
 | Característica | Subcaracterística | Cómo se aplicó | Evidencia |
 |---|---|---|---|
-| **Eficiencia de desempeño** | Comportamiento temporal | Eliminación de la fuente externa bloqueante, *code splitting* y compresión | FCP móvil de 2,61 s a 1,46 s; respuesta de listados de 5,7 ms (vehículos) y 6,5 ms (pedidos), sin pérdida de tiempo (Documento 01, secciones 4 y 5) |
-| | Utilización de recursos | Menos bytes y peticiones; consultas sin hidratar entidades ORM | Peso de 105 397 B a 68 867 B; peticiones de 7 a 4 |
+| **Eficiencia de desempeño** | Comportamiento temporal | Eliminación de la fuente externa bloqueante, *code splitting* y compresión | FCP móvil de 2,61 s a 0,67 s; respuesta de listados de 5,7 ms (vehículos) y 6,5 ms (pedidos), sin pérdida de tiempo (Documento 01, secciones 4 y 5) |
+| | Utilización de recursos | Menos bytes y peticiones; consultas sin hidratar entidades ORM | Peso de 105 397 B a 68 966 B; peticiones de 7 a 3 |
 | | Capacidad | Paginación de 12 filas e índices: la respuesta no crece con la tabla | Listados de 8 601 B y 18 001 B a 446 B y 555 B |
 | **Mantenibilidad** | Modularidad | Pantallas como módulos cargados bajo demanda; middleware de política HTTP aislado en `rendimiento.py` | Un archivo por pantalla; chunk `vendor` separado |
 | | Reusabilidad | `Paginador`, `useDebounced` y `patron_like` se reutilizan en dos listados | Dos usos de cada uno |
 | | Analizabilidad | Dependencias reducidas a 4 y recursos sin uso eliminados | `npm ls` con 4 dependencias de producción |
-| | Capacidad de ser probado | Cada optimización tiene una prueba automatizada | 51 pruebas del backend y 69 del frontend |
+| | Capacidad de ser probado | Cada optimización tiene una prueba automatizada | 52 pruebas del backend y 70 del frontend |
 | | Capacidad de ser modificado | Política de caché y compresión centralizadas en un punto, no repartidas por router | `app.middleware("http")(politica_http)` |
 
 ### 2.2 Principios de la Green Software Foundation (GSF)
 
 | Principio GSF | Definición | Aplicación en el proyecto | Estado |
 |---|---|---|---|
-| **Eficiencia de carbono** | Emitir la mínima cantidad de carbono por unidad de trabajo | Menos bytes por carga: de 15,62 mg a 10,21 mg CO₂e (SWDM v4) | Aplicado y medido |
+| **Eficiencia de carbono** | Emitir la mínima cantidad de carbono por unidad de trabajo | Menos bytes por carga: de 15,62 mg a 10,22 mg CO₂e (SWDM v4); la ilustración AVIF emite 80,1 % menos que su PNG | Aplicado y medido |
 | **Eficiencia energética** | Usar la menor energía posible por unidad de trabajo | Paginación, compresión y caché HTTP evitan transferencias y cómputo repetidos | Aplicado y medido |
 | **Eficiencia de hardware** | Usar el hardware (servidor y dispositivo) de la forma más ligera | Menos JavaScript ejecutado en el inicio (el segmento "dispositivos" pesa 53,7 % del carbono de una carga); fuente del sistema en lugar de descarga | Aplicado; el ahorro de CPU del dispositivo no se midió |
 | **Conciencia del carbono** | Hacer más trabajo cuando la electricidad es más limpia y menos cuando es más sucia | No se implementó: el sistema no tiene tareas diferibles. Se prevé para el motor de optimización de rutas (EN-001), cuyos cálculos pesados podrían programarse en horas de menor intensidad | Propuesto, no aplicado |
 
-La GSF define otros principios (medición, compromisos climáticos, carbono incorporado y modelado de la demanda); este proyecto aplica la **medición** con SWDM v4 y el cálculo de intensidad por carga (equivalente a la Software Carbon Intensity con una carga como unidad funcional: 10,21 mg CO₂e por carga inicial).
+La GSF define otros principios (medición, compromisos climáticos, carbono incorporado y modelado de la demanda); este proyecto aplica la **medición** con SWDM v4 y el cálculo de intensidad por carga (equivalente a la Software Carbon Intensity con una carga como unidad funcional: 10,22 mg CO₂e por carga inicial).
 
 ### 2.3 Directrices de sostenibilidad web del W3C (WSG)
 
@@ -78,7 +78,7 @@ Se usa el documento *Web Sustainability Guidelines (WSG)* del W3C, en su versió
 | **SOLID: abierto/cerrado** | Ampliar con composición, no editando lo existente | La política HTTP se añade como middleware sin tocar los routers |
 | **SOLID: inversión de dependencias** | Depender de abstracciones inyectadas | Los routers reciben la sesión y el rol con `Depends(...)`; las pruebas los reemplazan |
 | **DRY** | Una sola fuente de cada regla | `patron_like` escapa los comodines de búsqueda para vehículos y pedidos; `PAGE_SIZE = 12` en un solo lugar |
-| **YAGNI** | No construir lo que aún no se usa | No se añadió `<OptimizedPicture>` ni React Query sin necesidad medida (Documento 01, secciones 4.3 y 4.7) |
+| **YAGNI** | No construir lo que aún no se usa | No se añadió React Query ni un componente genérico de imagen: la ilustración usa `<picture>` directamente porque hay un solo uso (Documento 01, secciones 4.3 y 4.7) |
 
 ### 3.2 Normas para el backend (FastAPI, SQLAlchemy)
 
@@ -97,7 +97,8 @@ Se usa el documento *Web Sustainability Guidelines (WSG)* del W3C, en su versió
 2. Las librerías estables se separan en un chunk (`manualChunks`) para aprovechar la caché entre versiones (WSG 4.2).
 3. **Sin fuentes ni hojas de estilos de terceros**: se usa la pila de fuentes del sistema (WSG 2.11 y 3.5).
 4. **Sin recursos sin uso** en `public/` ni `src/assets/`: todo archivo enviado debe estar referenciado (WSG 3.2).
-5. Una imagen raster solo se incorpora si cumple: formato AVIF o WebP **medido** frente al original, `width` y `height` declarados, `loading="lazy"` si está bajo el pliegue y `decoding="async"` (WSG 2.9).
+5. Una imagen raster solo se incorpora si cumple: formato AVIF o WebP **medido** frente al original (una prueba mostró un WebP más pesado que su PNG), anchos adaptativos con `srcSet`, `width` y `height` declarados, `alt=""` si es decorativa, `loading="lazy"` si está bajo el pliegue y `decoding="async"` (WSG 2.9). Se genera con `scripts/generar_ilustracion_hero.py`.
+5 bis. El HTML trae los estilos incrustados y el JavaScript de la aplicación se pide **después del primer pintado**; los scripts en línea se autorizan en la CSP por su hash SHA-256, nunca con `'unsafe-inline'` (WSG 3.7).
 6. Los íconos se usan como **SVG en línea**; los recursos pequeños y críticos se incrustan (`data:`) para ahorrar peticiones.
 7. Los buscadores aplican **retraso (*debounce*)** de 300 ms antes de consultar al servidor.
 8. Antes de agregar una librería se **mide su peso** (Bundlephobia o `vite build`) y se compara con la API nativa del navegador (`Intl`, `fetch`, `URLSearchParams`).
@@ -110,10 +111,10 @@ Se usa el documento *Web Sustainability Guidelines (WSG)* del W3C, en su versió
 |---|---|---|---|---|---|
 | 1 | Consultas con columnas explícitas e índices | Eficiencia: utilización de recursos | Eficiencia de hardware | 3.16 | `EXPLAIN QUERY PLAN`; `test_listado_de_vehiculos_filtra_por_busqueda_y_estado` |
 | 2 | Paginación de 12 filas con `X-Total-Count` | Eficiencia: capacidad | Eficiencia energética | 4.3 | 8 601 B a 446 B; pruebas de `Paginador` y de listados |
-| 3 | Auditoría de imágenes (WebP/AVIF medidos) | Eficiencia: utilización de recursos | Eficiencia de carbono | 2.9 | PNG 13 057 B, WebP 13 680 B, AVIF 10 335 B; 40 470 B de recursos eliminados |
-| 4 | `React.lazy`, `Suspense` y chunk `vendor` | Mantenibilidad: modularidad | Eficiencia de hardware | 3.7 y 3.3 | Chunks por pantalla en `vite build` |
+| 3 | Ilustración con `<picture>`: AVIF, WebP y PNG adaptativos | Eficiencia: utilización de recursos | Eficiencia de carbono | 2.9 | 560 px: PNG 39 905 B, WebP 15 164 B (−62,0 %), AVIF 7 958 B (−80,1 %); 40 470 B de recursos eliminados; prueba de `picture` |
+| 4 | `React.lazy`, `Suspense`, chunk `vendor` y arranque tras el primer pintado | Mantenibilidad: modularidad | Eficiencia de hardware | 3.7 y 3.3 | Chunks por pantalla; FCP de 2,61 s a 0,67 s en 8 de 8 corridas |
 | 5 | Fuente del sistema; sin librerías innecesarias | Mantenibilidad: analizabilidad | Eficiencia energética | 3.12, 3.5 y 2.11 | 2 peticiones de terceros menos; 4 dependencias de producción |
-| 6 | Favicon incrustado y SVG en línea | Eficiencia: comportamiento temporal | Eficiencia de carbono | 4.3 | Peticiones de 7 a 4 |
+| 6 | Favicon y hoja de estilos incrustados; SVG en línea | Eficiencia: comportamiento temporal | Eficiencia de carbono | 4.3 | Peticiones de 7 a 3 |
 | 7 | `Cache-Control` inmutable, ETag y 304 | Eficiencia: comportamiento temporal | Eficiencia energética | 4.2 | 304 de 534 B; pruebas de ETag |
 | 8 | Compresión Brotli y Gzip | Eficiencia: capacidad | Eficiencia de carbono | 4.3 | 84 % a 91 % menos bytes en listados |
 
@@ -127,7 +128,7 @@ Se usa el documento *Web Sustainability Guidelines (WSG)* del W3C, en su versió
 |---|---|
 | `.github/workflows/ci.yml` | Pruebas del backend con cobertura mínima de 80 %, tipos, pruebas y *build* del frontend, y auditoría de dependencias |
 | `.github/workflows/green-audit.yml` | Auditoría Green IT con Lighthouse CI sobre la aplicación servida por FastAPI |
-| `lighthouserc.json` | Umbrales de la auditoría: puntaje ≥ 0,9, TBT ≤ 85 ms, CLS ≤ 0,02 y peso ≤ 1,1 MB como **errores bloqueantes**; FCP ≤ 1,0 s y LCP ≤ 1,4 s como **advertencias** |
+| `lighthouserc.json` | Umbrales de la auditoría como **errores bloqueantes**: puntaje ≥ 0,9, FCP ≤ 1,0 s, LCP ≤ 1,4 s, TBT ≤ 85 ms, CLS ≤ 0,02 y peso ≤ 1,1 MB, evaluados sobre la **mediana** de 3 corridas |
 | `.github/pull_request_template.md` | Plantilla estándar de Pull Request |
 
 El flujo `green-audit.yml`:
@@ -174,7 +175,7 @@ jobs:
         run: npx --yes @lhci/cli@0.14.0 autorun --config=lighthouserc.json
 ```
 
-(El archivo completo está en el repositorio; aquí se resume.) A diferencia de la plantilla de referencia, **no usa `|| true`**: si un umbral bloqueante falla, el flujo falla.
+(El archivo completo está en el repositorio; aquí se resume.) A diferencia de la plantilla de referencia, **no usa `|| true`**: si un umbral falla, el flujo falla.
 
 ### 5.2 Buenas prácticas de la guía de GitHub Actions aplicadas
 

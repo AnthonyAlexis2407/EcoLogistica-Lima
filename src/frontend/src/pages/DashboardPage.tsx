@@ -43,6 +43,12 @@ export default function DashboardPage() {
           <h3>Bienvenido, {user?.nombre || 'Usuario'}</h3>
           <p>Plataforma de optimización de logística verde y gestión de transporte de última milla para DistriRápido S.A.C.</p>
         </div>
+        {/* Ilustración decorativa: AVIF y WebP adaptativos con respaldo PNG (Informe Green IT, optimización 3) */}
+        <picture className="hero-ilustracion">
+          <source type="image/avif" srcSet="/img/hero-rutas-280.avif 280w, /img/hero-rutas-560.avif 560w" sizes="280px" />
+          <source type="image/webp" srcSet="/img/hero-rutas-280.webp 280w, /img/hero-rutas-560.webp 560w" sizes="280px" />
+          <img src="/img/hero-rutas-560.png" width="280" height="160" alt="" loading="lazy" decoding="async" />
+        </picture>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Link to="/pedidos" className="btn btn-primary" style={{ background: '#10b981', border: 'none' }}>
             <Package size={16} /> Ver Pedidos

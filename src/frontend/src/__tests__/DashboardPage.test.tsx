@@ -47,4 +47,27 @@ describe('DashboardPage', () => {
     expect(screen.getByText('1.78')).toBeInTheDocument();
     expect(screen.getByText('Sin pedidos registrados')).toBeInTheDocument();
   });
+
+  it('entrega la ilustración con AVIF y WebP adaptativos y respaldo PNG (picture)', () => {
+    vi.mocked(vehiculosApi.count).mockResolvedValue({});
+    vi.mocked(pedidosApi.count).mockResolvedValue({});
+    vi.mocked(vehiculosApi.list).mockResolvedValue([]);
+    vi.mocked(pedidosApi.list).mockResolvedValue([]);
+
+    const { container } = render(<MemoryRouter><DashboardPage /></MemoryRouter>);
+
+    const fuentes = Array.from(container.querySelectorAll('picture.hero-ilustracion source'));
+    expect(fuentes.map((f) => f.getAttribute('type'))).toEqual(['image/avif', 'image/webp']);
+    for (const fuente of fuentes) {
+      expect(fuente.getAttribute('srcset')).toMatch(/280w, .*560w/);
+      expect(fuente.getAttribute('sizes')).toBe('280px');
+    }
+    const img = container.querySelector('picture.hero-ilustracion img')!;
+    expect(img.getAttribute('src')).toBe('/img/hero-rutas-560.png');
+    expect(img.getAttribute('width')).toBe('280');
+    expect(img.getAttribute('height')).toBe('160');
+    expect(img.getAttribute('alt')).toBe('');
+    expect(img.getAttribute('loading')).toBe('lazy');
+    expect(img.getAttribute('decoding')).toBe('async');
+  });
 });

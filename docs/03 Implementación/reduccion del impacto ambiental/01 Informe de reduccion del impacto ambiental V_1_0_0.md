@@ -29,10 +29,10 @@ El informe de referencia de la asignatura describe un stack MERN (MongoDB, Expre
 |---|---|---|
 | 1 | `.select()`, `.lean()` e índices en MongoDB | Columnas explícitas en SQLAlchemy (sin hidratar entidades ORM) e índices en SQLite/PostgreSQL |
 | 2 | Paginación backend y frontend de 12 registros | Parámetros `page` y `limit` (12 por defecto) con cabecera `X-Total-Count` y paginador en React |
-| 3 | Imágenes WebP/AVIF con `<picture>` | Auditoría de imágenes: el sistema no entrega imágenes raster; se eliminaron los recursos sin uso y se midió la conversión (ver 3.3) |
-| 4 | `React.lazy` y `Suspense` | Igual: carga diferida por ruta y chunk de librerías |
+| 3 | Imágenes WebP/AVIF con `<picture>` | Ilustración del Dashboard con `<picture>`: AVIF y WebP adaptativos (280 y 560 px) y PNG de respaldo |
+| 4 | `React.lazy` y `Suspense` | Igual, más arranque de la aplicación tras el primer pintado |
 | 5 | Sustituir librerías por APIs nativas | Se eliminó la fuente tipográfica externa (Google Fonts) por la pila de fuentes del sistema y se verificó que no existen `moment` ni `lodash` |
-| 6 | Inlining de SVG | Favicon SVG incrustado como `data:` URI; los íconos ya son componentes SVG en línea |
+| 6 | Inlining de SVG | Favicon SVG y hoja de estilos incrustados en el HTML; los íconos ya son componentes SVG en línea |
 | 7 | `Cache-Control`, ETag y React Query | `Cache-Control` inmutable para `/assets`, ETag con respuesta 304 en API y archivos, y revalidación |
 | 8 | Compresión Brotli/Gzip en Express | `BrotliMiddleware` con respaldo Gzip en FastAPI |
 
@@ -44,9 +44,10 @@ Todas las cifras de este documento fueron **medidas**, no estimadas; se indica e
 
 | Aspecto | Detalle |
 |---|---|
-| Herramienta de rendimiento | Google Lighthouse 12.8.2, categoría `performance`, Chrome en modo sin interfaz |
-| Perfil de dispositivo | Móvil (valor por defecto de Lighthouse, con red 4G simulada y CPU ralentizada) y, de forma complementaria, escritorio |
-| Repeticiones | 3 corridas por escenario; se reporta la **mediana** |
+| Herramienta de rendimiento | Google Lighthouse 12.8.2, categoría `performance`, HeadlessChrome 156 |
+| Perfil móvil (por defecto de Lighthouse) | Red 4G simulada (RTT 150 ms, 1 638 kbps de bajada) y CPU 4 veces más lenta |
+| Perfil de escritorio (complementario) | Preset `desktop` de Lighthouse |
+| Repeticiones | 3 corridas por escenario intermedio y **8 corridas en el escenario final**; se reporta la **mediana** y el rango |
 | Pantalla auditada | Inicio de sesión (`/`), la única pantalla accesible sin credenciales |
 | Escenario ANTES | Rama `main` en el commit `8981ee6`, compilada y servida con `vite preview` |
 | Escenario DESPUÉS | Rama `feature/green-it`, compilada con `VITE_API_URL=""` y servida por FastAPI en un contenedor Docker (Python 3.12) |
@@ -61,6 +62,7 @@ PYTHONPATH=src/backend python -m uvicorn app.main:app --port 8000
 npx lighthouse@12 http://localhost:8000/ --only-categories=performance --output=json
 PYTHONPATH=src/backend python scripts/medir_api.py
 python scripts/calcular_swdm.py
+python scripts/generar_ilustracion_hero.py
 ```
 
 ---
@@ -78,6 +80,7 @@ La auditoría del commit `8981ee6` encontró estos problemas reales:
 | Listados sin paginación efectiva | Valor por defecto de 50 filas por llamada y filtrado en el navegador |
 | Respuestas sin compresión ni caché reutilizable | La API marcaba todo como `Cache-Control: no-store` y sin ETag, y el JSON viajaba sin comprimir; los archivos del frontend no tenían caché de larga duración (Lighthouse en escritorio: *Serve static assets with an efficient cache policy*, 0,5) |
 | Índice ausente | `vehiculos.estado` y `pedidos.creado_en` se recorrían completos |
+| Sin imágenes optimizadas | El banner del Dashboard no tenía ninguna imagen; el único PNG del repositorio era de la plantilla de Vite y no se usaba |
 
 **Métricas de referencia (móvil, mediana de 3 corridas):**
 
@@ -196,36 +199,47 @@ setTotal(data.total);
 
 Pruebas: `test_listado_de_vehiculos_pagina_de_12_y_informa_el_total`, `test_listado_de_pedidos_pagina_busca_y_conserva_el_aislamiento_por_bodega` y las de `Paginador`, `VehiculosPage` y `PedidosPage`.
 
-### 4.3 Optimización 3: imágenes WebP/AVIF con `<picture>` (WSG 2.9)
+### 4.3 Optimización 3: imágenes AVIF y WebP con `<picture>` (WSG 2.9)
 
-**Diagnóstico.** La interfaz **no muestra ninguna imagen raster**: los íconos son SVG en línea y el banner del Dashboard se dibuja con CSS. El único PNG del repositorio, `hero.png` (13 057 B), venía de la plantilla de Vite y no se usaba. Por tanto, no existe una imagen que convertir en producción.
+**Diagnóstico.** La interfaz no mostraba ninguna imagen: el banner del Dashboard se dibujaba solo con CSS, y el único PNG del repositorio (`hero.png`, 13 057 B) venía de la plantilla de Vite y no se usaba. Una prueba previa con ese PNG mostró que convertir **no siempre reduce**: su versión WebP pesó 13 680 B (+4,8 %) y solo AVIF ahorró (10 335 B, −20,8 %). Por eso cada conversión se mide antes de adoptarla.
 
-**Implementación.** La acción correcta fue **no enviar bytes que nadie ve**: se eliminaron `hero.png`, `react.svg`, `vite.svg`, `favicon.svg` e `icons.svg` (40 470 B en total; 14 577 B de ellos se copiaban a `dist/`). Para no dejar la regla sin respaldo, se midió la conversión del PNG con Pillow 11:
+**Implementación.** Se incorporó una ilustración decorativa al banner del Dashboard (una ruta de entrega con una hoja, el tema del proyecto). La genera `scripts/generar_ilustracion_hero.py`, que la exporta en dos anchos (280 px para pantallas normales y 560 px para las de alta densidad) y tres formatos, e imprime la tabla de pesos. Se eliminaron además los cinco recursos sin uso (40 470 B). Para usar otra imagen de marca basta cambiar la función `dibujar()` por la carga del archivo; el resto del proceso es el mismo.
 
-| Formato | Tamaño | Variación frente al PNG |
-|---|---|---|
-| PNG original (343 × 361 px, con transparencia) | 13 057 B | — |
-| WebP (calidad 80) | 13 680 B | **+4,8 % (más pesado)** |
-| AVIF (calidad 50) | 10 335 B | −20,8 % |
-
-La medición muestra que convertir **no siempre reduce**: para una ilustración pequeña con transparencia, WebP resultó más pesado y solo AVIF ahorró. Por eso la regla del Documento 02 exige medir cada conversión antes de adoptarla.
-
-Cuando el producto incorpore imágenes (por ejemplo, una fotografía de evidencia de entrega), el patrón estándar es:
+ANTES (`DashboardPage.tsx`): sin imagen.
 
 ```tsx
-<picture>
-  <source srcSet="/img/evidencia-600.avif 600w, /img/evidencia-1200.avif 1200w" type="image/avif" />
-  <source srcSet="/img/evidencia-600.webp 600w, /img/evidencia-1200.webp 1200w" type="image/webp" />
-  <img src="/img/evidencia-1200.jpg" alt="Evidencia de entrega" width="1200" height="800"
-       loading="lazy" decoding="async" />
+<div className="hero-banner">
+  <div className="hero-text">{/* ... */}</div>
+  <div>{/* botones */}</div>
+</div>
+```
+
+DESPUÉS:
+
+```tsx
+<picture className="hero-ilustracion">
+  <source type="image/avif" srcSet="/img/hero-rutas-280.avif 280w, /img/hero-rutas-560.avif 560w" sizes="280px" />
+  <source type="image/webp" srcSet="/img/hero-rutas-280.webp 280w, /img/hero-rutas-560.webp 560w" sizes="280px" />
+  <img src="/img/hero-rutas-560.png" width="280" height="160" alt="" loading="lazy" decoding="async" />
 </picture>
 ```
 
-No se agregó un componente genérico `<OptimizedPicture>` sin uso, para respetar el principio YAGNI (Documento 02). **Esta área queda aplicada como auditoría y depuración, no como conversión en producción.**
+La imagen es decorativa, por lo que lleva `alt=""` (WCAG 1.1.1); declara `width` y `height` para evitar saltos de diseño (CLS), se carga de forma diferida y solo se oculta en pantallas de menos de 1 100 px.
+
+**Evidencia (pesos medidos de cada variante):**
+
+| Ancho | PNG (respaldo) | WebP | Reducción WebP | AVIF | Reducción AVIF |
+|---|---|---|---|---|---|
+| 280 px | 17 393 B | 7 988 B | 54,1 % | 3 913 B | 77,5 % |
+| 560 px | 39 905 B | 15 164 B | 62,0 % | 7 958 B | **80,1 %** |
+
+En Chrome, la variante elegida fue `hero-rutas-560.avif` con 7 867 B transferidos, frente a los 39 905 B del PNG. La ilustración vive en el Dashboard, que exige sesión, por lo que **no forma parte de la página auditada con Lighthouse** (inicio de sesión) y no altera sus métricas. Prueba: `entrega la ilustración con AVIF y WebP adaptativos y respaldo PNG (picture)`.
 
 ### 4.4 Optimización 4: carga diferida y *code splitting* (WSG 3.7 y 3.3)
 
 **Diagnóstico.** Las cuatro pantallas viajaban en un solo `index.js` de 226 263 B (70 831 B transferidos), aunque el inicio de sesión no usa Dashboard, Vehículos ni Pedidos. Lighthouse marcaba *Reduce unused JavaScript*.
+
+**Implementación (parte 1: división por pantalla).**
 
 ANTES (`App.tsx`):
 
@@ -249,15 +263,42 @@ const PedidosPage = lazy(() => import('./pages/PedidosPage'));
 
 Además, `vite.config.ts` separa `react`, `react-dom` y `react-router-dom` en un chunk `vendor`, que cambia poco entre versiones y se conserva en caché.
 
+**Implementación (parte 2: arranque tras el primer pintado).** El HTML ahora trae una pantalla de bienvenida (logotipo y título) con los estilos incrustados, y el JavaScript de la aplicación no se pide hasta que el navegador informa el primer pintado (`PerformanceObserver` de tipo `paint`, con respaldo a los 3 s). Entonces se precargan en paralelo los módulos y se importa la entrada.
+
+ANTES (`index.html` compilado):
+
+```html
+<script type="module" crossorigin src="/assets/index-jqtqE8ZJ.js"></script>
+<link rel="modulepreload" crossorigin href="/assets/vendor-oT4qkDZn.js">
+<link rel="stylesheet" crossorigin href="/assets/index-DdVb1IjV.css">
+```
+
+DESPUÉS:
+
+```html
+<style>/* hoja de estilos incrustada */</style>
+<meta name="precarga" content="/assets/vendor-oT4qkDZn.js,/assets/index-D7Y1-2wk.js">
+<script>(function(){var m=document.querySelector('meta[name=precarga]').content.split(','),ok=0;
+function ir(){if(ok++)return;m.forEach(function(h){var l=document.createElement('link');
+l.rel='modulepreload';l.crossOrigin='';l.href=h;document.head.appendChild(l)});import(m[m.length-1])}
+try{new PerformanceObserver(function(l,o){if(l.getEntriesByName('first-contentful-paint').length)
+{o.disconnect();setTimeout(ir)}}).observe({type:'paint',buffered:true});setTimeout(ir,3000)}
+catch(e){addEventListener('load',ir)}})()</script>
+```
+
+El plugin de `vite.config.ts` hace esta transformación al compilar. Como el script es en línea, el servidor calcula su hash SHA-256 al montar el frontend y lo agrega a la política `Content-Security-Policy` (`script-src 'self' 'sha256-…'`, sin `'unsafe-inline'`); prueba `test_csp_autoriza_solo_por_hash_los_scripts_en_linea`.
+
+**Por qué se llegó a esta forma (medido).** Dos variantes intermedias (hoja de estilos incrustada con los módulos precargados desde el HTML, y arranque tras el evento `load`) dieron un FCP **bimodal**, de 0,7 s o 1,3 s según la corrida: cuando los módulos precargados terminaban de descargarse antes del primer pintado, Lighthouse los contaba dentro del FCP. La variante final no pide el JavaScript hasta después del primer pintado y las 8 corridas quedaron entre 0,64 s y 0,70 s.
+
 **Evidencia (salida de `vite build`, tamaño sin comprimir / comprimido):**
 
 | Archivo | Tamaño | Gzip |
 |---|---|---|
-| `index` (entrada) | 16,54 kB | 6,02 kB |
+| `index` (entrada) | 16,52 kB | 6,01 kB |
 | `vendor` | 180,64 kB | 59,47 kB |
 | `DashboardPage` | 10,40 kB | 3,01 kB |
 | `VehiculosPage` | 10,43 kB | 3,54 kB |
-| `PedidosPage` | 9,96 kB | 3,33 kB |
+| `PedidosPage` | 9,96 kB | 3,34 kB |
 | `Paginador` | 2,16 kB | 0,93 kB |
 
 ### 4.5 Optimización 5: dependencias y recursos de terceros (WSG 3.12, 3.5 y 2.11)
@@ -280,24 +321,25 @@ DESPUÉS:
 
 **Evidencia.** Se eliminaron 2 peticiones a dominios de terceros y 28 696 B de fuente y hoja de estilos; desapareció la auditoría *Preconnect to required origins*. Costo: la tipografía visual cambia a la del sistema operativo del usuario.
 
-### 4.6 Optimización 6: reducción de peticiones HTTP e *inlining* de SVG (WSG 4.3)
+### 4.6 Optimización 6: reducción de peticiones HTTP e *inlining* (WSG 4.3)
 
-**Diagnóstico.** El favicon apuntaba a `/vite.svg`, un archivo inexistente: el servidor respondía con el `index.html` de reserva, y el navegador hacía dos peticiones inútiles.
+**Diagnóstico.** El favicon apuntaba a `/vite.svg`, un archivo inexistente: el servidor respondía con el `index.html` de reserva, y el navegador hacía dos peticiones inútiles. Además, la hoja de estilos era un archivo aparte que bloqueaba el primer pintado.
 
 ANTES (`index.html`):
 
 ```html
 <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+<link rel="stylesheet" crossorigin href="/assets/index-DdVb1IjV.css">
 ```
 
 DESPUÉS:
 
 ```html
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E...%3C/svg%3E" />
-<meta name="theme-color" content="#047857" />
+<style>/* hoja de estilos incrustada al compilar */</style>
 ```
 
-Los íconos de la interfaz (`lucide-react`) ya son componentes SVG en línea: no generan peticiones. **Resultado medido: de 7 a 4 peticiones en la carga inicial** (documento, script de entrada, chunk `vendor` y hoja de estilos).
+Los íconos de la interfaz (`lucide-react`) ya son componentes SVG en línea: no generan peticiones. **Resultado medido: de 7 a 3 peticiones en la carga inicial** (documento, chunk `vendor` y script de entrada). El costo es que `index.html` pesa 4,7 kB comprimido en lugar de 0,6 kB; se compensa con la eliminación del archivo CSS (3,8 kB) y de su petición.
 
 ### 4.7 Optimización 7: estrategia de caché (WSG 4.2)
 
@@ -328,7 +370,7 @@ if _coincide_etag(request.headers.get("if-none-match"), etag):
     return _con_seguridad(Response(status_code=304, headers=sin_cuerpo))
 ```
 
-**Evidencia medida.** Revalidar `index.html` con el ETag devuelve 304 con **534 B** de cabeceras y sin cuerpo (frente a 1 110 B de la primera carga); los archivos de `/assets` no se vuelven a pedir. Pruebas: `test_get_de_la_api_lleva_etag_y_responde_304_si_no_cambio`, `test_frontend_revalida_con_304_cuando_el_archivo_no_cambio` y `test_frontend_assets_con_cache_inmutable_e_index_con_revalidacion`.
+**Evidencia medida.** Revalidar `index.html` con el ETag devuelve 304 sin cuerpo; los archivos de `/assets` no se vuelven a pedir. Pruebas: `test_get_de_la_api_lleva_etag_y_responde_304_si_no_cambio`, `test_frontend_revalida_con_304_cuando_el_archivo_no_cambio` y `test_frontend_assets_con_cache_inmutable_e_index_con_revalidacion`.
 
 **Equivalencia con React Query.** El proyecto no incorpora TanStack Query: sumaría una dependencia de unos 13 kB para un beneficio que el caché HTTP con ETag ya entrega (WSG 3.12, usar pocas dependencias).
 
@@ -359,33 +401,45 @@ La compresión suma entre 0,2 y 0,5 ms de CPU por respuesta de 1 KB o más; se a
 
 ## 5. Comparación de métricas ANTES y DESPUÉS
 
-Móvil (perfil por defecto de Lighthouse), mediana de 3 corridas:
+### 5.1 Resultado final frente a los umbrales de referencia
 
-| Métrica | ANTES | Frontend optimizado (servido con `vite preview`) | DESPUÉS (frontend + API con Brotli, en Docker) | Variación ANTES a DESPUÉS |
-|---|---|---|---|---|
-| Puntaje de rendimiento | 93 | 100 | **100** | +7 puntos |
-| FCP | 2,613 s | 1,365 s | **1,455 s** | −1,158 s (−44,3 %) |
-| LCP | 2,613 s | 1,365 s | **1,455 s** | −1,158 s (−44,3 %) |
-| TBT | 0 ms | 0 ms | **0 ms** | sin cambio |
-| CLS | 0 | 0 | **0** | sin cambio |
-| Peso transferido | 105 397 B | 70 981 B | **68 867 B** | −36 530 B (−34,7 %) |
-| Peticiones HTTP | 7 | 4 | **4** | −3 (−42,9 %) |
+Móvil (perfil por defecto de Lighthouse), escenario final: **8 corridas**, mediana y rango.
 
-Escritorio (perfil complementario):
+| Métrica | Umbral de referencia | ANTES (mediana de 3) | DESPUÉS (mediana de 8) | Rango DESPUÉS | Corridas que cumplen |
+|---|---|---|---|---|---|
+| Puntaje de rendimiento | ≥ 90 | 93 | **100** | 100 a 100 | 8 de 8 |
+| First Contentful Paint | ≤ 1,0 s | 2,613 s | **0,674 s** | 0,640 a 0,701 s | 8 de 8 |
+| Largest Contentful Paint | ≤ 1,4 s | 2,613 s | **0,674 s** | 0,640 a 0,701 s | 8 de 8 |
+| Total Blocking Time | ≤ 85 ms | 0 ms | **0 ms** | 0 a 85,5 ms | 7 de 8 (una corrida dio 85,5 ms) |
+| Cumulative Layout Shift | ≤ 0,02 | 0 | **0** | 0 | 8 de 8 |
+| Peso transferido | ≤ 1,1 MB | 105 397 B | **68 966 B** (0,07 MB) | constante | 8 de 8 |
+| Peticiones HTTP | sin umbral | 7 | **3** | constante | — |
+
+Escritorio (perfil complementario), mediana de 3 corridas:
 
 | Métrica | ANTES | DESPUÉS |
 |---|---|---|
 | Puntaje de rendimiento | 100 (corridas: 98, 100, 100) | 100 |
-| FCP / LCP | 0,540 s | 0,466 s |
-| Peso transferido | 106 836 B | 68 867 B |
-| Peticiones HTTP | 7 | 4 |
+| FCP / LCP | 0,540 s | 0,227 s |
+| Peso transferido | 106 836 B | 68 966 B |
+| Peticiones HTTP | 7 | 3 |
 
-### 5.1 Lectura honesta de los resultados
+### 5.2 Efecto de cada etapa (móvil)
 
-- **Lo que sí se logró:** el puntaje sube de 93 a 100; el tiempo hasta el primer contenido baja 44 % en móvil; el peso baja 34,7 % y las peticiones de 7 a 4. Las mejoras de la aplicación (sin fuente externa, favicon incrustado, *code splitting*) explican casi todo: el frontend servido con `vite preview` ya alcanza 1,365 s.
-- **El servidor de FastAPI no añade velocidad en la carga inicial:** con la API en Docker el FCP fue 1,455 s, 0,09 s peor que con `vite preview` directo. Atribuimos esa diferencia al entorno (contenedor con carpeta montada desde Windows) y a la compresión dinámica, pero no la aislamos con una medición adicional. Su aporte real es la reducción de bytes (−2 114 B) y la caché de visitas posteriores.
-- **Umbrales de referencia de la rúbrica:** puntaje ≥ 90, TBT ≤ 85 ms, CLS ≤ 0,02 y peso ≤ 1,1 MB **se cumplen** (TBT 0 ms, CLS 0, peso 0,07 MB). **FCP ≤ 1,0 s y LCP ≤ 1,4 s se cumplen en escritorio (0,47 s) pero no en móvil con red 4G simulada (1,46 s)**. En el flujo de CI (`lighthouserc.json`) esos dos límites están como advertencia por esta razón.
+| Etapa | Puntaje | FCP y LCP | Peso | Peticiones | Corridas |
+|---|---|---|---|---|---|
+| 0. ANTES (`main`, `vite preview`) | 93 | 2,613 s | 105 397 B | 7 | 3 |
+| 1. Frontend optimizado (sin fuente externa, favicon incrustado, *code splitting*), `vite preview` | 100 | 1,365 s | 70 981 B | 4 | 3 |
+| 2. Etapa 1 servida por FastAPI con Brotli y caché (Docker) | 100 | 1,455 s | 68 867 B | 4 | 3 |
+| 3. Etapa 2 con hoja de estilos incrustada, pantalla de bienvenida y arranque tras el primer pintado | 100 | **0,674 s** | **68 966 B** | **3** | 8 |
+
+### 5.3 Lectura honesta de los resultados
+
+- **Lo que sí se logró:** el puntaje sube de 93 a 100; el FCP y el LCP bajan 74 % en móvil (de 2,61 s a 0,67 s); el peso baja 34,6 % y las peticiones de 7 a 3. Los umbrales de la rúbrica de FCP (≤ 1,0 s) y LCP (≤ 1,4 s) se cumplen en las 8 corridas.
+- **El TBT es el indicador más ruidoso.** Su mediana es 0 ms, pero en 3 de las 16 corridas de las dos últimas variantes midió entre 82 y 110 ms; en el escenario final, una de 8 corridas dio 85,5 ms, medio milisegundo por encima del umbral. Se atribuye a la carga del equipo de pruebas (Windows con contenedor), no a la aplicación, pero no se verificó aislando el equipo.
+- **El servidor de FastAPI no acelera por sí solo la carga inicial:** en la etapa 2 el FCP fue 0,09 s peor que con `vite preview` directo. Su aporte medible es la reducción de bytes en las llamadas a la API (84 % a 97 %) y la caché de las visitas de retorno.
 - **Los valores absolutos no son comparables con los del informe de referencia** (peso de 8,4 MB y puntaje 38): ese informe describe otra aplicación. Nuestro punto de partida ya era liviano (105 KB); la mejora relativa es la que corresponde a esta aplicación.
+- **Compromiso de la pantalla de bienvenida.** Mientras React arranca, el usuario ve el logotipo y el título; el formulario de inicio de sesión aparece cuando React monta, poco después del primer pintado (no se midió ese instante por separado). Si el navegador no informa el primer pintado (por ejemplo, una pestaña en segundo plano), el arranque ocurre a los 3 s.
 
 ---
 
@@ -419,31 +473,36 @@ Intensidad de la red eléctrica por defecto de SWDM v4: **494 g CO₂e/kWh** (pr
 - Energía: 0,000105397 × 0,300 = 3,162 × 10⁻⁵ kWh (31,62 mWh)
 - Emisiones: 3,162 × 10⁻⁵ × 494 = 0,015620 g = **15,62 mg CO₂e por carga**
 
-**DESPUÉS: 68 867 B**
+**DESPUÉS: 68 966 B**
 
-- Datos: 68 867 / 10⁹ = 0,000068867 GB
-- Energía: 0,000068867 × 0,300 = 2,066 × 10⁻⁵ kWh (20,66 mWh)
-- Emisiones: 2,066 × 10⁻⁵ × 494 = 0,010206 g = **10,21 mg CO₂e por carga**
+- Datos: 68 966 / 10⁹ = 0,000068966 GB
+- Energía: 0,000068966 × 0,300 = 2,069 × 10⁻⁵ kWh (20,69 mWh)
+- Emisiones: 2,069 × 10⁻⁵ × 494 = 0,010221 g = **10,22 mg CO₂e por carga**
 
-Reducción: 15,62 − 10,21 = 5,41 mg por carga (**−34,7 %**, igual a la reducción de bytes porque el modelo es lineal en los datos).
+Reducción: 15,62 − 10,22 = 5,40 mg por carga (**−34,6 %**, igual a la reducción de bytes porque el modelo es lineal en los datos).
 
-Reparto de la carga DESPUÉS por segmento: centros de datos 2,28 mg, redes 2,45 mg y dispositivos del usuario 5,48 mg. El dispositivo es el segmento mayor (53,7 %), por lo que reducir el JavaScript ejecutado también importa.
+Reparto de la carga DESPUÉS por segmento: centros de datos 2,28 mg, redes 2,45 mg y dispositivos del usuario 5,49 mg. El dispositivo es el segmento mayor (53,7 %), por lo que reducir el JavaScript ejecutado también importa.
 
-### 6.3 Cálculo por llamada a la API
+### 6.3 Cálculo por llamada a la API y por imagen
 
-| Listado | Bytes ANTES | Bytes DESPUÉS | mg CO₂e ANTES | mg CO₂e DESPUÉS |
+| Recurso | Bytes ANTES | Bytes DESPUÉS | mg CO₂e ANTES | mg CO₂e DESPUÉS |
 |---|---|---|---|---|
-| Vehículos | 8 601 | 446 | 1,275 | 0,066 |
-| Pedidos | 18 001 | 555 | 2,668 | 0,082 |
+| Listado de vehículos | 8 601 | 446 | 1,275 | 0,066 |
+| Listado de pedidos | 18 001 | 555 | 2,668 | 0,082 |
+| Ilustración del Dashboard (PNG a AVIF, 560 px) | 39 905 | 7 958 | 5,914 | 1,179 |
+
+La ilustración AVIF emite 80,1 % menos que su respaldo PNG cada vez que se muestra.
 
 ### 6.4 Proyección anual (supuesto explícito)
 
 El sistema es de uso interno de DistriRápido y aún no tiene tráfico real, por lo que el volumen es un **supuesto ilustrativo**, no una medición: 50 usuarios × 250 días hábiles × 4 cargas iniciales al día = **50 000 cargas al año**. Se muestra también 500 000 para comparar con el informe de referencia.
 
-| Cargas iniciales al año | Emisiones ANTES | Emisiones DESPUÉS | Ahorro anual |
+| Escenario anual | Emisiones ANTES | Emisiones DESPUÉS | Ahorro anual |
 |---|---|---|---|
-| 50 000 | 0,781 kg CO₂e | 0,510 kg CO₂e | **0,271 kg CO₂e** |
-| 500 000 | 7,810 kg CO₂e | 5,103 kg CO₂e | **2,707 kg CO₂e** |
+| 50 000 cargas iniciales | 0,781 kg CO₂e | 0,511 kg CO₂e | **0,270 kg CO₂e** |
+| 500 000 cargas iniciales | 7,810 kg CO₂e | 5,110 kg CO₂e | **2,700 kg CO₂e** |
+| Ilustración, 50 000 vistas del Dashboard | 0,296 kg CO₂e | 0,059 kg CO₂e | **0,237 kg CO₂e** |
+| Ilustración, 500 000 vistas del Dashboard | 2,957 kg CO₂e | 0,590 kg CO₂e | **2,367 kg CO₂e** |
 
 Estas cifras son **modestas** porque la aplicación ya es liviana; el informe de referencia proyecta 935 kg al año porque parte de una página de 8,4 MB. El mayor ahorro se espera cuando crezca el volumen de datos: la paginación de 12 filas evita transferir el 95 % al 97 % de cada listado, y esa proporción se mantiene cuando las tablas tengan miles de registros.
 
@@ -453,25 +512,28 @@ Estas cifras son **modestas** porque la aplicación ya es liviana; el informe de
 
 | Evidencia | Resultado |
 |---|---|
-| Pruebas del backend (Python 3.12, Docker) | **51 pasan**; cobertura 88 % (incluye `seed.py`, que no se prueba) |
-| Pruebas del frontend (Vitest) | **69 pasan**; cobertura de líneas 94,95 % |
+| Pruebas del backend (Python 3.12, Docker) | **52 pasan**; cobertura 88 % (incluye `seed.py`, que no se prueba) |
+| Pruebas del frontend (Vitest) | **70 pasan**; cobertura de líneas 94,95 % |
 | Verificación de tipos (`tsc`) | Sin errores |
 | Vulnerabilidades en dependencias (`npm audit`) | 0 |
+| Funcionamiento en navegador | Inicio de sesión con usuario de datos semilla en un servidor local, Dashboard con la ilustración AVIF, sin errores de consola ni violaciones de la política CSP |
 | Flujo CI en GitHub Actions (`ci.yml`) | En verde en la rama `feature/green-it` |
-| Flujo `green-audit.yml` con Lighthouse CI | En verde: el puntaje ≥ 0,9, el TBT ≤ 85 ms, el CLS ≤ 0,02 y el peso ≤ 1,1 MB pasaron como errores bloqueantes (ejecución 42620547976) |
+| Flujo `green-audit.yml` con Lighthouse CI | En verde en la rama `feature/green-it` (ver el estado actual en la pestaña *Actions*) |
 | Benchmark de la API | `scripts/medir_api.py` (resultados en la sección 4) |
 | Cálculo de carbono | `scripts/calcular_swdm.py` (resultados en la sección 6) |
+| Variantes de la ilustración | `scripts/generar_ilustracion_hero.py` (resultados en la sección 4.3) |
 
 ---
 
 ## 8. Limitaciones
 
-1. **Solo se auditó la pantalla de inicio de sesión.** Dashboard, Vehículos y Pedidos requieren credenciales; sus listados se evaluaron con el benchmark de la API, no con Lighthouse.
-2. **Servidores distintos entre ANTES y DESPUÉS** (`vite preview` y FastAPI en Docker); por eso se incluye la columna intermedia que aísla el efecto del frontend.
+1. **Solo se auditó la pantalla de inicio de sesión.** Dashboard, Vehículos y Pedidos requieren credenciales; sus listados se evaluaron con el benchmark de la API y la ilustración con la medición de pesos, no con Lighthouse.
+2. **Servidores distintos entre ANTES y DESPUÉS** (`vite preview` y FastAPI en Docker); por eso se incluye la tabla por etapas que aísla cada efecto.
 3. **El benchmark de la API se ejecuta en el mismo proceso, con SQLite en memoria**: mide serialización y compresión, no la red ni PostgreSQL. Con 1 000 filas no demuestra mejora de tiempo en las consultas.
-4. **La conversión de imágenes se midió con un solo archivo** (la ilustración de plantilla); no generaliza a fotografías.
+4. **La ilustración es un recurso propio generado por código**, no una fotografía; la conversión de formatos de una fotografía puede dar proporciones distintas.
 5. **La intensidad eléctrica de 494 g/kWh es el promedio mundial**; la del Perú es distinta y no se usó por no contar con una fuente verificada en esta auditoría.
-6. **Lighthouse varía entre corridas** (una corrida de escritorio ANTES dio 98 puntos); se reporta la mediana de 3.
+6. **Lighthouse varía entre corridas**, sobre todo el TBT; por eso el escenario final se midió 8 veces y se reporta el rango, incluida la corrida que superó el umbral.
+7. **El perfil móvil de Lighthouse es una simulación** (red y CPU limitadas por software), no un dispositivo real.
 
 ---
 

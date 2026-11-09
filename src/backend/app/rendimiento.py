@@ -10,7 +10,9 @@ Política HTTP de rendimiento y sostenibilidad (Informe Green IT).
 La compresión Brotli/Gzip (WSG 4.3) se agrega en main.py con BrotliMiddleware.
 """
 
+import base64
 import hashlib
+import re
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -83,6 +85,16 @@ async def politica_http(request: Request, call_next):
     return _con_seguridad(Response(content=cuerpo, status_code=response.status_code, headers=cabeceras))
 
 
+def csp_para(indice: Path) -> str:
+    """CSP del frontend con el hash SHA-256 de cada script en línea del index.html compilado."""
+    html = indice.read_text(encoding="utf-8")
+    hashes = [
+        "'sha256-" + base64.b64encode(hashlib.sha256(codigo.encode("utf-8")).digest()).decode() + "'"
+        for codigo in re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", html, flags=re.S)
+    ]
+    return CSP_FRONTEND.replace("script-src 'self'", " ".join(["script-src 'self'", *hashes]))
+
+
 def montar_frontend(app: FastAPI, dist: Path) -> bool:
     """
     Sirve el frontend compilado (Vite) desde la misma API; devuelve False si no existe `dist`.
@@ -94,6 +106,7 @@ def montar_frontend(app: FastAPI, dist: Path) -> bool:
     indice = raiz / "index.html"
     if not indice.is_file():
         return False
+    csp = csp_para(indice)
 
     def entregar(request: Request, archivo: Path, cache: str, extra: dict | None = None) -> Response:
         """FileResponse con revalidación: responde 304 si el ETag del archivo coincide."""
@@ -113,7 +126,7 @@ def montar_frontend(app: FastAPI, dist: Path) -> bool:
             cache = CACHE_INMUTABLE if ruta.startswith("assets/") else CACHE_REVALIDAR
             return entregar(request, candidato, cache)
         # Rutas de la SPA (React Router): se entrega index.html.
-        return entregar(request, indice, CACHE_REVALIDAR, {"Content-Security-Policy": CSP_FRONTEND})
+        return entregar(request, indice, CACHE_REVALIDAR, {"Content-Security-Policy": csp})
 
     app.add_exception_handler(404, manejar_404)
     return True
