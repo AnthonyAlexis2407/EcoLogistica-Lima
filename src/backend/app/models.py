@@ -88,6 +88,8 @@ class Vehiculo(Base):
 
     restricciones = relationship("RestriccionVehicular", back_populates="vehiculo", cascade="all, delete-orphan")
 
+    __table_args__ = (Index("idx_vehiculos_estado", "estado"),)
+
 
 # ── Restricciones vehiculares (Pico y Placa) ──────────────────────────
 class RestriccionVehicular(Base):
@@ -122,4 +124,5 @@ class Pedido(Base):
     __table_args__ = (
         Index("idx_pedidos_estado", "estado"),
         Index("idx_pedidos_bodega", "bodega_id"),
+        Index("idx_pedidos_creado_en", "creado_en"),
     )

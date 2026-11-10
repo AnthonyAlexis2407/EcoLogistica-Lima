@@ -2,16 +2,17 @@
  * App — Componente raíz con routing y layout (sidebar + topbar).
  */
 
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import { healthApi } from './api';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import VehiculosPage from './pages/VehiculosPage';
-import PedidosPage from './pages/PedidosPage';
 import { LayoutDashboard, Truck, Package, LogOut, Leaf, Shield } from 'lucide-react';
 
+// Code splitting (Informe Green IT, optimización 4): las pantallas autenticadas se descargan bajo demanda.
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const VehiculosPage = lazy(() => import('./pages/VehiculosPage'));
+const PedidosPage = lazy(() => import('./pages/PedidosPage'));
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   if (isLoading) {
@@ -118,11 +119,13 @@ function AppLayout() {
         </header>
 
         <main className="page-content">
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/vehiculos" element={<VehiculosPage />} />
-            <Route path="/pedidos" element={<PedidosPage />} />
-          </Routes>
+          <Suspense fallback={<div className="loading-spinner"><div className="spinner" /></div>}>
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/vehiculos" element={<VehiculosPage />} />
+              <Route path="/pedidos" element={<PedidosPage />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
     </div>

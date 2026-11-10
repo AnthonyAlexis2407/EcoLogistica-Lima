@@ -15,13 +15,13 @@
 | Acción del Sprint 2 | Resultado | Evidencia |
 |---|---|---|
 | Subir la cobertura de 67 % a ≥ 80 % | **Cumplida** (92,7 %) | [Doc. 03](03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md) |
-| Configurar CI y lint | **Parcial**: CI creado en este sprint; el lint sigue sin script | `.github/workflows/ci.yml`, IMP-009 |
+| Configurar CI y lint | **Parcial**: CI creado en este sprint; el lint sigue sin script | `.github/workflows/ci.yml` |
 | Trabajar con ramas y Pull Requests con revisor | **Parcial**: GitFlow documentado y rama `feature/` usada; faltan los Pull Requests en el remoto y la protección de `main` | [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) |
 | Ratificar el diseño de DEF-002 y DEF-003 | **Cumplida**: documentado en el Documento 08 versión 1.3.0 | [Doc. 08](../../01%20Inicio/08.%20Usuarios%20V_1_0_0.md) |
-| Decidir el rol `ADMINISTRADOR` y los ✅ fijos del panel | **Cumplida**: rol eliminado; el Dashboard usa datos reales | IMP-008 resuelto |
-| Presentar US-001 y US-003 al PO y registrar la decisión | **No cumplida**: sin demostración registrada | IMP-003 |
-| Iniciar el spike EN-001 | **No cumplida** | IMP-010 |
-| Completar EN-002 (pentest) y EN-008 | **No cumplida** | IMP-014 |
+| Decidir el rol `ADMINISTRADOR` y los ✅ fijos del panel | **Cumplida**: rol eliminado; el Dashboard usa datos reales | Documento 08 versión 1.3.0 |
+| Presentar US-001 y US-003 al PO y registrar la decisión | **No cumplida**: sin demostración registrada | Sin evidencia de cierre |
+| Iniciar el spike EN-001 | **No cumplida** | Sin evidencia de cierre |
+| Completar EN-002 (pentest) y EN-008 | **No cumplida** | Sin evidencia de cierre |
 
 **Lectura:** se cumplieron 3 de 8 acciones y 2 quedaron parciales. Todo lo que dependía solo del código y de herramientas se hizo; lo que no se hizo exige coordinación con terceros (el Product Owner) o una decisión de prioridad (el spike). Es el patrón que esta retrospectiva ataca.
 
@@ -61,12 +61,12 @@
 ### Personas
 
 - Quien implementa una corrección también la evalúa: repartir la revisión de las tres evaluaciones (calidad, seguridad y accesibilidad) a un integrante distinto del que corrigió.
-- Falta capacitación en lectores de pantalla (NVDA o VoiceOver) para cubrir lo que axe-core no detecta (IMP-013).
+- Falta capacitación en lectores de pantalla (NVDA o VoiceOver) para cubrir lo que axe-core no detecta.
 - La demostración depende de una sola persona, el líder del proyecto: asignar un suplente para agendarla.
 
 ### Relaciones
 
-- La aceptación del Product Owner lleva tres sprints pendiente (IMP-003): fijar con el docente la fecha de la demostración al inicio del sprint y no al final.
+- La aceptación del Product Owner lleva tres sprints pendiente: fijar con el docente la fecha de la demostración al inicio del sprint y no al final.
 - Informar al docente que el spike EN-001 sigue sin iniciarse y acordar qué parte del backlog se recorta si no hay avance (RSK-09).
 - Validar con el cliente ficticio DistriRápido el diseño de bloqueo de cuenta y la política de datos personales antes de implementar EN-008.
 

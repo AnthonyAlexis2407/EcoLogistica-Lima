@@ -24,6 +24,10 @@ npm run dev        # http://localhost:5173
 npm run build      # compilación de producción (carpeta dist/, ignorada por Git)
 ```
 
+Las pantallas de Dashboard, Vehículos y Pedidos se cargan bajo demanda (`React.lazy`) y los listados se piden de 12 en 12 al servidor (`Paginador`). No se usan fuentes ni hojas de estilos de terceros.
+
+Para servir el frontend desde la propia API (mismo origen), compilar con `VITE_API_URL="" npm run build`; la API lo entrega desde `dist/` (ver el README del backend).
+
 El backend debe estar corriendo (`src/backend`). Si no usa `http://localhost:8000`, crear un archivo `.env` (ignorado por Git) con:
 
 ```

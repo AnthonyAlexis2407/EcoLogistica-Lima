@@ -55,3 +55,7 @@ coverage.xml
 *.zip
 src/backend/coverage.xml
 src/frontend/coverage/
+
+# Salidas locales de Lighthouse y base de datos de desarrollo
+.lighthouseci/
+lighthouse-*.json

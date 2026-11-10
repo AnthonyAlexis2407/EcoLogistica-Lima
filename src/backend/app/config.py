@@ -3,6 +3,8 @@ Configuración centralizada del backend EcoLogística Lima.
 Carga variables de entorno desde .env; usa valores por defecto seguros para desarrollo.
 """
 
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,6 +32,9 @@ class Settings(BaseSettings):
     # --- Seguridad: intentos fallidos de login (EN-002 / RNF-002) ---
     MAX_LOGIN_ATTEMPTS: int = 3
     LOCKOUT_MINUTES: int = 15
+
+    # --- Frontend compilado (npm run build): si existe, la API lo sirve desde el mismo origen ---
+    FRONTEND_DIST: Path = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
     # --- CORS ---
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]

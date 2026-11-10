@@ -22,7 +22,7 @@
 | Vulnerabilidades en dependencias | 0 (antes 6 de desarrollo) | 0 | Cumple |
 | OWASP Top 10:2025 | 2 categorías limpias, 6 bajo revisión, 2 vulnerables con corrección parcial | Sin críticas abiertas | Parcial ([Doc. 04](04%20OWASP%20V_1_0_0.md)) |
 | WCAG 2.2 AA (axe-core, 6 pantallas) | 0 incumplimientos (antes 11) | 0 | Cumple en lo automático ([Doc. 05](05%20WCAG%20V_1_0_0.md)) |
-| Historias aceptadas por el PO en Jira | 0 | — | Pendiente (IMP-003) |
+| Historias aceptadas por el PO en Jira | 0 | — | Pendiente |
 | Backlog total sin criterios verificados | 18 de 20 ítems (108 de 116 pts), incluido el motor de optimización | Entrega 23/11/2026 | Riesgo de cronograma |
 
 ## Historias de Usuario completadas en este Sprint
@@ -39,12 +39,12 @@ Detalle en la [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0
 
 ## Pendientes
 
-- Demostración y aceptación del PO (IMP-003); cierre del Sprint 1 y creación del siguiente en Jira (IMP-004).
-- Spike EN-001 y arranque de US-005 (IMP-010), ruta crítica del cronograma.
-- Endurecimiento de configuración (IMP-012), accesibilidad pendiente (IMP-013) y prueba de penetración, cifrado y cadena de suministro (IMP-014).
-- Activar la protección de la rama `main` y añadir SonarQube al CI (IMP-009); el flujo de CI ya existe en `.github/workflows/ci.yml`.
+- Demostración al Product Owner y registro de su decisión por historia.
+- Spike EN-001 y arranque de US-005, ruta crítica del cronograma.
+- Endurecimiento de configuración, accesibilidad pendiente y prueba de penetración, cifrado y cadena de suministro.
+- Activar la protección de la rama `main` y añadir SonarQube al CI; el flujo de CI ya existe en `.github/workflows/ci.yml`.
 
-Registro completo en el [Registro de Impedimentos](07%20Registro%20de%20Impedimentos%20V_1_0_0.md).
+Impedimentos del sprint: 5 registrados (entorno, herramientas y componentes de terceros), todos resueltos; ver el [Registro de Impedimentos](07%20Registro%20de%20Impedimentos%20V_1_0_0.md).
 
 ## Control de versiones
 

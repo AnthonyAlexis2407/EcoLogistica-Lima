@@ -10,7 +10,7 @@ vi.mock('../AuthContext', () => ({
 }));
 vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
-  vehiculosApi: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+  vehiculosApi: { listPage: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
 }));
 
 const flota: Vehiculo[] = [
@@ -21,7 +21,7 @@ const flota: Vehiculo[] = [
 beforeEach(() => {
   sesion.rol = 'ADMIN_FLOTA';
   vi.resetAllMocks();
-  vi.mocked(vehiculosApi.list).mockResolvedValue(flota);
+  vi.mocked(vehiculosApi.listPage).mockResolvedValue({ items: flota, total: flota.length });
 });
 
 describe('VehiculosPage (US-001)', () => {
@@ -32,19 +32,36 @@ describe('VehiculosPage (US-001)', () => {
     expect(screen.getByText('XYZ-987')).toBeInTheDocument();
   });
 
-  it('filtra por placa y por estado', async () => {
+  it('pide al servidor la búsqueda y el estado, y vuelve a la página 1', async () => {
     const usuario = userEvent.setup();
     render(<VehiculosPage />);
     await screen.findByText('ABC-123');
 
     await usuario.type(screen.getByPlaceholderText('Buscar por placa...'), 'xyz');
-    expect(screen.queryByText('ABC-123')).not.toBeInTheDocument();
-    expect(screen.getByText('XYZ-987')).toBeInTheDocument();
+    await vi.waitFor(() => expect(vehiculosApi.listPage).toHaveBeenLastCalledWith(
+      'tok', { estado: undefined, q: 'xyz', page: 1, limit: 12 },
+    ));
 
     await usuario.clear(screen.getByPlaceholderText('Buscar por placa...'));
     await usuario.selectOptions(screen.getByRole('combobox'), 'DISPONIBLE');
-    expect(screen.queryByText('XYZ-987')).not.toBeInTheDocument();
-    expect(screen.getByText('ABC-123')).toBeInTheDocument();
+    await vi.waitFor(() => expect(vehiculosApi.listPage).toHaveBeenLastCalledWith(
+      'tok', { estado: 'DISPONIBLE', q: undefined, page: 1, limit: 12 },
+    ));
+  });
+
+  it('pagina de 12 en 12 y consulta la página pedida', async () => {
+    const usuario = userEvent.setup();
+    vi.mocked(vehiculosApi.listPage).mockResolvedValue({ items: flota, total: 30 });
+    render(<VehiculosPage />);
+    await screen.findByText('ABC-123');
+    expect(screen.getByText('Página 1 de 3 · 30 registros')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled();
+
+    await usuario.click(screen.getByRole('button', { name: 'Siguiente' }));
+    await vi.waitFor(() => expect(vehiculosApi.listPage).toHaveBeenLastCalledWith(
+      'tok', { estado: undefined, q: undefined, page: 2, limit: 12 },
+    ));
+    expect(await screen.findByText('Página 2 de 3 · 30 registros')).toBeInTheDocument();
   });
 
   it('registra un vehículo nuevo y recarga la lista', async () => {
@@ -60,7 +77,7 @@ describe('VehiculosPage (US-001)', () => {
 
     expect(vehiculosApi.create).toHaveBeenCalledWith('tok', expect.objectContaining({ placa: 'NEW-001' }));
     expect(await screen.findByText(/registrado en la flota/)).toBeInTheDocument();
-    expect(vehiculosApi.list).toHaveBeenCalledTimes(2);
+    expect(vehiculosApi.listPage).toHaveBeenCalledTimes(2);
   });
 
   it('muestra el rechazo por placa duplicada dentro del formulario', async () => {
@@ -168,7 +185,7 @@ describe('VehiculosPage (US-001)', () => {
   });
 
   it('tolera un fallo al cargar la lista', async () => {
-    vi.mocked(vehiculosApi.list).mockRejectedValue(new Error('x'));
+    vi.mocked(vehiculosApi.listPage).mockRejectedValue(new Error('x'));
     render(<VehiculosPage />);
     await vi.waitFor(() => expect(screen.queryByText('Cargando catálogo de flota...')).not.toBeInTheDocument());
   });
