@@ -39,11 +39,17 @@ Formato `tipo(ámbito): resumen`, con tipos `feat`, `fix`, `docs`, `test`, `refa
 
 ## Automatización
 
-- `.github/workflows/ci.yml`: pruebas, cobertura, tipos, *build* y auditoría de dependencias.
+- `.github/workflows/ci.yml`: pruebas, cobertura, tipos, *build*, auditoría de dependencias y verificación de los enlaces de la documentación (`scripts/verificar_enlaces.py`).
 - `.github/workflows/green-audit.yml`: Lighthouse CI sobre la aplicación servida por FastAPI (umbrales en [`lighthouserc.json`](lighthouserc.json)).
 - Ambos usan permisos mínimos (`contents: read`), versiones fijas de las acciones y caché de dependencias.
 
 ## Comprobaciones locales antes de abrir un Pull Request
+
+Si cambió algún documento, verifique que sus enlaces y referencias cruzadas sigan vivos:
+
+```bash
+python scripts/verificar_enlaces.py
+```
 
 ```bash
 PYTHONPATH=src/backend python -m pytest src/backend/tests --cov=src/backend/app --cov-config=.coveragerc

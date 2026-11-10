@@ -73,3 +73,17 @@ jobs:
 
       - name: Auditar dependencias
         run: npm audit --audit-level=high
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verificar enlaces y referencias cruzadas de la documentación
+        run: python scripts/verificar_enlaces.py
