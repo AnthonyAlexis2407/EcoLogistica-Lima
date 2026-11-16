@@ -27,7 +27,7 @@ src/
 .github/workflows/      integración continua (ci.yml) y auditoría Green IT (green-audit.yml)
 .github/pull_request_template.md   plantilla de Pull Request
 lighthouserc.json       umbrales de Lighthouse CI
-scripts/                medición de la API, cálculo SWDM v4 y normalización de cobertura
+scripts/                medición de la API, cálculo SWDM v4, normalización de cobertura y verificación de enlaces
 CONTRIBUTING.md         flujo de ramas, DoD y versionado
 sonar-project.properties, .coveragerc
 ```
@@ -116,5 +116,5 @@ Carpeta `docs/03 Implementación/reduccion del impacto ambiental/`; cada documen
 | Sprint 03 · 05 WCAG | 1.0.0 | 20/10/2026 | Primera evaluación |
 | Sprint 03 · 06 Informe de estado | 3.1.0 | 20/10/2026 | Sprint 3 |
 | Sprint 03 · 07 Registro de Impedimentos | 3.2.0 | 09/11/2026 | Solo impedimentos ajenos a la intervención del equipo |
-| Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 09/11/2026 | Primera versión |
-| Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 09/11/2026 | Primera versión |
+| Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, glosario y referencias cruzadas |
+| Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, guía del YAML y referencias cruzadas |
