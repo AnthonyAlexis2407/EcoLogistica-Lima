@@ -67,7 +67,7 @@ test.describe('Pedidos (US-003)', () => {
     await expect(page.getByText('Pedido registrado exitosamente')).toBeVisible();
 
     await page.getByPlaceholder('Buscar por dirección...').fill(direccion);
-    const fila = page.getByRole('row', { name: new RegExp(direccion.slice(0, 15)) });
+    const fila = page.getByRole('row', { name: new RegExp(direccion) });
 
     page.once('dialog', (d) => d.dismiss());
     await fila.getByRole('button', { name: 'Cancelar' }).click();
