@@ -98,6 +98,8 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 - [04 Usabilidad (SUS)](docs/03%20Inplementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md): evaluación cuantitativa con la escala SUS (datos simulados con fines académicos).
 - [05 Guía de despliegue](docs/03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md): cómo llega la aplicación a producción y cómo configurar los secretos.
 
+**Producción:** la aplicación se despliega sola desde `main` y está activa en <https://ecologistica-lima.onrender.com>; la prueba de humo de Playwright confirma cada despliegue ([última ejecución](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768595)).
+
 **Estado de los flujos de trabajo:** las insignias de la parte superior se actualizan solas con la última ejecución en la rama `main`. [`ci.yml`](.github/workflows/ci.yml) verifica el estilo, el análisis estático, la compilación y las dependencias; [`tests.yml`](.github/workflows/tests.yml) ejecuta las pruebas unitarias, de integración y E2E y guarda los informes como artefactos; [`deploy-production.yml`](.github/workflows/deploy-production.yml) despliega con GitHub Secrets.
 
 ## Reducción del impacto ambiental (Green IT)
@@ -151,4 +153,4 @@ python scripts/verificar_enlaces.py
 | Sprint 03 · 07 Registro de Impedimentos | 3.2.0 | 09/11/2026 | Solo impedimentos ajenos a la intervención del equipo |
 | Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, glosario y referencias cruzadas |
 | Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, guía del YAML y referencias cruzadas |
-| Sprint 4 · 01 Revisión, 02 Retrospectiva, 03 Análisis Playwright, 04 Usabilidad y 05 Guía de despliegue | 1.0.0 | 16/11/2026 | Primera versión |
+| Sprint 4 · 01 Revisión, 02 Retrospectiva, 03 Análisis Playwright, 04 Usabilidad y 05 Guía de despliegue | 1.1.0 | 17/11/2026 | Primera versión del 16/11; actualizada con el despliegue en producción y las cifras de `main` |

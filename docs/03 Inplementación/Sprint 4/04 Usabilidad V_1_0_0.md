@@ -4,7 +4,7 @@
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
 **Sprint:** Sprint 4  
 **Fecha de la evaluación:** 16/11/2026  
-**Versión del documento:** 1.0.0
+**Versión del documento:** 1.1.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md)
 
@@ -36,7 +36,7 @@
 
 | Campo | Detalle |
 |---|---|
-| **Sistema evaluado** | EcoLogística Lima, versión 3.0.0, imagen Docker de producción con datos de demostración ([Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)) |
+| **Sistema evaluado** | EcoLogística Lima, versión 3.0.0, desplegado en producción (<https://ecologistica-lima.onrender.com>) con datos de demostración ([Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)) |
 | **Instrumento** | System Usability Scale (SUS), Brooke (1996), en su traducción habitual al español |
 | **Escala de valoración** | Likert de 5 puntos: 1 (totalmente en desacuerdo) a 5 (totalmente de acuerdo) |
 | **Muestra (n)** | 8 participantes (más de los 5 que Nielsen y Landauer recomiendan como mínimo para detectar la gran mayoría de los problemas de usabilidad) |
@@ -274,3 +274,4 @@ Repetir la evaluación con las mismas tareas y el mismo script tras las mejoras 
 | Versión | Fecha | Cambio |
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Primera evaluación SUS (datos simulados con fines académicos), análisis, mejoras aplicadas y propuestas. |
+| 1.1.0 | 17/11/2026 | El sistema evaluado pasa a ser el desplegado en producción; las mejoras M1 y M2 ya están publicadas en `main`. |

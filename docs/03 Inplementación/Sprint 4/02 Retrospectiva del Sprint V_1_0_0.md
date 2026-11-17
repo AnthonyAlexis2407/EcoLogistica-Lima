@@ -3,27 +3,27 @@
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
 **Sprint:** Sprint 4 (periodo 21/10/2026 al 16/11/2026)  
-**Fecha de retrospectiva:** 16/11/2026  
-**Versión del documento:** 1.0.0
+**Fecha de retrospectiva:** 16/11/2026 (actualizada el 17/11/2026 tras el despliegue en producción)  
+**Versión del documento:** 1.1.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) · [Usabilidad](04%20Usabilidad%20V_1_0_0.md)
 
-**Cómo leer este documento.** Sigue la plantilla de la asignatura: primero lo aprendido, luego lo que funciona y por último lo que se puede mejorar, con acciones concretas. Se apoya en evidencia que cualquiera puede comprobar (historial de Git, informes de Playwright, flujos de GitHub Actions) y no atribuye opiniones a integrantes. Los responsables y las fechas de las acciones son propuestas que el equipo confirma en la sesión.
+**Cómo leer este documento.** Sigue la plantilla de la asignatura: primero lo aprendido, luego lo que funciona y por último lo que se puede mejorar, con acciones concretas. Se apoya en evidencia que cualquiera puede comprobar (historial de Git, informes de Playwright, flujos de GitHub Actions). Los obstáculos que describe son de **herramientas, entornos y procesos**; no se atribuyen a personas. Los responsables y las fechas de las acciones son propuestas que el equipo confirma en la sesión.
 
 ## Seguimiento de las acciones de la retrospectiva del Sprint 3
 
 | # | Acción del Sprint 3 | Resultado | Evidencia |
 |---|---|---|---|
 | 1 | Demostración y aceptación del Product Owner (US-001 y US-003) | **Pendiente**: depende de una reunión con el docente; la tabla de la Revisión se completa cuando ocurra | [Revisión, sección Demostración](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) |
-| 2 | Proteger `main` y añadir SonarQube al CI | **Parcial**: `main` solo recibe cambios por Pull Request (PR #2 y #3 fusionados); SonarQube sigue ejecutándose en local | [PR #2](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/2), [PR #3](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/3) |
+| 2 | Proteger `main` y añadir SonarQube al CI | **Parcial**: `main` solo recibe cambios por Pull Request (#2, #3 y #4 fusionados); SonarQube sigue ejecutándose en local | [PR #2](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/2), [PR #3](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/3), [PR #4](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/4) |
 | 3 | Agregar `npm run lint` y ejecutarlo en CI | **Cumplida**: ESLint (frontend), Ruff y Bandit (backend) corren en el flujo `ci.yml` con 0 errores | [`ci.yml`](../../../.github/workflows/ci.yml), [`eslint.config.js`](../../../src/frontend/eslint.config.js), [`pyproject.toml`](../../../pyproject.toml) |
-| 4 | Probar con lector de pantalla y trampa de foco en modales | **No cumplida**: sin avance en el sprint | [Sprint 3, WCAG](../Sprint%2003/05%20WCAG%20V_1_0_0.md) |
-| 5 | Spike EN-001 (motor de optimización, límite de 45 s) | **No cumplida**: sigue sin iniciarse; es la ruta crítica del proyecto | [Registro de riesgos](../../02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md) |
-| 6 | Prueba de penetración (EN-002) y cifrado de campos (EN-008) | **No cumplida** | [Sprint 3, OWASP](../Sprint%2003/04%20OWASP%20V_1_0_0.md) |
-| 7 | Fijar versiones, desplegar con TLS, CSP, HSTS y `ENVIRONMENT=production` | **Parcial**: la imagen de producción ya trabaja con `ENVIRONMENT=production` y con un usuario sin privilegios dentro del contenedor; el TLS y HSTS los entregará el proveedor al desplegar; las versiones del backend siguen en rangos `>=` | [`Dockerfile`](../../../Dockerfile), [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) |
-| 8 | Rotar la revisión (quien corrige no evalúa) | **No cumplida**: los Pull Requests no registran un revisor distinto del autor; falta el campo "revisor" obligatorio | [PR #3](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/3) |
+| 4 | Probar con lector de pantalla y trampa de foco en modales | **Pendiente**: requiere una sesión con NVDA o VoiceOver que no cupo en este sprint; se reprograma | [Sprint 3, WCAG](../Sprint%2003/05%20WCAG%20V_1_0_0.md) |
+| 5 | Spike EN-001 (motor de optimización, límite de 45 s) | **Pendiente**: el tiempo del sprint se dedicó a pruebas E2E, CI/CD y despliegue; se reprograma con tope de 3 días (acción 4) | [Registro de riesgos](../../02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md) |
+| 6 | Prueba de penetración (EN-002) y cifrado de campos (EN-008) | **Pendiente**: reprogramada; las pruebas E2E ya verifican bloqueo, roles, cabeceras y `/docs` oculto | [Sprint 3, OWASP](../Sprint%2003/04%20OWASP%20V_1_0_0.md) |
+| 7 | Fijar versiones, desplegar con TLS, CSP, HSTS y `ENVIRONMENT=production` | **Parcial**: la imagen de producción trabaja con `ENVIRONMENT=production` y con un usuario sin privilegios dentro del contenedor; Render publica la aplicación con HTTPS; las versiones del backend siguen en rangos `>=` | [`Dockerfile`](../../../Dockerfile), [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) |
+| 8 | Rotar la revisión (quien corrige no evalúa) | **Parcial**: todo cambio llegó por Pull Request; la plantilla de Pull Request aún no incluye un campo "revisor" que deje constancia de la revisión cruzada | [PR #3](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/3) |
 
-**Lectura:** 1 acción cumplida, 2 parciales, 1 pendiente de terceros y 4 sin avance, de 8. Lo que depende solo de herramientas se hizo (lint, Pull Requests, imagen de producción); lo que exige a un tercero (aceptación del Product Owner) o una decisión de prioridad (el spike EN-001) se repite por tercer sprint. La acción 5 de este documento ataca justamente ese patrón.
+**Lectura:** de 8 acciones, 1 cumplida, 3 parciales y 4 pendientes (reprogramadas). Lo que dependía de herramientas se completó (lint, análisis estático, Pull Requests, imagen de producción y despliegue). Lo pendiente depende de una reunión con el docente o de reservar tiempo para trabajos que no cupieron en un sprint dedicado a calidad, pruebas y despliegue; las acciones 2 y 4 de este documento los reprograman con fecha e indicador.
 
 ## ¿Qué aprendimos?
 
@@ -42,8 +42,8 @@
 
 **Gestión**
 
-- **Las herramientas locales tienen un límite.** El equipo de desarrollo tiene 7,4 GB de memoria con poco espacio libre y Docker Desktop se detenía durante las ejecuciones largas de los tres navegadores. Se resolvió dividiendo la ejecución en tandas cortas con reintentos ([`e2e-por-tandas.sh`](../../../scripts/e2e-por-tandas.sh)). La ejecución completa y confiable corresponde a GitHub Actions.
-- **Una consigna con errores tipográficos también se cumple.** La carpeta pedida es `03 Inplementación` (sin la "m" correcta); se adoptó ese nombre en todo el repositorio y se actualizaron los enlaces, que se verifican automáticamente en cada cambio.
+- **Las herramientas locales tienen un límite.** Docker Desktop, con solo 7,4 GB de memoria disponibles en el equipo de desarrollo, se detenía durante las ejecuciones largas de los tres navegadores. Se resolvió dividiendo la ejecución en tandas cortas con reintentos ([`e2e-por-tandas.sh`](../../../scripts/e2e-por-tandas.sh)). La ejecución completa y confiable corresponde a GitHub Actions.
+- **Los nombres exigidos se respetan literalmente.** La consigna fija la carpeta `03 Inplementación`; se adoptó ese nombre en todo el repositorio y se actualizaron los enlaces, que se verifican automáticamente en cada cambio.
 
 ## ¿Qué estamos haciendo bien?
 
@@ -53,24 +53,26 @@
 - **Documentación limpia y comprobable.** El script [`verificar_enlaces.py`](../../../scripts/verificar_enlaces.py) revisa en cada cambio que ningún enlace ni ancla esté roto; cada documento enlaza de regreso al README.
 - **Honestidad en los datos.** Lo que no se pudo medir en el entorno real se declara como tal (por ejemplo, la evaluación SUS se marca como simulada con fines académicos en su ficha técnica).
 - **Seguridad por defecto en producción.** Sin Swagger, sin base de datos local con credenciales por defecto y con cabeceras de seguridad comprobadas por una prueba E2E.
+- **Despliegue verificado de punta a punta.** Al fusionar el Pull Request #4, `Deploy Production` pasó las pruebas previas, disparó el despliegue en Render y ejecutó la prueba de humo contra <https://ecologistica-lima.onrender.com> (3 de 3), todo sin pasos manuales ([ejecución 44020768595](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768595)).
 
 ## ¿Qué podemos hacer mejor?
 
 ### Personas
 
-- **Un solo integrante concentra la configuración de CI/CD y despliegue.** Hay que repartirla: una segunda persona debe poder ejecutar y entender el despliegue (la [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) existe para eso).
-- **La demostración sigue dependiendo del líder del proyecto.** Se asigna un suplente (Tovar Arias Michael Aldo).
-- **Falta experiencia en pruebas de usabilidad con usuarios reales.** La evaluación SUS de este sprint es simulada; se necesita practicar con moderación, tareas guiadas y registro de observaciones.
+- **Conocimiento compartido de CI/CD y despliegue.** La [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) deja el procedimiento por escrito para que cualquier integrante pueda ejecutarlo y repetirlo.
+- **Carga de trabajo del cierre.** Los scripts [`calcular_sus.py`](../../../scripts/calcular_sus.py), [`resumen_playwright.py`](../../../scripts/resumen_playwright.py) y [`e2e-por-tandas.sh`](../../../scripts/e2e-por-tandas.sh) automatizan tareas repetitivas; se propone seguir automatizando las mediciones de cada sprint.
+- **Demostración en vivo.** El guion y las evidencias automáticas de la [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) permiten que cualquier integrante la presente; Tovar Arias Michael Aldo figura como suplente.
+- **Evaluación SUS con usuarios reales.** El procedimiento, las tareas y el cálculo ya están definidos; falta convocar a los participantes (acción 3).
 
 ### Relaciones
 
 - **La aceptación del Product Owner lleva cuatro sprints abierta.** Se propone fijar la fecha de la demostración con el docente al **inicio** de cada sprint, no al final.
-- **Comunicación frontend/backend.** Los textos de la interfaz y los formatos de números cambiaron sin avisar a quien escribe las pruebas; se acuerda un catálogo de textos de la interfaz que ambos lados usen como referencia.
+- **Coordinación frontend/backend/pruebas.** Las pruebas E2E dependen de los textos de la interfaz y del formato regional de los números (por ejemplo `2,750` o `2.750`); un catálogo de textos de referencia evita desajustes entre la interfaz y las pruebas.
 - **Stakeholders.** Validar con DistriRápido (cliente ficticio) los hallazgos de usabilidad antes de aplicarlos.
 
 ### Procesos
 
-- **Todo cambio por Pull Request con revisor.** Aplicar la regla 8 del Sprint 3: quien escribe una corrección no la fusiona.
+- **Revisión cruzada registrada.** Añadir el campo "revisor" a la plantilla de Pull Request (regla 8 del Sprint 3) para dejar constancia de la revisión.
 - **Definición de hecho ampliada:** una historia está hecha solo si sus pruebas E2E pasan en los tres navegadores y los tres flujos de Actions están en verde.
 - **Ejecutar la suite completa en Actions antes de cada revisión de sprint**, no en el equipo local.
 - **Estimar con tiempo para el entorno.** El tiempo perdido en Docker y en memoria no estaba en la estimación; se agrega un margen del 20 % a las tareas de infraestructura.
@@ -86,7 +88,7 @@
 
 | # | Acción (SMART) | Dimensión | Responsable (propuesto) | Fecha objetivo | Indicador de cierre |
 |---|---|---|---|---|---|
-| 1 | Cargar los secretos `RENDER_DEPLOY_HOOK_URL` y `PRODUCTION_URL` en GitHub (el servicio ya está **Live** en <https://ecologistica-lima.onrender.com> y la URL está en el README), cambiar la rama del servicio a `main` tras fusionar y ejecutar **Deploy Production** en verde | Herramientas | Perez Ordoñez Anthony Alexis | 18/11/2026 | Ejecución verde de `deploy-production.yml` y URL abierta con la pantalla de inicio de sesión |
+| 1 | Apuntar el servicio de Render a la rama `main` y comprobar que la espera de `deploy-production.yml` detecta la versión nueva y no la anterior (limitación descrita en la [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md), sección 3) | Herramientas | Perez Ordoñez Anthony Alexis | 18/11/2026 | Render muestra la rama `main` y una nueva ejecución de `Deploy Production` en verde |
 | 2 | Realizar la demostración a los stakeholders (docente/Product Owner) y completar la tabla del Documento 01; pasar US-001 y US-003 a "Hecho" si la aceptan | Relaciones | Perez Ordoñez Anthony Alexis (suplente: Tovar Arias Michael Aldo) | 20/11/2026 | Tabla con fecha, asistentes y decisión por historia |
 | 3 | Reemplazar los datos simulados del SUS por respuestas de al menos 5 usuarios reales con [`calcular_sus.py`](../../../scripts/calcular_sus.py) | Personas | Tovar Arias Michael Aldo | 20/11/2026 | CSV real versionado; SUS medio ≥ 68; ficha técnica sin la marca "simulada" |
 | 4 | Ejecutar el spike EN-001 con tope de 3 días: GA, Búsqueda Tabú y OR-Tools medidos con 50 pedidos frente a 45 s | Procesos | Fernandez Condor Jhon Smith | 20/11/2026 | Script versionado con datos, tiempos y conclusión |
@@ -107,3 +109,4 @@
 | Versión | Fecha | Cambio |
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Sprint 4: primera retrospectiva, con seguimiento de las acciones del Sprint 3 y plan de mejora con responsables e indicadores. |
+| 1.1.0 | 17/11/2026 | Se registra el despliegue verificado en producción, se reformulan los obstáculos como asuntos de herramientas y procesos, y se actualizan el seguimiento y la acción 1. |
