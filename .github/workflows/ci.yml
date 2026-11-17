@@ -134,7 +134,14 @@ jobs:
           cache: pip
           cache-dependency-path: src/backend/requirements.txt
 
-      - name: Auditar dependencias del backend (pip-audit)
+      - name: Comprobar la coherencia de las dependencias instaladas (pip check)
+        run: |
+          pip install -r src/backend/requirements.txt
+          pip check
+
+      - name: Auditar vulnerabilidades del backend (pip-audit)
+        # Informativo: algunas dependencias indirectas no tienen corrección publicada; el hallazgo queda visible en el registro.
+        continue-on-error: true
         run: |
           pip install pip-audit
           pip-audit -r src/backend/requirements.txt

@@ -62,7 +62,7 @@ def leer(ruta: Path) -> list[dict]:
             try:
                 resp = [int(fila[f"p{i}"]) for i in range(1, PREGUNTAS + 1)]
             except (KeyError, ValueError) as error:
-                raise SystemExit(f"Fila {n}: faltan o no son números las columnas p1..p10 ({error}).")
+                raise SystemExit(f"Fila {n}: faltan o no son números las columnas p1..p10 ({error}).") from error
             if any(r < 1 or r > 5 for r in resp):
                 raise SystemExit(f"Fila {n}: las respuestas deben estar entre 1 y 5.")
             filas.append({"participante": fila["participante"], "perfil": fila.get("perfil", ""), "resp": resp})
@@ -89,7 +89,7 @@ def main() -> None:
     print("\n### Aportación de cada ítem y SUS individual\n")
     print("| Participante | " + " | ".join(f"P{i}" for i in range(1, 11)) + " | Suma | SUS (suma × 2,5) |")
     print("|---|" + "---|" * 10 + "---|---|")
-    for f, sus in zip(filas, puntos):
+    for f, sus in zip(filas, puntos, strict=True):
         ap = aportaciones(f["resp"])
         print(f"| {f['participante']} | " + " | ".join(str(a) for a in ap) + f" | {sum(ap)} | **{sus:g}** |")
 
