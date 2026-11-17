@@ -8,8 +8,15 @@ import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import (
-    Column, String, Numeric, Boolean, SmallInteger, Text,
-    DateTime, ForeignKey, CheckConstraint, UniqueConstraint, Index,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    Numeric,
+    SmallInteger,
+    String,
+    Text,
 )
 from sqlalchemy.orm import relationship
 

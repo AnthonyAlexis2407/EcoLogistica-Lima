@@ -53,7 +53,7 @@ def dibujar() -> Image.Image:
 
     # Ruta de entrega con trazo discontinuo
     nodos = [(70, 250), (170, 130), (290, 215), (400, 100), (490, 165)]
-    for (x0, y0), (x1, y1) in zip(nodos, nodos[1:]):
+    for (x0, y0), (x1, y1) in zip(nodos, nodos[1:], strict=False):
         largo = math.hypot(x1 - x0, y1 - y0)
         pasos = int(largo / 14)
         for i in range(0, pasos, 2):

@@ -5,11 +5,13 @@ Ejecutar: python -m app.seed
 """
 
 import asyncio
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy import select
-from app.database import AsyncSessionLocal, init_db
-from app.models import Usuario, Vehiculo, Bodega, Pedido
+
 from app.auth import hash_password
+from app.database import AsyncSessionLocal, init_db
+from app.models import Bodega, Pedido, Usuario, Vehiculo
 
 
 async def seed():

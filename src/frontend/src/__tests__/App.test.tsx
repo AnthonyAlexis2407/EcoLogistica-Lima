@@ -8,8 +8,8 @@ vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
   authApi: { me: vi.fn(), login: vi.fn() },
   healthApi: { check: vi.fn() },
-  vehiculosApi: { count: vi.fn(), list: vi.fn() },
-  pedidosApi: { count: vi.fn(), list: vi.fn() },
+  vehiculosApi: { count: vi.fn(), list: vi.fn(), listPage: vi.fn() },
+  pedidosApi: { count: vi.fn(), list: vi.fn(), listPage: vi.fn() },
 }));
 
 const usuario = { usuario_id: 'u1', nombre: 'Ana Pérez', email: 'ana@eco.pe', rol: 'ADMIN_FLOTA', estado: 'ACTIVO', creado_en: '' };
@@ -22,6 +22,8 @@ beforeEach(() => {
   vi.mocked(pedidosApi.count).mockResolvedValue({});
   vi.mocked(vehiculosApi.list).mockResolvedValue([]);
   vi.mocked(pedidosApi.list).mockResolvedValue([]);
+  vi.mocked(vehiculosApi.listPage).mockResolvedValue({ items: [], total: 0 });
+  vi.mocked(pedidosApi.listPage).mockResolvedValue({ items: [], total: 0 });
 });
 
 describe('App', () => {

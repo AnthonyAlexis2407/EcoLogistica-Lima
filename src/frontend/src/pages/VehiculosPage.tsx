@@ -35,8 +35,8 @@ export default function VehiculosPage() {
   // RBAC (Documento 08): solo ADMIN_FLOTA modifica la flota; OPERADOR y AUDITOR leen.
   const isAdmin = user?.rol === 'ADMIN_FLOTA';
 
-  const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [resultado, setResultado] = useState<{ clave: string; items: Vehiculo[]; total: number } | null>(null);
+  const [version, setVersion] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<VehiculoForm>(emptyForm);
@@ -44,24 +44,26 @@ export default function VehiculosPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const busqueda = useDebounced(searchTerm.trim());
+  // La carga se deriva de una clave (consulta + versión): al cambiar, la vista pasa a "cargando" sin
+  // modificar estado dentro del efecto (regla react-hooks/set-state-in-effect).
+  const clave = `${token}|${page}|${statusFilter}|${busqueda}|${version}`;
+  const loading = resultado?.clave !== clave;
+  const vehiculos = resultado?.items ?? [];
+  const total = resultado?.total ?? 0;
+  const recargar = () => setVersion((v) => v + 1);
   const [toast, setToast] = useState<{ type: string; msg: string } | null>(null);
 
-  const load = async () => {
+  useEffect(() => {
     if (!token) return;
-    setLoading(true);
-    try {
-      const data = await vehiculosApi.listPage(token, {
-        estado: statusFilter || undefined, q: busqueda || undefined, page, limit: PAGE_SIZE,
-      });
-      setVehiculos(data.items);
-      setTotal(data.total);
-    } catch { /* ignore */ }
-    setLoading(false);
-  };
-
-  useEffect(() => { void load(); }, [token, page, statusFilter, busqueda]);
+    let activo = true;
+    vehiculosApi.listPage(token, {
+      estado: statusFilter || undefined, q: busqueda || undefined, page, limit: PAGE_SIZE,
+    })
+      .then((data) => { if (activo) setResultado({ clave, items: data.items, total: data.total }); })
+      .catch(() => { if (activo) setResultado({ clave, items: [], total: 0 }); });
+    return () => { activo = false; };
+  }, [token, page, statusFilter, busqueda, clave]);
 
   // Teclado (WCAG 2.1.1): Escape cierra el modal.
   useEffect(() => {
@@ -116,7 +118,7 @@ export default function VehiculosPage() {
         showToast('success', `Vehículo ${form.placa} registrado en la flota`);
       }
       setShowModal(false);
-      await load();
+      recargar();
     } catch (err) {
       if (err instanceof ApiError) {
         setFormError(err.detail);
@@ -132,7 +134,7 @@ export default function VehiculosPage() {
     try {
       await vehiculosApi.delete(token, v.vehiculo_id);
       showToast('success', `Vehículo ${v.placa} dado de baja`);
-      await load();
+      recargar();
     } catch (err) {
       if (err instanceof ApiError) showToast('error', err.detail);
     }

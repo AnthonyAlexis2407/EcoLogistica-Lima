@@ -1,0 +1,34 @@
+# Nota: el servicio no se llama "app" porque ".app" es un dominio con HTTPS obligatorio (HSTS) en Chromium.
+# Entorno local de pruebas E2E: la imagen de producción (Dockerfile) y el contenedor oficial de Playwright
+# con Chromium, Firefox y WebKit. Es el mismo esquema que usa GitHub Actions (tests.yml).
+#
+#   docker compose -f docker-compose.e2e.yml up --build --abort-on-container-exit --exit-code-from e2e
+#
+# Los reportes quedan en src/frontend/resultados-e2e (playwright-report y test-results).
+services:
+  servidor:
+    build: .
+    environment:
+      ENVIRONMENT: production
+      SECRET_KEY: clave-solo-para-pruebas-e2e-no-usar-en-produccion
+      SEED_DEMO_DATA: "true"
+      DATABASE_URL: sqlite+aiosqlite:////tmp/e2e.db
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/api/health',timeout=3)"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.65.1-noble
+    working_dir: /work/src/frontend
+    volumes:
+      - .:/work
+    environment:
+      E2E_BASE_URL: http://servidor:8000
+      CI: "true"
+      E2E_WORKERS: "1"
+    depends_on:
+      servidor:
+        condition: service_healthy
+    command: ["bash", "/work/scripts/e2e-contenedor.sh"]

@@ -101,4 +101,4 @@ PYTHONPATH=src/backend python -m pytest src/backend/tests -q --cov=src/backend/a
 - `tests/test_criterios_aceptacion.py`: escenarios de aceptación con la dependencia `get_db` real y los roles del seed (ADMIN_FLOTA, OPERADOR, BODEGA): US-001, US-003, EN-002 y RN-010.
 - Incluye pruebas de regresión de los defectos corregidos en el Sprint 2: **DEF-001** (el bloqueo de cuenta no persistía), **DEF-002** (una BODEGA registraba pedidos para otra bodega) y **DEF-003** (el registro público permitía autoasignarse un rol de administración).
 
-El estado por historia y los impedimentos están en `docs/03 Implementación`.
+El estado por historia y los impedimentos están en `docs/03 Inplementación`.

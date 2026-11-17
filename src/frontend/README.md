@@ -13,7 +13,7 @@ Panel web de EcoLogística Lima, construido con **React 18, TypeScript y Vite 6*
 
 Las rutas están protegidas por sesión. Aún no hay mapa, rutas optimizadas, dashboard ambiental, reportes ni app del conductor (EP-03 a EP-05).
 
-> El bloque "Resumen del Sprint 1" del inicio es texto fijo; no es evidencia de aceptación. El estado verificado de cada historia está en `docs/03 Implementación`.
+> El bloque "Resumen del Sprint 1" del inicio es texto fijo; no es evidencia de aceptación. El estado verificado de cada historia está en `docs/03 Inplementación`.
 
 ## Cómo correrlo
 

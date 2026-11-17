@@ -59,3 +59,15 @@ src/frontend/coverage/
 # Salidas locales de Lighthouse y base de datos de desarrollo
 .lighthouseci/
 lighthouse-*.json
+
+# Playwright: reportes, resultados y sesiones guardadas
+playwright-report/
+test-results/
+blob-report/
+.auth/
+src/frontend/playwright-report/
+src/frontend/test-results/
+src/frontend/.auth/
+
+resultados-e2e/
+src/frontend/resultados-e2e/

@@ -31,8 +31,8 @@ export default function PedidosPage() {
   // RBAC (Documento 08): ADMIN_FLOTA, OPERADOR y BODEGA registran pedidos.
   const canCreate = ['ADMIN_FLOTA', 'OPERADOR', 'BODEGA'].includes(user?.rol ?? '');
 
-  const [pedidos, setPedidos] = useState<Pedido[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [resultado, setResultado] = useState<{ clave: string; items: Pedido[]; total: number } | null>(null);
+  const [version, setVersion] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState<PedidoForm>(emptyForm);
   const [formError, setFormError] = useState('');
@@ -40,23 +40,25 @@ export default function PedidosPage() {
   const [filter, setFilter] = useState('');
   const [searchAddress, setSearchAddress] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const busqueda = useDebounced(searchAddress.trim());
+  // La carga se deriva de una clave (consulta + versión): al cambiar, la vista pasa a "cargando" sin
+  // modificar estado dentro del efecto (regla react-hooks/set-state-in-effect).
+  const clave = `${token}|${page}|${filter}|${busqueda}|${version}`;
+  const loading = resultado?.clave !== clave;
+  const pedidos = resultado?.items ?? [];
+  const total = resultado?.total ?? 0;
+  const recargar = () => setVersion((v) => v + 1);
 
-  const load = async () => {
+  useEffect(() => {
     if (!token) return;
-    setLoading(true);
-    try {
-      const data = await pedidosApi.listPage(token, {
-        estado: filter || undefined, q: busqueda || undefined, page, limit: PAGE_SIZE,
-      });
-      setPedidos(data.items);
-      setTotal(data.total);
-    } catch { /* ignore */ }
-    setLoading(false);
-  };
-
-  useEffect(() => { void load(); }, [token, page, filter, busqueda]);
+    let activo = true;
+    pedidosApi.listPage(token, {
+      estado: filter || undefined, q: busqueda || undefined, page, limit: PAGE_SIZE,
+    })
+      .then((data) => { if (activo) setResultado({ clave, items: data.items, total: data.total }); })
+      .catch(() => { if (activo) setResultado({ clave, items: [], total: 0 }); });
+    return () => { activo = false; };
+  }, [token, page, filter, busqueda, clave]);
 
   // Teclado (WCAG 2.1.1): Escape cierra el modal.
   useEffect(() => {
@@ -103,7 +105,7 @@ export default function PedidosPage() {
       await pedidosApi.create(token, payload);
       showToast('success', 'Pedido registrado exitosamente');
       setShowModal(false);
-      await load();
+      recargar();
     } catch (err) {
       if (err instanceof ApiError) {
         setFormError(err.detail);
@@ -119,7 +121,7 @@ export default function PedidosPage() {
     try {
       await pedidosApi.cancel(token, p.pedido_id);
       showToast('success', 'Pedido cancelado');
-      await load();
+      recargar();
     } catch (err) {
       if (err instanceof ApiError) showToast('error', err.detail);
     }

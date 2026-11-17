@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     APP_NAME: str = "EcoLogística Lima API"
     APP_VERSION: str = "3.0.0"
     ENVIRONMENT: str = "development"  # "production" exige SECRET_KEY propia y oculta /docs
+    # True carga usuarios, flota y pedidos de ejemplo al arrancar (idempotente). Solo para entornos de
+    # demostración y pruebas: crea cuentas con contraseñas de prueba conocidas (ver app/seed.py).
+    SEED_DEMO_DATA: bool = False
     DEBUG: bool = False  # True activa el eco de SQL; actívelo solo en desarrollo (.env)
 
     # --- Base de datos (SQLite por defecto para desarrollo) ---

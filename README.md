@@ -16,7 +16,7 @@ Sistema web para optimizar rutas de última milla con enfoque sostenible, aplica
 docs/
   01 Inicio/            documentos de la fase de inicio (versión vigente de cada uno)
   02 Planificación/     documentos de la fase de planificación
-  03 Implementación/
+  03 Inplementación/
     Sprint 01/          informes del Sprint 1
     Sprint 02/          informes del Sprint 2
     Sprint 03/          informes y evaluaciones del Sprint 3
@@ -60,32 +60,32 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 ## Fase 03: Implementación
 
 ### Sprint 1
-- [Informe de estado del proyecto](docs/03%20Implementaci%C3%B3n/Sprint%2001/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
-- [Registro de Impedimentos](docs/03%20Implementaci%C3%B3n/Sprint%2001/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
-- [Revisión del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%2001/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
-- [Retrospectiva del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%2001/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+- [Informe de estado del proyecto](docs/03%20Inplementaci%C3%B3n/Sprint%2001/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
+- [Registro de Impedimentos](docs/03%20Inplementaci%C3%B3n/Sprint%2001/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
+- [Revisión del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%2001/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+- [Retrospectiva del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%2001/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
 
 ### Sprint 2
-- [Informe de estado del proyecto](docs/03%20Implementaci%C3%B3n/Sprint%2002/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
-- [Registro de Impedimentos](docs/03%20Implementaci%C3%B3n/Sprint%2002/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
-- [Revisión del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%2002/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
-- [Retrospectiva del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%2002/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+- [Informe de estado del proyecto](docs/03%20Inplementaci%C3%B3n/Sprint%2002/01%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
+- [Registro de Impedimentos](docs/03%20Inplementaci%C3%B3n/Sprint%2002/02%20Registro%20de%20Impedimentos%20V_1_0_0.md)
+- [Revisión del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%2002/03%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+- [Retrospectiva del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%2002/04%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
 
 ### Sprint 3 (vigente)
-- [01 Revisión del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%2003/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
-- [02 Retrospectiva del Sprint](docs/03%20Implementaci%C3%B3n/Sprint%2003/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
-- [03 Calidad de código (SonarQube)](docs/03%20Implementaci%C3%B3n/Sprint%2003/03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md)
-- [04 Seguridad OWASP Top 10 2025](docs/03%20Implementaci%C3%B3n/Sprint%2003/04%20OWASP%20V_1_0_0.md)
-- [05 Accesibilidad WCAG](docs/03%20Implementaci%C3%B3n/Sprint%2003/05%20WCAG%20V_1_0_0.md)
-- [06 Informe de estado del proyecto](docs/03%20Implementaci%C3%B3n/Sprint%2003/06%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
-- [07 Registro de Impedimentos](docs/03%20Implementaci%C3%B3n/Sprint%2003/07%20Registro%20de%20Impedimentos%20V_1_0_0.md)
+- [01 Revisión del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%2003/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md)
+- [02 Retrospectiva del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%2003/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)
+- [03 Calidad de código (SonarQube)](docs/03%20Inplementaci%C3%B3n/Sprint%2003/03%20Calidad%20de%20c%C3%B3digo%20V_1_0_0.md)
+- [04 Seguridad OWASP Top 10 2025](docs/03%20Inplementaci%C3%B3n/Sprint%2003/04%20OWASP%20V_1_0_0.md)
+- [05 Accesibilidad WCAG](docs/03%20Inplementaci%C3%B3n/Sprint%2003/05%20WCAG%20V_1_0_0.md)
+- [06 Informe de estado del proyecto](docs/03%20Inplementaci%C3%B3n/Sprint%2003/06%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
+- [07 Registro de Impedimentos](docs/03%20Inplementaci%C3%B3n/Sprint%2003/07%20Registro%20de%20Impedimentos%20V_1_0_0.md)
 
 ## Reducción del impacto ambiental (Green IT)
 
-Carpeta `docs/03 Implementación/reduccion del impacto ambiental/`; cada documento enlaza de regreso a este README y entre sí.
+Carpeta `docs/03 Inplementación/reduccion del impacto ambiental/`; cada documento enlaza de regreso a este README y entre sí.
 
-- [01 Informe de reducción del impacto ambiental](docs/03%20Implementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md): ocho optimizaciones con código ANTES y DESPUÉS, mediciones con Lighthouse y cálculo SWDM v4.
-- [02 Estándares de ingeniería de software y guía de desarrollo verde](docs/03%20Implementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/02%20Estandares%20Ingenier%C3%ADa%20de%20software%20V_1_0_0.md): ISO/IEC 25010, GSF, W3C WSG, matriz de mapeo y flujos de CI/CD.
+- [01 Informe de reducción del impacto ambiental](docs/03%20Inplementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md): ocho optimizaciones con código ANTES y DESPUÉS, mediciones con Lighthouse y cálculo SWDM v4.
+- [02 Estándares de ingeniería de software y guía de desarrollo verde](docs/03%20Inplementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/02%20Estandares%20Ingenier%C3%ADa%20de%20software%20V_1_0_0.md): ISO/IEC 25010, GSF, W3C WSG, matriz de mapeo y flujos de CI/CD.
 
 ## Código fuente
 

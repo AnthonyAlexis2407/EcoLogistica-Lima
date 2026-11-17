@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'coverage', 'playwright-report', 'test-results']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -15,6 +15,10 @@ export default defineConfig([
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
+    rules: {
+      // useAuth acompaña a AuthProvider en el mismo archivo por diseño (contexto de sesión).
+      'react-refresh/only-export-components': ['warn', { allowExportNames: ['useAuth'] }],
+    },
     languageOptions: {
       globals: globals.browser,
     },

@@ -323,7 +323,7 @@ Siguen la *guía de GitHub Actions* del curso:
 ### 6.1 Estructura de carpetas
 
 ```text
-docs/03 Implementación/
+docs/03 Inplementación/
   Sprint 01/ · Sprint 02/ · Sprint 03/
   reduccion del impacto ambiental/
     01 Informe de reduccion del impacto ambiental V_1_0_0.md
@@ -340,9 +340,9 @@ La rama `main` está **protegida**: no se puede subir directamente; exige un Pul
 
 ```bash
 git checkout -b feature/green-it
-mkdir -p "docs/03 Implementación/reduccion del impacto ambiental"
+mkdir -p "docs/03 Inplementación/reduccion del impacto ambiental"
 # se guardan en esa carpeta los dos documentos con sus nombres exactos
-git add "docs/03 Implementación/reduccion del impacto ambiental/"
+git add "docs/03 Inplementación/reduccion del impacto ambiental/"
 git commit -m "docs(green-it): add environmental impact report and software engineering standards"
 git push -u origin feature/green-it
 ```
