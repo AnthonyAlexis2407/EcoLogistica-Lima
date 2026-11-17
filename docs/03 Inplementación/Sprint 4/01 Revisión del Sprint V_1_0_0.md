@@ -57,7 +57,7 @@ La demostración técnica de este sprint es **reproducible y automatizada**: la 
 | Aspecto | Detalle |
 |---|---|
 | **Fecha** | 16/11/2026 |
-| **Entorno** | Imagen Docker de producción levantada en un ejecutor limpio de GitHub Actions (entorno equivalente a *staging*, efímero). La URL pública de producción se activará al configurar el servicio y sus secretos (ver Pendientes) |
+| **Entorno** | Imagen Docker de producción levantada en un ejecutor limpio de GitHub Actions (entorno equivalente a *staging*, efímero). Producción pública en Render: <https://ecologistica-lima.onrender.com>, verificada el 16/11/2026 (inicio 200 en 0,67 s, `/api/health` ok, API protegida con 401). El flujo `deploy-production.yml` se activa al cargar los secretos en GitHub (ver Pendientes) |
 | **Quién la ejecutó** | El flujo `Tests` en GitHub Actions, disparado por el commit [`4753e89`](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/commit/4753e89) |
 | **Evidencia** | [Ejecución 44017578661](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44017578661): informe HTML y resultados como artefactos; anotación con el resumen completo |
 
@@ -98,7 +98,7 @@ La demostración técnica de este sprint es **reproducible y automatizada**: la 
 | Elemento | Estado | Justificación | Tratamiento posterior |
 |---|---|---|---|
 | **Aceptación del Product Owner** de US-001 y US-003 | Pendiente (4.º sprint) | Requiere una reunión con el docente | Acción 2 de la [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) (20/11/2026) |
-| **Despliegue público** en Render | Flujo listo; falta crear el servicio y los secretos `RENDER_DEPLOY_HOOK_URL` y `PRODUCTION_URL` | Son datos secretos de la cuenta del equipo; hasta entonces `deploy-production.yml` avisa de que faltan | Acción 1 (18/11/2026), guiada por la [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) |
+| **Despliegue público** en Render | Servicio **Live** en <https://ecologistica-lima.onrender.com>; falta cargar los secretos `RENDER_DEPLOY_HOOK_URL` y `PRODUCTION_URL` en GitHub para que `deploy-production.yml` despliegue solo | Son datos secretos de la cuenta del equipo | Acción 1 (18/11/2026), guiada por la [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md); tras fusionar a `main`, cambiar la rama del servicio a `main` |
 | **EN-001**: motor de optimización dentro de 45 s | No iniciado (RSK-05, ruta crítica) | Tercer sprint sin avance | Acción 4 (spike de 3 días, 20/11/2026) |
 | **EN-002**: prueba de penetración | Parcial | Falta la prueba de penetración; las pruebas E2E ya verifican bloqueo, roles, cabeceras y `/docs` oculto | Acción de la [Retrospectiva del Sprint 3](../Sprint%2003/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) |
 | **EN-008**: cifrado y anonimización de datos personales | No iniciado | Sin cambios | Backlog |

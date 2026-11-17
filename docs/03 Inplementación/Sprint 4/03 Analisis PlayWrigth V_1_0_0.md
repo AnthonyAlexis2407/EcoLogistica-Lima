@@ -299,7 +299,7 @@ Con la intercepción de red de Playwright (`page.route`) se simulan fallas y se 
 
 ### 4.4 Prueba de humo del entorno desplegado
 
-[`smoke.spec.ts`](../../../src/frontend/e2e/smoke.spec.ts) no necesita cuentas ni datos: comprueba que `/api/health` responde 200, que aparece "Iniciar Sesión" con el título "EcoLogística Lima", que los datos siguen protegidos (401 sin sesión) y que la página principal responde en menos de 3 s. El flujo `deploy-production.yml` la ejecuta contra la URL de producción justo después de cada despliegue ([Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)). En la ejecución de este informe corrió contra el contenedor de pruebas (3 de 3).
+[`smoke.spec.ts`](../../../src/frontend/e2e/smoke.spec.ts) no necesita cuentas ni datos: comprueba que `/api/health` responde 200, que aparece "Iniciar Sesión" con el título "EcoLogística Lima", que los datos siguen protegidos (401 sin sesión) y que la página principal responde en menos de 3 s. El flujo `deploy-production.yml` la ejecuta contra la URL de producción justo después de cada despliegue ([Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)). En la ejecución de este informe corrió contra el contenedor de pruebas (3 de 3). Comprobación manual equivalente contra producción (<https://ecologistica-lima.onrender.com>, 16/11/2026): inicio 200 en 0,67 s, `/api/health` con `status: ok` y `/api/vehiculos/` sin sesión con 401.
 
 ## 5. Informes y evidencias
 

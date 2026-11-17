@@ -86,7 +86,7 @@
 
 | # | Acción (SMART) | Dimensión | Responsable (propuesto) | Fecha objetivo | Indicador de cierre |
 |---|---|---|---|---|---|
-| 1 | Configurar el servicio en Render y los secretos `RENDER_DEPLOY_HOOK_URL` y `PRODUCTION_URL`; ejecutar **Deploy Production** y registrar la URL operativa en el README | Herramientas | Perez Ordoñez Anthony Alexis | 18/11/2026 | Ejecución verde de `deploy-production.yml` y URL abierta con la pantalla de inicio de sesión |
+| 1 | Cargar los secretos `RENDER_DEPLOY_HOOK_URL` y `PRODUCTION_URL` en GitHub (el servicio ya está **Live** en <https://ecologistica-lima.onrender.com> y la URL está en el README), cambiar la rama del servicio a `main` tras fusionar y ejecutar **Deploy Production** en verde | Herramientas | Perez Ordoñez Anthony Alexis | 18/11/2026 | Ejecución verde de `deploy-production.yml` y URL abierta con la pantalla de inicio de sesión |
 | 2 | Realizar la demostración a los stakeholders (docente/Product Owner) y completar la tabla del Documento 01; pasar US-001 y US-003 a "Hecho" si la aceptan | Relaciones | Perez Ordoñez Anthony Alexis (suplente: Tovar Arias Michael Aldo) | 20/11/2026 | Tabla con fecha, asistentes y decisión por historia |
 | 3 | Reemplazar los datos simulados del SUS por respuestas de al menos 5 usuarios reales con [`calcular_sus.py`](../../../scripts/calcular_sus.py) | Personas | Tovar Arias Michael Aldo | 20/11/2026 | CSV real versionado; SUS medio ≥ 68; ficha técnica sin la marca "simulada" |
 | 4 | Ejecutar el spike EN-001 con tope de 3 días: GA, Búsqueda Tabú y OR-Tools medidos con 50 pedidos frente a 45 s | Procesos | Fernandez Condor Jhon Smith | 20/11/2026 | Script versionado con datos, tiempos y conclusión |

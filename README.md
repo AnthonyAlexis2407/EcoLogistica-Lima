@@ -7,6 +7,8 @@
 
 ## Proyecto Final de Carrera - Optimizador de Rutas Sostenibles
 
+**Aplicación en producción:** <https://ecologistica-lima.onrender.com> (Render; estado de salud en <https://ecologistica-lima.onrender.com/api/health>). En el plan gratuito el servicio se duerme tras 15 minutos sin uso: la primera visita puede tardar hasta 1 minuto.
+
 ### Integrantes del Equipo
 - Fernandez Condor Jhon Smith
 - Perez Ordoñez Anthony Alexis (líder del proyecto)

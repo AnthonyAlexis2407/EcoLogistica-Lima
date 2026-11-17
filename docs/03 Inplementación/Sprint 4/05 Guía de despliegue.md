@@ -9,6 +9,8 @@
 
 Esta guía explica, paso a paso y sin conocimientos previos, cómo la aplicación llega a producción y cómo configurar el servicio una sola vez. Complementa el flujo [`deploy-production.yml`](../../../.github/workflows/deploy-production.yml).
 
+**Estado al 16/11/2026:** el servicio `ecologistica-lima` está publicado en Render y responde en <https://ecologistica-lima.onrender.com>. El primer despliegue se hizo desde la rama `feature/sprint-4`; tras fusionar el Pull Request a `main`, hay que cambiar la rama en **Settings → Build & Deploy → Branch**.
+
 ## 1. Cómo funciona el despliegue
 
 ```
