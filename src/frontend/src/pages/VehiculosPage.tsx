@@ -329,7 +329,11 @@ export default function VehiculosPage() {
                       onChange={(e) => setForm({ ...form, factor_emision_co2: e.target.value ? Number(e.target.value) : undefined })}
                       placeholder="2.68"
                       step="0.01"
+                      aria-describedby="ayuda-factor"
                     />
+                    <small id="ayuda-factor" className="form-hint">
+                      Kilogramos de CO₂ por litro. Si no lo conoce, deje el valor sugerido (2.68 para diésel).
+                    </small>
                   </div>
 
                   {editId && (

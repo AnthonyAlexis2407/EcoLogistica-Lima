@@ -295,6 +295,7 @@ export default function PedidosPage() {
                       value={form.latitud}
                       onChange={(e) => setForm({ ...form, latitud: Number(e.target.value) })}
                       step="0.0001"
+                      aria-describedby="ayuda-coordenadas"
                       required
                     />
                   </div>
@@ -307,10 +308,14 @@ export default function PedidosPage() {
                       value={form.longitud}
                       onChange={(e) => setForm({ ...form, longitud: Number(e.target.value) })}
                       step="0.0001"
+                      aria-describedby="ayuda-coordenadas"
                       required
                     />
                   </div>
                 </div>
+                <p id="ayuda-coordenadas" className="form-hint">
+                  Use grados decimales. Ejemplo en Lima: latitud -12.0464 y longitud -77.0428 (el signo negativo es obligatorio).
+                </p>
 
                 <div className="form-group">
                   <label className="form-label" htmlFor="peso">Peso del Paquete (kg) *</label>

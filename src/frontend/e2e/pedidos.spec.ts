@@ -51,6 +51,13 @@ test.describe('Pedidos (US-003)', () => {
     expect(altas).toBe(0);
   });
 
+  test('usabilidad (mejora SUS): el formulario explica el formato de las coordenadas y lo asocia a los campos', async ({ page }) => {
+    const dialogo = await abrirFormularioDeAlta(page);
+    await expect(dialogo.getByText(/grados decimales/)).toBeVisible();
+    await expect(dialogo.getByLabel('Latitud *')).toHaveAccessibleDescription(/grados decimales/);
+    await expect(dialogo.getByLabel('Longitud *')).toHaveAccessibleDescription(/grados decimales/);
+  });
+
   test('cancela un pedido solo tras confirmar y ya no ofrece cancelarlo otra vez', async ({ page }) => {
     const direccion = `Calle Cancelar ${sufijo(6)}`;
     const dialogo = await abrirFormularioDeAlta(page);
