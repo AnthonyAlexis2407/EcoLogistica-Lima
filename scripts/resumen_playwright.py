@@ -7,7 +7,8 @@ Uso:
     python scripts/resumen_playwright.py [carpeta_resultados] [--anotaciones]
 
     carpeta_resultados   carpeta `test-results` (por defecto src/frontend/test-results)
-    --anotaciones        además imprime líneas `::notice` de GitHub Actions con los totales por navegador
+    --anotaciones        además imprime una línea `::notice` de GitHub Actions con todo el resumen, para que
+                         quede visible en la ejecución del flujo
 """
 from __future__ import annotations
 
@@ -15,6 +16,14 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
+
+ORDEN = ["chromium", "firefox", "webkit", "movil", "smoke"]
+SALIDA: list[str] = []
+
+
+def emitir(texto: str = "") -> None:
+    SALIDA.append(texto)
+    print(texto)
 
 
 def recorrer(suite: dict, archivo: str = ""):
@@ -28,16 +37,23 @@ def recorrer(suite: dict, archivo: str = ""):
 
 def estado(prueba: dict) -> str:
     """passed, failed, flaky (pasó tras reintento) o skipped."""
-    resultado = prueba.get("status")  # expected | unexpected | flaky | skipped
-    return {"expected": "passed", "unexpected": "failed", "flaky": "flaky", "skipped": "skipped"}.get(resultado, "failed")
+    return {"expected": "passed", "unexpected": "failed", "flaky": "flaky", "skipped": "skipped"}.get(prueba.get("status"), "failed")
 
 
-def main() -> None:
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    anotar = "--anotaciones" in sys.argv
-    carpeta = Path(args[0]) if args else Path("src/frontend/test-results")
-    datos = json.loads((carpeta / "resultados.json").read_text(encoding="utf-8"))
+def mensaje_de_error(prueba: dict) -> str:
+    for resultado in reversed(prueba.get("results", [])):
+        error = resultado.get("error") or (resultado.get("errors") or [{}])[0]
+        texto = (error or {}).get("message", "")
+        if texto:
+            return " ".join(texto.split())[:300]
+    return ""
 
+
+def cifra(valor) -> str:
+    return "n/d" if valor is None else f"{valor:.0f}"
+
+
+def tabla_de_resultados(datos: dict) -> None:
     por_proyecto: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     por_archivo: dict[tuple[str, str], dict[str, int]] = defaultdict(lambda: defaultdict(int))
     duracion: dict[str, float] = defaultdict(float)
@@ -52,85 +68,86 @@ def main() -> None:
             por_archivo[(archivo, proyecto)][e] += 1
             duracion[proyecto] += sum(r.get("duration", 0) for r in prueba.get("results", []))
             if e == "failed":
-                fallos.append(f"[{proyecto}] {archivo} › {titulo}")
+                fallos.append(f"[{proyecto}] {archivo} › {titulo}: {mensaje_de_error(prueba)}")
 
-    orden = ["chromium", "firefox", "webkit", "movil", "smoke"]
-    proyectos = sorted(por_proyecto, key=lambda p: orden.index(p) if p in orden else 99)
-
-    print("### Resultados por navegador\n")
-    print("| Navegador | Pruebas | Pasan | Fallan | Inestables | Omitidas | Éxito | Duración |")
-    print("|---|---|---|---|---|---|---|---|")
-    total = defaultdict(int)
+    proyectos = sorted(por_proyecto, key=lambda p: ORDEN.index(p) if p in ORDEN else 99)
+    emitir("### Resultados por navegador\n")
+    emitir("| Navegador | Pruebas | Pasan | Fallan | Inestables | Omitidas | Éxito | Duración |")
+    emitir("|---|---|---|---|---|---|---|---|")
+    total: dict[str, int] = defaultdict(int)
     for p in proyectos:
         c = por_proyecto[p]
         n = sum(c.values())
-        ok = c["passed"] + c["flaky"]
         for k, v in c.items():
             total[k] += v
-        print(f"| {p} | {n} | {c['passed']} | {c['failed']} | {c['flaky']} | {c['skipped']} | {ok / n * 100:.1f} % | {duracion[p] / 1000:.0f} s |")
-        if anotar:
-            print(f"::notice title=Playwright {p}::{n} pruebas, {c['passed']} pasan, {c['failed']} fallan, {c['flaky']} inestables, "
-                  f"{c['skipped']} omitidas; éxito {ok / n * 100:.1f} %")
+        emitir(f"| {p} | {n} | {c['passed']} | {c['failed']} | {c['flaky']} | {c['skipped']} | "
+               f"{(c['passed'] + c['flaky']) / n * 100:.1f} % | {duracion[p] / 1000:.0f} s |")
     n = sum(total.values())
-    ok = total["passed"] + total["flaky"]
-    print(f"| **Total** | **{n}** | **{total['passed']}** | **{total['failed']}** | **{total['flaky']}** | **{total['skipped']}** | "
-          f"**{ok / n * 100:.1f} %** | |")
+    emitir(f"| **Total** | **{n}** | **{total['passed']}** | **{total['failed']}** | **{total['flaky']}** | **{total['skipped']}** | "
+           f"**{(total['passed'] + total['flaky']) / n * 100:.1f} %** | |")
 
-    print("\n### Resultados por archivo de pruebas (pasan / total)\n")
-    archivos = sorted({a for a, _ in por_archivo})
-    print("| Archivo | " + " | ".join(proyectos) + " |")
-    print("|---|" + "---|" * len(proyectos))
-    for a in archivos:
+    emitir("\n### Resultados por archivo de pruebas (pasan / total)\n")
+    emitir("| Archivo | " + " | ".join(proyectos) + " |")
+    emitir("|---|" + "---|" * len(proyectos))
+    for archivo in sorted({a for a, _ in por_archivo}):
         celdas = []
         for p in proyectos:
-            c = por_archivo.get((a, p))
+            c = por_archivo.get((archivo, p))
             celdas.append("—" if not c else f"{c['passed'] + c['flaky']}/{sum(c.values())}")
-        print(f"| `{a}` | " + " | ".join(celdas) + " |")
+        emitir(f"| `{archivo}` | " + " | ".join(celdas) + " |")
 
     if fallos:
-        print("\n### Pruebas que fallan\n")
+        emitir("\n### Pruebas que fallan\n")
         for f in fallos:
-            print(f"- {f}")
+            emitir(f"- {f}")
 
+
+def tablas_de_metricas(carpeta: Path) -> None:
     metricas = carpeta / "metricas"
-    vitals = sorted(metricas.glob("*-webvitals.json")) if metricas.exists() else []
+    if not metricas.exists():
+        return
+    vitals = sorted(metricas.glob("*-webvitals.json"))
     if vitals:
-        print("\n### Web Vitals de la pantalla de inicio de sesión (ms; CLS sin unidad)\n")
-        print("| Navegador | TTFB | FCP | LCP | CLS | DOM cargado | Carga total | Bytes |")
-        print("|---|---|---|---|---|---|---|---|")
+        emitir("\n### Web Vitals de la pantalla de inicio de sesión (ms; CLS sin unidad)\n")
+        emitir("| Navegador | TTFB | FCP | LCP | CLS | DOM cargado | Carga total | Bytes |")
+        emitir("|---|---|---|---|---|---|---|---|")
         for ruta in vitals:
             m = json.loads(ruta.read_text(encoding="utf-8"))
-            f = lambda v: "n/d" if v is None else f"{v:.0f}"  # noqa: E731
-            print(f"| {m['navegador']} | {f(m['ttfb'])} | {f(m['fcp'])} | {f(m['lcp'])} | {m['cls']:.3f} | "
-                  f"{f(m['dominCargado'])} | {f(m['carga'])} | {m['bytesTransferidos']} |")
-            if anotar:
-                print(f"::notice title=Web Vitals {m['navegador']}::TTFB {f(m['ttfb'])} ms, FCP {f(m['fcp'])} ms, "
-                      f"LCP {f(m['lcp'])} ms, CLS {m['cls']:.3f}")
+            emitir(f"| {m['navegador']} | {cifra(m['ttfb'])} | {cifra(m['fcp'])} | {cifra(m['lcp'])} | {m['cls']:.3f} | "
+                   f"{cifra(m['dominCargado'])} | {cifra(m['carga'])} | {m['bytesTransferidos']} |")
 
-    apis = sorted(metricas.glob("*-api.json")) if metricas.exists() else []
+    apis = sorted(metricas.glob("*-api.json"))
     if apis:
-        print("\n### Tiempos de respuesta de la API (ms; 15 repeticiones por ruta)\n")
-        print("| Navegador | Ruta | Mediana | p95 | Máximo | Estados |")
-        print("|---|---|---|---|---|---|")
+        emitir("\n### Tiempos de respuesta de la API (ms; 15 repeticiones por ruta)\n")
+        emitir("| Navegador | Ruta | Mediana | p95 | Máximo | Estados |")
+        emitir("|---|---|---|---|---|---|")
         for ruta in apis:
             m = json.loads(ruta.read_text(encoding="utf-8"))
             for endpoint, d in m["resumen"].items():
-                print(f"| {m['navegador']} | `{endpoint}` | {d['mediana']} | {d['p95']} | {d['maximo']} | {d['estados']} |")
-                if anotar:
-                    print(f"::notice title=API {m['navegador']} {endpoint}::mediana {d['mediana']} ms, p95 {d['p95']} ms, máx {d['maximo']} ms")
+                emitir(f"| {m['navegador']} | `{endpoint}` | {d['mediana']} | {d['p95']} | {d['maximo']} | {d['estados']} |")
 
-    ups = sorted(metricas.glob("*-uptime.json")) if metricas.exists() else []
+    ups = sorted(metricas.glob("*-uptime.json"))
     if ups:
-        print("\n### Uptime: sondeos a /api/health\n")
-        print("| Navegador | Sondeos | Correctos | Disponibilidad | Latencia mediana (ms) | Latencia máxima (ms) |")
-        print("|---|---|---|---|---|---|")
+        emitir("\n### Uptime: sondeos a /api/health\n")
+        emitir("| Navegador | Sondeos | Correctos | Disponibilidad | Latencia mediana (ms) | Latencia máxima (ms) |")
+        emitir("|---|---|---|---|---|---|")
         for ruta in ups:
             m = json.loads(ruta.read_text(encoding="utf-8"))
-            print(f"| {m['navegador']} | {m['sondeos']} | {m['correctos']} | {m['disponibilidadPorcentaje']:.1f} % | "
-                  f"{m['latenciaMedianaMs']} | {m['latenciaMaximaMs']} |")
-            if anotar:
-                print(f"::notice title=Uptime {m['navegador']}::{m['disponibilidadPorcentaje']:.1f} % en {m['sondeos']} sondeos, "
-                      f"mediana {m['latenciaMedianaMs']} ms")
+            emitir(f"| {m['navegador']} | {m['sondeos']} | {m['correctos']} | {m['disponibilidadPorcentaje']:.1f} % | "
+                   f"{m['latenciaMedianaMs']} | {m['latenciaMaximaMs']} |")
+
+
+def main() -> None:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    carpeta = Path(args[0]) if args else Path("src/frontend/test-results")
+    datos = json.loads((carpeta / "resultados.json").read_text(encoding="utf-8"))
+
+    tabla_de_resultados(datos)
+    tablas_de_metricas(carpeta)
+
+    if "--anotaciones" in sys.argv:
+        texto = "\n".join(SALIDA).replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+        print(f"::notice title=Resumen completo de Playwright::{texto}")
 
 
 if __name__ == "__main__":
