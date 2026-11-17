@@ -12,6 +12,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:8000';
 
+// Las capturas de evidencia (e2e/evidencias.spec.ts) solo se ejecutan a demanda con E2E_EVIDENCIAS=1.
+const ignorarEscritorio = process.env.E2E_EVIDENCIAS === '1' ? /(movil|smoke)\.spec\.ts/ : /(movil|smoke|evidencias)\.spec\.ts/;
+
 export default defineConfig({
   testDir: './e2e',
   // Cada prueba usa datos únicos (sufijo aleatorio), por eso pueden correr en paralelo.
@@ -41,19 +44,19 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup'],
-      testIgnore: /(movil|smoke)\.spec\.ts/,
+      testIgnore: ignorarEscritorio,
     },
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
       dependencies: ['setup'],
-      testIgnore: /(movil|smoke)\.spec\.ts/,
+      testIgnore: ignorarEscritorio,
     },
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
       dependencies: ['setup'],
-      testIgnore: /(movil|smoke)\.spec\.ts/,
+      testIgnore: ignorarEscritorio,
     },
     // Prueba de humo del entorno desplegado: no depende de cuentas ni de la preparación de sesiones.
     {

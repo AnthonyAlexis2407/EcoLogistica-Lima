@@ -122,6 +122,12 @@ jobs:
           CI: "true"
           E2E_BASE_URL: http://localhost:8000
 
+      - name: Resumen de resultados (tablas en el resumen del flujo y anotaciones)
+        if: always()
+        run: |
+          python3 scripts/resumen_playwright.py src/frontend/test-results --anotaciones | tee resumen.md | grep '^::' || true
+          grep -v '^::' resumen.md >> "$GITHUB_STEP_SUMMARY" || true
+
       - name: Guardar el informe HTML de Playwright
         if: always()
         uses: actions/upload-artifact@v4

@@ -35,24 +35,23 @@ def puntuacion(respuestas: list[int]) -> float:
 
 
 def calificacion(sus: float) -> tuple[str, str]:
-    """Nota por letra (escala de Sauro y Lewis) y adjetivo."""
-    tabla = [
-        (84.1, "A+", "Mejor imaginable"),
-        (80.8, "A", "Excelente"),
-        (78.9, "A-", "Excelente"),
-        (77.2, "B+", "Bueno"),
-        (74.1, "B", "Bueno"),
-        (72.6, "B-", "Bueno"),
-        (71.1, "C+", "Bueno"),
-        (65.0, "C", "Aceptable"),
-        (62.7, "C-", "Aceptable"),
-        (51.7, "D", "Pobre"),
-        (0.0, "F", "Inaceptable"),
+    """Nota por letra (curva de Sauro y Lewis, 2016) y adjetivo (Bangor, Kortum y Miller, 2009)."""
+    letras = [
+        (84.1, "A+"), (80.8, "A"), (78.9, "A-"), (77.2, "B+"), (74.1, "B"), (72.6, "B-"),
+        (71.1, "C+"), (65.0, "C"), (62.7, "C-"), (51.7, "D"), (0.0, "F"),
     ]
-    for minimo, letra, adjetivo in tabla:
-        if sus >= minimo:
-            return letra, adjetivo
-    return "F", "Inaceptable"
+    letra = next(letra for minimo, letra in letras if sus >= minimo)
+    if sus >= 85.5:
+        adjetivo = "Excelente"
+    elif sus >= 71.4:
+        adjetivo = "Bueno"
+    elif sus >= 50.9:
+        adjetivo = "Aceptable (OK)"
+    elif sus >= 35.7:
+        adjetivo = "Pobre"
+    else:
+        adjetivo = "Pésimo"
+    return letra, adjetivo
 
 
 def leer(ruta: Path) -> list[dict]:
