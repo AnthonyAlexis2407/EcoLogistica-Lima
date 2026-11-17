@@ -5,9 +5,9 @@ Sprint 1: Auth, Vehículos (US-001), Pedidos (US-003).
 
 from datetime import datetime
 from decimal import Decimal
-from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
 
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 # ═══════════════════════════════════════════════════════════════════════
 #  AUTH (EN-002)

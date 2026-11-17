@@ -14,8 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import init_db
 from app.rendimiento import montar_frontend, politica_http
-from app.routers import auth_router, vehiculos_router, pedidos_router
-
+from app.routers import auth_router, pedidos_router, vehiculos_router
 
 _PRODUCCION = settings.ENVIRONMENT == "production"
 
@@ -30,6 +29,13 @@ async def lifespan(app: FastAPI):
             "SECRET_KEY usa el valor por defecto de desarrollo; defina una clave propia en .env antes de desplegar"
         )
     await init_db()
+    if settings.SEED_DEMO_DATA:
+        from app.seed import seed
+
+        logging.getLogger("ecologistica.security").warning(
+            "SEED_DEMO_DATA activo: se cargan cuentas de demostración con contraseñas de prueba conocidas"
+        )
+        await seed()
     yield
 
 

@@ -6,8 +6,8 @@
   - Fernandez Condor Jhon Smith
   - Perez Ordoñez Anthony Alexis
   - Tovar Arias Michael Aldo
-- **Fecha:** 08 de septiembre de 2026 (actualizado el 05 de octubre de 2026)
-- **Versión:** 1.1.0
+- **Fecha:** 08 de septiembre de 2026 (actualizado el 16 de noviembre de 2026)
+- **Versión:** 1.3.0
 
 [← Volver al README Principal](../../README.md)
 
@@ -59,12 +59,19 @@ El spike comparativo que debía reducir este riesgo en el Sprint 1 no se ejecut�
 | **RSK-11** | Ausencia de CI, lint y revisión por pares: la Definition of Done no es verificable y los defectos pueden llegar a la rama principal. | Proceso / Herramientas | 4 | 3 | **12 (Media)** | Pipeline en GitHub Actions con `pytest --cov` y `npm run build`; ramas y Pull Requests con revisor; protección de la rama principal. **Actualización 20/10/2026:** el pipeline ya existe (`.github/workflows/ci.yml`) y se adoptó GitFlow (`CONTRIBUTING.md`); falta activar la protección de rama en GitHub. | Revisión cruzada manual antes de cada demostración hasta contar con el pipeline. | Equipo completo |
 | **RSK-12** | Configuración insegura por defecto (clave de firma de desarrollo, CORS amplio, documentación de la API expuesta) que llegue a un despliegue real (OWASP A02). | Seguridad / Configuración | 3 | 4 | **12 (Media)** | Sprint 3: variable `ENVIRONMENT`; en `production` se rechaza la clave por defecto y se oculta `/docs`; CORS acotado y cabeceras de seguridad. Pendiente: TLS y HSTS en el despliegue. | No desplegar sin `.env`; rotar la clave si se expuso. | Fernandez Condor Jhon Smith |
 
+### Riesgos añadidos en el Sprint 4
+
+| ID | Descripción del Riesgo | Categoría | Prob. | Imp. | Severidad | Plan de Mitigación (Preventivo) | Plan de Contingencia (Reactivo) | Responsable |
+|---|---|---|---|---|---|---|---|---|
+| **RSK-13** | Pérdida de datos en producción: SQLite en el disco temporal del plan gratuito se reinicia con cada despliegue o reinicio. | Datos / Infraestructura | 4 | 3 | **12 (Media)** | Cargar datos de demostración al arrancar (`SEED_DEMO_DATA`); declarar la limitación en la [Guía de despliegue](../03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md); migrar a PostgreSQL con controlador asíncrono (acción 6 de la [Retrospectiva](../03%20Inplementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)). | No registrar datos reales en producción hasta contar con PostgreSQL. | Fernandez Condor Jhon Smith |
+| **RSK-14** | Equipos de desarrollo con poca memoria: Docker se detiene durante las ejecuciones largas de la suite E2E y retrasa la verificación local. | Herramientas / Recursos | 4 | 2 | **8 (Media)** | Ejecutar la suite completa en GitHub Actions; en el equipo local usar `scripts/e2e-por-tandas.sh` (tandas cortas con reintentos). | Verificar solo con la prueba de humo local y confiar en Actions para la suite completa. | Equipo completo |
+
 ### Resumen de exposición actualizado
 
 | Nivel de Severidad | Cantidad de Riesgos | IDs |
 |---|---|---|
 | **Alta (15-25)** | 2 | RSK-05 (reevaluado a 20), RSK-09 |
-| **Media (8-12)** | 8 | RSK-01, RSK-02, RSK-03, RSK-04, RSK-06, RSK-08, RSK-10, RSK-11 |
+| **Media (8-12)** | 10 | RSK-01, RSK-02, RSK-03, RSK-04, RSK-06, RSK-08, RSK-10, RSK-11, RSK-13, RSK-14 |
 | **Baja (1-6)** | 1 | RSK-07 |
 
 La reserva de contingencia del 12 % (Documento 04 de Planificación) cubre la materialización parcial de RSK-05 y RSK-09 únicamente si se recorta el alcance; no cubre una extensión del plazo de entrega.
@@ -76,6 +83,7 @@ La reserva de contingencia del 12 % (Documento 04 de Planificación) cubre la ma
 | 1.0.0 | 08/09/2026 | Creación del registro con RSK-01 a RSK-08. |
 | 1.1.0 | 05/10/2026 | Reevaluación de RSK-05 (severidad 20) y alta de RSK-09, RSK-10 y RSK-11 a partir de la verificación técnica y la consulta a Jira del Sprint 2; la matriz original no se modifica. |
 | 1.2.0 | 20/10/2026 | Sprint 3: se actualiza RSK-11 (CI creado) y se añade RSK-12 (configuración insegura por defecto). |
+| 1.3.0 | 16/11/2026 | Sprint 4: se añaden RSK-13 (datos no persistentes con SQLite en producción) y RSK-14 (memoria insuficiente para la suite E2E local); se actualiza el resumen de exposición. |
 
 ---
 

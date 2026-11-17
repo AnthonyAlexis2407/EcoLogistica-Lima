@@ -1,0 +1,27 @@
+# Configuración de las herramientas de calidad de Python (lint y análisis estático) del repositorio.
+# Se ejecutan desde la raíz:
+#   ruff check src/backend scripts
+#   bandit -r src/backend/app -c pyproject.toml
+
+[tool.ruff]
+line-length = 125
+target-version = "py312"
+extend-exclude = ["**/__pycache__", "**/.venv", "src/frontend"]
+
+[tool.ruff.lint]
+# E/W: estilo pycodestyle · F: errores lógicos (pyflakes) · I: orden de importaciones · B: errores comunes (bugbear)
+select = ["E", "W", "F", "I", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI declara dependencias como valores por defecto (`= Depends(...)`): es su idioma oficial, no un error.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Security", "app.auth.require_roles"]
+
+[tool.ruff.lint.per-file-ignores]
+# Las pruebas importan ayudantes tras configurar la ruta; los datos de ejemplo y las pruebas admiten líneas largas.
+"src/backend/tests/*" = ["E402", "E501"]
+"src/backend/app/seed.py" = ["E501"]
+"scripts/*" = ["E501"]  # los scripts de medición imprimen líneas largas a propósito
+
+[tool.bandit]
+# Las pruebas usan `assert` y contraseñas de ejemplo a propósito.
+exclude_dirs = ["src/backend/tests", "src/frontend"]

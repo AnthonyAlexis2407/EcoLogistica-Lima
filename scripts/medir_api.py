@@ -10,17 +10,16 @@ Uso (desde la raíz del repositorio):
 import asyncio
 import statistics
 import time
-from datetime import datetime, timedelta, timezone
-
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
+from datetime import UTC, datetime, timedelta
 
 from app import database
 from app.auth import hash_password
 from app.database import Base
 from app.main import app
 from app.models import Bodega, Pedido, Usuario, Vehiculo
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import StaticPool
 
 REPETICIONES = 200
 N_REGISTROS = 1000
@@ -36,7 +35,7 @@ async def sembrar(fabrica):
                         latitud=-12.0, longitud=-77.0)
         s.add(bodega)
         await s.flush()
-        ahora = datetime.now(timezone.utc)
+        ahora = datetime.now(UTC)
         s.add_all(Vehiculo(placa=f"B{i:05d}", capacidad_kg=500 + i % 900, tipo_combustible="DIESEL",
                            estado="DISPONIBLE") for i in range(N_REGISTROS))
         s.add_all(Pedido(bodega_id=bodega.bodega_id, direccion=f"Av. Los Pinos {i}, Lima", latitud=-12.04,

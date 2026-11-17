@@ -1,0 +1,149 @@
+# Pruebas automáticas: unitarias, de integración y E2E (Playwright, en modo headless).
+# Los informes se guardan como artefactos descargables desde la ejecución del workflow.
+name: Tests
+
+on:
+  push:
+    branches: [main, develop, "fix/**", "feature/**"]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (unitarias e integración)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: src/backend/requirements.txt
+
+      - name: Instalar dependencias
+        run: pip install -r src/backend/requirements.txt
+
+      - name: Pruebas con cobertura (mínimo 80 %)
+        run: PYTHONPATH=src/backend python -m pytest src/backend/tests --cov=src/backend/app --cov-config=.coveragerc --cov-report=xml:src/backend/coverage.xml --cov-fail-under=80 -q
+
+      - name: Guardar cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-backend
+          path: src/backend/coverage.xml
+          retention-days: 14
+
+  frontend:
+    name: Frontend (unitarias con Vitest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - name: Obtener código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Pruebas con cobertura
+        run: npm run test:coverage
+
+      - name: Guardar cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-frontend
+          path: src/frontend/coverage
+          retention-days: 14
+
+  e2e:
+    name: E2E con Playwright (Chromium, Firefox, WebKit y móvil)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - name: Obtener código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Construir y levantar la aplicación (misma imagen que producción)
+        run: |
+          docker build -t ecologistica-lima:e2e .
+          docker run -d --name app -p 8000:8000 \
+            -e ENVIRONMENT=production \
+            -e SECRET_KEY=clave-solo-para-pruebas-e2e-no-usar-en-produccion \
+            -e SEED_DEMO_DATA=true \
+            -e DATABASE_URL=sqlite+aiosqlite:////tmp/e2e.db \
+            ecologistica-lima:e2e
+          for i in $(seq 1 40); do
+            curl -fsS http://localhost:8000/api/health && exit 0
+            sleep 2
+          done
+          docker logs app
+          exit 1
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+        working-directory: src/frontend
+
+      - name: Instalar los navegadores de Playwright
+        run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: src/frontend
+
+      - name: Ejecutar las pruebas E2E (headless)
+        run: npx playwright test
+        working-directory: src/frontend
+        env:
+          CI: "true"
+          E2E_BASE_URL: http://localhost:8000
+
+      - name: Resumen de resultados (tablas en el resumen del flujo y anotaciones)
+        if: always()
+        run: |
+          python3 scripts/resumen_playwright.py src/frontend/test-results --anotaciones | tee resumen.md | grep '^::' || true
+          grep -v '^::' resumen.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Guardar el informe HTML de Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: src/frontend/playwright-report
+          retention-days: 14
+
+      - name: Guardar resultados, métricas y trazas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-resultados
+          path: src/frontend/test-results
+          retention-days: 14
+
+      - name: Registros de la aplicación si algo falló
+        if: failure()
+        run: docker logs app

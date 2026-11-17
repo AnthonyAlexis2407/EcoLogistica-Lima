@@ -53,9 +53,12 @@ export default function DashboardPage() {
           <Link to="/pedidos" className="btn btn-primary" style={{ background: '#10b981', border: 'none' }}>
             <Package size={16} /> Ver Pedidos
           </Link>
-          <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>
-            Swagger API
-          </a>
+          {/* /docs solo existe en desarrollo: con ENVIRONMENT=production la API lo oculta */}
+          {import.meta.env.DEV && (
+            <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>
+              Swagger API
+            </a>
+          )}
         </div>
       </div>
 

@@ -405,6 +405,12 @@ a:hover {
   color: var(--color-secondary);
 }
 
+/* Texto de ayuda bajo un campo (mejora de usabilidad del Sprint 4). Mismo color que la etiqueta: contraste ya verificado. */
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--color-secondary);
+}
+
 .form-input {
   width: 100%;
   padding: 0.65rem 0.875rem;

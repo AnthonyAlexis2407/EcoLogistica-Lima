@@ -62,6 +62,8 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Las pruebas E2E (carpeta e2e) las ejecuta Playwright, no Vitest.
+    exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     setupFiles: ['./src/__tests__/setup.ts'],
     css: false,
     coverage: {

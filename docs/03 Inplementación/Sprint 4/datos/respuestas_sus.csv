@@ -1,0 +1,9 @@
+participante,perfil,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10
+U01,Administrador de flota (experiencia alta),5,1,5,2,4,1,5,1,5,2
+U02,Operador logístico (experiencia media),4,2,4,2,4,2,4,2,4,2
+U03,Auditor (experiencia media),4,2,5,1,4,2,4,2,4,3
+U04,Dueño de bodega (experiencia media),5,2,4,2,5,1,4,1,4,2
+U05,Conductor (experiencia baja),3,3,4,3,3,2,4,2,3,3
+U06,Operador logístico (experiencia alta),4,1,4,2,4,2,5,2,4,2
+U07,Administrador de flota (experiencia alta),5,2,5,1,5,1,5,2,5,1
+U08,Dueño de bodega (experiencia baja),4,2,4,3,4,2,4,2,3,2

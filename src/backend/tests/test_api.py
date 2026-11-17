@@ -4,16 +4,16 @@ Verifica: Autenticación JWT (EN-002), Vehículos Ecológicos (US-001) y Pedidos
 """
 
 from datetime import datetime, timedelta, timezone
+
 import pytest
 import pytest_asyncio
+from app.auth import hash_password
+from app.database import Base, get_db
+from app.main import app
+from app.models import Bodega, Usuario
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-
-from app.database import Base, get_db
-from app.main import app
-from app.auth import hash_password
-from app.models import Usuario, Bodega, Vehiculo, Pedido
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -25,7 +25,7 @@ TestingSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit
 async def async_session():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     async with TestingSessionLocal() as session:
         # Crear usuario administrador
         admin_user = Usuario(

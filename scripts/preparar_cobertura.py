@@ -39,7 +39,7 @@ def normalizar_lcov(ruta: Path) -> int:
 
 def normalizar_cobertura_xml(ruta: Path) -> int:
     texto = ruta.read_text(encoding="utf-8")
-    texto = re.sub(r"<sources>.*?</sources>", "<sources><source>.</source></sources>", texto, flags=re.S)
+    texto = re.sub(r"<sources>.*?</sources>", "<sources><source>.</source></sources>", texto, flags=re.DOTALL)
 
     def reescribir(m: re.Match) -> str:
         archivo = m.group(1).replace("\\", "/")

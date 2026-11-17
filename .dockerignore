@@ -1,0 +1,16 @@
+.git
+.github
+docs
+scripts
+**/node_modules
+**/dist
+**/coverage
+**/playwright-report
+**/test-results
+**/__pycache__
+**/.pytest_cache
+**/*.db
+**/.env
+**/.venv
+.lighthouseci
+*.md

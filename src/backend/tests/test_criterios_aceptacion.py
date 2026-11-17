@@ -10,88 +10,10 @@ persistencia que `tests/test_api.py` no puede ver.
 Ejecutar:  cd src/backend && python -m pytest -q
 """
 
-from datetime import datetime, timedelta, timezone
-from types import SimpleNamespace
 
 import pytest
-import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
 
-from app import database
-from app.auth import hash_password
-from app.database import Base
-from app.main import app
-from app.models import Bodega, Usuario
-
-PASSWORDS = {
-    "admin@test.pe": "Admin2026!",
-    "operador@test.pe": "Operador2026!",
-    "bodega.a@test.pe": "BodegaA2026!",
-    "bodega.b@test.pe": "BodegaB2026!",
-}
-
-
-@pytest_asyncio.fixture
-async def api(monkeypatch):
-    """BD SQLite en memoria + get_db real (commit/rollback) + usuarios con roles reales."""
-    engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
-        poolclass=StaticPool,
-        connect_args={"check_same_thread": False},
-    )
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    monkeypatch.setattr(database, "AsyncSessionLocal", session_factory)
-
-    bodegas = {}
-    async with session_factory() as s:
-        for email, rol, nombre in [
-            ("admin@test.pe", "ADMIN_FLOTA", "Admin Flota"),
-            ("operador@test.pe", "OPERADOR", "Operador Logístico"),
-            ("bodega.a@test.pe", "BODEGA", "Bodega A"),
-            ("bodega.b@test.pe", "BODEGA", "Bodega B"),
-        ]:
-            u = Usuario(
-                nombre=nombre, email=email, rol=rol, estado="ACTIVO",
-                password_hash=hash_password(PASSWORDS[email]),
-            )
-            s.add(u)
-            await s.flush()
-            if rol == "BODEGA":
-                b = Bodega(
-                    usuario_id=u.usuario_id, razon_social=nombre,
-                    direccion_referencial="Av. Próceres de la Independencia, SJL",
-                    latitud=-12.0, longitud=-77.0,
-                )
-                s.add(b)
-                await s.flush()
-                bodegas[email] = b.bodega_id
-        await s.commit()
-
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        yield SimpleNamespace(
-            client=client, bodega_a=bodegas["bodega.a@test.pe"], bodega_b=bodegas["bodega.b@test.pe"]
-        )
-    await engine.dispose()
-
-
-async def _login(client, email):
-    res = await client.post("/api/auth/login", json={"email": email, "password": PASSWORDS[email]})
-    assert res.status_code == 200, res.text
-    return {"Authorization": f"Bearer {res.json()['access_token']}"}
-
-
-def _pedido(bodega_id, peso_kg):
-    ahora = datetime.now(timezone.utc)
-    return {
-        "bodega_id": bodega_id, "direccion": "Jr. Los Pinos 123, El Agustino",
-        "latitud": -12.04, "longitud": -77.00, "peso_kg": peso_kg,
-        "ventana_inicio": ahora.isoformat(),
-        "ventana_fin": (ahora + timedelta(hours=2)).isoformat(),
-    }
+from tests.utilidades import PASSWORDS, _login, _pedido  # noqa: E402
 
 
 # ── US-001 / EL-7 ─────────────────────────────────────────────────────

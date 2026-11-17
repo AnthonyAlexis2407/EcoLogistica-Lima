@@ -9,7 +9,7 @@ Ejecutar:  cd src/backend && python -m pytest -q --cov=app
 
 import pytest
 
-from tests.test_criterios_aceptacion import _login, _pedido, api  # noqa: F401  (fixture `api`)
+from tests.utilidades import _login, _pedido
 
 
 async def _crear_vehiculo(api, headers, placa="VEH-001", capacidad=500):

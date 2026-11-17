@@ -7,12 +7,11 @@ import base64
 import hashlib
 
 import pytest
+from app.rendimiento import CACHE_INMUTABLE, CACHE_REVALIDAR, montar_frontend
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from app.rendimiento import CACHE_INMUTABLE, CACHE_REVALIDAR, montar_frontend
-
-from .test_criterios_aceptacion import _login, _pedido, api  # noqa: F401  (fixture `api` y ayudantes)
+from tests.utilidades import _login, _pedido
 
 
 async def _flota(cliente, cabeceras, cantidad, prefijo="PG"):
