@@ -3,13 +3,23 @@
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
 **Sprint:** Sprint 4  
-**Versión del documento:** 1.0.0
+**Versión del documento:** 1.1.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md)
 
 Esta guía explica, paso a paso y sin conocimientos previos, cómo la aplicación llega a producción y cómo configurar el servicio una sola vez. Complementa el flujo [`deploy-production.yml`](../../../.github/workflows/deploy-production.yml).
 
-**Estado al 16/11/2026:** el servicio `ecologistica-lima` está publicado en Render y responde en <https://ecologistica-lima.onrender.com>. El primer despliegue se hizo desde la rama `feature/sprint-4`; tras fusionar el Pull Request a `main`, hay que cambiar la rama en **Settings → Build & Deploy → Branch**.
+**Estado al 17/11/2026:** el servicio `ecologistica-lima` está publicado en Render y responde en <https://ecologistica-lima.onrender.com>. Los secretos `RENDER_DEPLOY_HOOK_URL` y `PRODUCTION_URL` están cargados en GitHub y el Pull Request #4 ya se fusionó en `main`, lo que ejecutó el flujo `Deploy Production` de punta a punta en verde ([ejecución 44020768595](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768595)). Ajuste pendiente: el servicio de Render aún apunta a la rama `feature/sprint-4`; hay que cambiarla a `main` en **Settings → Build & Deploy → Branch**.
+
+**Primera ejecución real (17/11/2026), paso por paso:**
+
+| Etapa | Duración | Qué hizo |
+|---|---|---|
+| Verificar antes de desplegar | 1 min 48 s | Pruebas del backend y construcción de la imagen Docker |
+| Disparar el despliegue | 1 s | Llamó al Deploy Hook de Render con el secreto |
+| Esperar a que la aplicación responda | 0 s | `/api/health` ya respondía (ver la limitación de la sección 3) |
+| Prueba de humo en producción (Playwright) | 5 s | 3 de 3 pruebas contra la URL pública |
+| **Total del trabajo "Desplegar a producción"** | **1 min 4 s** | |
 
 ## 1. Cómo funciona el despliegue
 
@@ -41,7 +51,7 @@ No hay pasos manuales después de la configuración inicial. Ninguna credencial 
 
 En Render: servicio → **Settings** → **Deploy Hook** → copiar la URL. Es secreta: quien la conozca puede disparar despliegues.
 
-### 2.3 Guardar los secretos en GitHub
+### 2.3 Guardar los secretos en GitHub (realizado el 17/11/2026)
 
 En GitHub: repositorio → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**:
 
@@ -52,9 +62,10 @@ En GitHub: repositorio → **Settings** → **Secrets and variables** → **Acti
 
 ### 2.4 Comprobar
 
-1. **Actions** → **Deploy Production** → **Run workflow** (rama `main`).
-2. Todos los pasos deben quedar en verde. El enlace del entorno `production` muestra la URL operativa.
+1. **Actions** → **Deploy Production** → **Run workflow** (rama `main`), o simplemente fusionar un Pull Request en `main`.
+2. Todos los pasos deben quedar en verde (ver la tabla de la primera ejecución real).
 3. Abrir la URL: debe verse la pantalla "Iniciar Sesión".
+4. Comprobar la salud: `curl https://ecologistica-lima.onrender.com/api/health` debe devolver `{"status":"ok", ...}`.
 
 ## 3. Limitaciones conocidas (leer antes de presentar)
 
@@ -63,6 +74,7 @@ En GitHub: repositorio → **Settings** → **Secrets and variables** → **Acti
 | Base de datos | El backend usa SQLite (archivo). En el plan gratuito de Render el disco es temporal. | Los datos se reinician cuando el servicio se reinicia o se vuelve a desplegar. | Por eso `SEED_DEMO_DATA=true` recarga los datos de demostración al arrancar. La migración a PostgreSQL está en el backlog y exige añadir el controlador asíncrono. |
 | Arranque en frío | El plan gratuito se duerme tras 15 minutos sin tráfico. | La primera visita puede tardar hasta 1 minuto. | El flujo espera hasta 10 minutos a `/api/health` antes de probar. |
 | Cuentas de demostración | `SEED_DEMO_DATA=true` crea usuarios con contraseñas de prueba conocidas ([`seed.py`](../../../src/backend/app/seed.py)). | Sirve para demostrar y para las pruebas E2E; **no debe usarse con datos reales**. | Con datos reales se pone `SEED_DEMO_DATA=false`. |
+| Espera de arranque | Mientras Render construye la versión nueva sigue atendiendo la anterior, así que `/api/health` responde de inmediato. | La espera del flujo puede terminar antes de que la versión nueva esté activa y la prueba de humo correr sobre la anterior; no puede asegurarse cuál versión atendió la prueba. | Propuesta (acción 1 de la [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)): incluir el identificador del commit en la respuesta de `/api/health` y esperar a que coincida con el desplegado. |
 | TLS y cabeceras | Render entrega HTTPS con certificado propio. | Cumple el transporte seguro pedido en [OWASP A02](../Sprint%2003/04%20OWASP%20V_1_0_0.md). | HSTS lo aplica la plataforma. |
 
 ## 4. Variables de entorno de la aplicación
@@ -89,3 +101,4 @@ El mismo [`Dockerfile`](../../../Dockerfile) sirve para Railway, Fly.io o un ser
 | Versión | Fecha | Cambio |
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Primera versión: flujo de despliegue, configuración en Render y limitaciones conocidas. |
+| 1.1.0 | 17/11/2026 | Se registran el servicio publicado, los secretos cargados, la primera ejecución real con sus tiempos y la limitación de la espera de arranque. |

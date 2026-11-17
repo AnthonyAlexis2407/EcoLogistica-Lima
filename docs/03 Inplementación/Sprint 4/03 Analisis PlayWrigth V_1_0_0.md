@@ -3,8 +3,8 @@
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
 **Sprint:** Sprint 4  
-**Fecha de la ejecución analizada:** 16/11/2026  
-**Versión del documento:** 1.0.0
+**Fecha de la ejecución analizada:** 17/11/2026 (rama `main`, tras fusionar el Pull Request #4)  
+**Versión del documento:** 1.1.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Usabilidad](04%20Usabilidad%20V_1_0_0.md) · [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)
 
@@ -15,9 +15,9 @@
 | ¿Qué se probó? | La aplicación completa (interfaz + API) tal como se publica: la imagen Docker de producción |
 | ¿En qué navegadores? | Chromium, Firefox y WebKit (los tres motores de Playwright) más un móvil emulado (Pixel 7) |
 | ¿Cuántas pruebas? | **130 ejecuciones: 130 pasan, 0 fallan (100 %)** |
-| ¿Qué tan rápido responde? | API con mediana de **1,5 a 3,3 ms** (el límite es 500 ms); inicio de sesión con FCP/LCP de **35 a 56 ms** (límite 2 500 ms) |
-| ¿Está disponible? | **100 % en 90 sondeos** (30 por navegador) y resiste caídas de red y errores 500 sin romperse |
-| ¿Dónde se ve? | [Ejecución en GitHub Actions](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44017578661) (flujo `Tests`, con el informe HTML y las trazas como artefactos) |
+| ¿Qué tan rápido responde? | API con mediana de **2,1 a 6,4 ms** en el contenedor y de **295 ms** medida desde internet contra producción (el límite es 500 ms); inicio de sesión con FCP/LCP de **32 a 46 ms** (límite 2 500 ms) |
+| ¿Está disponible? | **100 % en 90 sondeos** en el contenedor y **100 % en 30 sondeos** al entorno desplegado en Render; resiste caídas de red y errores 500 sin romperse |
+| ¿Dónde se ve? | [Ejecución en GitHub Actions](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768263) (flujo `Tests`, con el informe HTML y las trazas como artefactos) |
 
 ## Glosario
 
@@ -119,13 +119,13 @@ Decisiones de diseño, todas siguiendo la guía de Playwright del curso:
 
 ### 2.1 Resultados de la ejecución
 
-Datos de la ejecución del flujo `Tests` del 16/11/2026 ([ver en Actions](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44017578661)):
+Datos de la ejecución del flujo `Tests` del 17/11/2026 en `main` ([ver en Actions](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768263)):
 
 | Navegador | Pruebas | Pasan | Fallan | Inestables | Éxito | Duración |
 |---|---|---|---|---|---|---|
-| Chromium | 41 | 41 | 0 | 0 | 100,0 % | 29 s |
-| Firefox | 41 | 41 | 0 | 0 | 100,0 % | 50 s |
-| WebKit | 41 | 41 | 0 | 0 | 100,0 % | 68 s |
+| Chromium | 41 | 41 | 0 | 0 | 100,0 % | 32 s |
+| Firefox | 41 | 41 | 0 | 0 | 100,0 % | 51 s |
+| WebKit | 41 | 41 | 0 | 0 | 100,0 % | 81 s |
 | Móvil (Pixel 7) | 4 | 4 | 0 | 0 | 100,0 % | 2 s |
 | Humo (`smoke`) | 3 | 3 | 0 | 0 | 100,0 % | 0 s |
 | **Total** | **130** | **130** | **0** | **0** | **100,0 %** | |
@@ -232,9 +232,9 @@ Las pruebas de [`rendimiento.spec.ts`](../../../src/frontend/e2e/rendimiento.spe
 
 | Navegador | TTFB | FCP | LCP | CLS | DOM cargado | Carga total | Bytes |
 |---|---|---|---|---|---|---|---|
-| Chromium | 6 ms | 56 ms | 56 ms | 0,000 | 16 ms | 17 ms | 4 665 |
-| Firefox | 6 ms | 54 ms | 54 ms | 0,000 | 38 ms | 46 ms | 4 665 |
-| WebKit | 3 ms | 35 ms | 35 ms | 0,000 | 16 ms | 21 ms | 5 034 |
+| Chromium | 4 ms | 44 ms | 44 ms | 0,000 | 14 ms | 15 ms | 4 665 |
+| Firefox | 8 ms | 46 ms | 46 ms | 0,000 | 24 ms | 35 ms | 4 665 |
+| WebKit | 4 ms | 32 ms | 32 ms | 0,000 | 20 ms | 26 ms | 5 034 |
 | **Límite "bueno"** | **< 800 ms** | **< 1 800 ms** | **< 2 500 ms** | **< 0,1** | | | |
 
 Los cuatro indicadores cumplen con holgura en los tres navegadores. La pantalla pesa unos 4,7 KB transferidos gracias a la compresión Brotli, el CSS incrustado y la carga diferida del JavaScript ([Informe Green IT](../reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md)).
@@ -245,10 +245,10 @@ Cada ruta se llama 15 veces con sesión de administrador (la de salud, sin sesi�
 
 | Ruta | Navegador | Mediana | p95 | Máximo | Código |
 |---|---|---|---|---|---|
-| `/api/health` | Chromium / Firefox / WebKit | 1,5 / 2,6 / 1,6 ms | 3,4 / 4,0 / 2,6 ms | 3,4 / 4,0 / 2,6 ms | 200 |
-| `/api/vehiculos/` | Chromium / Firefox / WebKit | 2,8 / 3,3 / 2,8 ms | 3,7 / 5,1 / 3,7 ms | 3,7 / 5,1 / 3,7 ms | 200 |
-| `/api/pedidos/` | Chromium / Firefox / WebKit | 2,8 / 3,0 / 2,9 ms | 3,5 / 3,9 / 3,1 ms | 3,5 / 3,9 / 3,1 ms | 200 |
-| `/api/vehiculos/count` | Chromium / Firefox / WebKit | 2,1 / 2,1 / 2,2 ms | 2,4 / 2,8 / 2,3 ms | 2,4 / 2,8 / 2,3 ms | 200 |
+| `/api/health` | Chromium / Firefox / WebKit | 2,1 / 2,2 / 3,0 ms | 3,1 / 3,8 / 4,4 ms | 3,1 / 3,8 / 4,4 ms | 200 |
+| `/api/vehiculos/` | Chromium / Firefox / WebKit | 3,7 / 4,0 / 6,4 ms | 5,0 / 4,8 / 14,2 ms | 5,0 / 4,8 / 14,2 ms | 200 |
+| `/api/pedidos/` | Chromium / Firefox / WebKit | 3,9 / 3,9 / 4,2 ms | 4,9 / 5,9 / 6,0 ms | 4,9 / 5,9 / 6,0 ms | 200 |
+| `/api/vehiculos/count` | Chromium / Firefox / WebKit | 2,9 / 2,9 / 3,0 ms | 3,2 / 3,2 / 4,0 ms | 3,2 / 3,2 / 4,0 ms | 200 |
 | **Límite de la rúbrica** | | **< 500 ms** | **< 800 ms** | | |
 
 La prueba falla si cualquier ruta supera esos límites o devuelve un código distinto de 200. Además, una prueba comprueba que la API comprime con Brotli y responde **304** cuando los datos no cambiaron (cabecera `ETag`), lo que ahorra transferencia ([Green IT](../reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md)).
@@ -280,10 +280,18 @@ Cada navegador hace 30 sondeos seguidos a `/api/health`, uno cada 150 ms:
 
 | Navegador | Sondeos | Correctos | Disponibilidad | Latencia mediana | Latencia máxima |
 |---|---|---|---|---|---|
-| Chromium | 30 | 30 | 100,0 % | 3,3 ms | 6,6 ms |
-| Firefox | 30 | 30 | 100,0 % | 3,6 ms | 11,0 ms |
-| WebKit | 30 | 30 | 100,0 % | 4,0 ms | 10,7 ms |
+| Chromium | 30 | 30 | 100,0 % | 4,2 ms | 9,2 ms |
+| Firefox | 30 | 30 | 100,0 % | 4,4 ms | 11,9 ms |
+| WebKit | 30 | 30 | 100,0 % | 4,4 ms | 9,2 ms |
 | **Total** | **90** | **90** | **100,0 %** | | |
+
+**Uptime del entorno desplegado (Render, <https://ecologistica-lima.onrender.com>).** Medido el 17/11/2026 desde internet con 30 sondeos a `/api/health`, uno cada 2 segundos:
+
+| Sondeos | Correctos | Disponibilidad | Tiempo de respuesta mediano | p95 | Mínimo | Máximo | Límite de la rúbrica |
+|---|---|---|---|---|---|---|---|
+| 30 | 30 | **100,0 %** | **295 ms** | 383 ms | 232 ms | 474 ms | < 500 ms |
+
+Estos tiempos incluyen la red entre el equipo que mide y el servidor de Render, por eso son mayores que los del contenedor (sección 3.2) y son los que vería una persona usuaria. Las respuestas del entorno desplegado también incluyen las cabeceras de seguridad (`x-content-type-options`, `x-frame-options` y `referrer-policy`).
 
 ### 4.3 Manejo de errores de red
 
@@ -299,13 +307,20 @@ Con la intercepción de red de Playwright (`page.route`) se simulan fallas y se 
 
 ### 4.4 Prueba de humo del entorno desplegado
 
-[`smoke.spec.ts`](../../../src/frontend/e2e/smoke.spec.ts) no necesita cuentas ni datos: comprueba que `/api/health` responde 200, que aparece "Iniciar Sesión" con el título "EcoLogística Lima", que los datos siguen protegidos (401 sin sesión) y que la página principal responde en menos de 3 s. El flujo `deploy-production.yml` la ejecuta contra la URL de producción justo después de cada despliegue ([Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)). En la ejecución de este informe corrió contra el contenedor de pruebas (3 de 3). Comprobación manual equivalente contra producción (<https://ecologistica-lima.onrender.com>, 16/11/2026): inicio 200 en 0,67 s, `/api/health` con `status: ok` y `/api/vehiculos/` sin sesión con 401.
+[`smoke.spec.ts`](../../../src/frontend/e2e/smoke.spec.ts) no necesita cuentas ni datos: comprueba que `/api/health` responde 200, que aparece "Iniciar Sesión" con el título "EcoLogística Lima", que los datos siguen protegidos (401 sin sesión) y que la página principal responde en menos de 3 s. El flujo `deploy-production.yml` la ejecuta contra la URL de producción justo después de cada despliegue ([Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)). Corre en dos entornos:
+
+| Entorno | Ejecución | Resultado |
+|---|---|---|
+| Contenedor de pruebas (flujo `Tests`) | [Tests 44020768263](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768263) | 3 de 3 |
+| **Producción en Render** (<https://ecologistica-lima.onrender.com>), paso "Prueba de humo en producción (Playwright)" del flujo `Deploy Production` | [Deploy Production 44020768595](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768595), 17/11/2026 | **3 de 3** (5 s) |
+
+La comprobación manual del 17/11/2026 coincide: la página de inicio responde 200 y `/api/vehiculos/` sin sesión responde 401.
 
 ## 5. Informes y evidencias
 
 | Evidencia | Dónde está |
 |---|---|
-| **Informe HTML de Playwright** (lista navegable de pruebas, pasos, capturas y trazas) | Artefacto `playwright-report` de la [ejecución en Actions](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44017578661); se descarga, se descomprime y se abre `index.html` (o `npx playwright show-report`) |
+| **Informe HTML de Playwright** (lista navegable de pruebas, pasos, capturas y trazas) | Artefacto `playwright-report` de la [ejecución en Actions](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768263); se descarga, se descomprime y se abre `index.html` (o `npx playwright show-report`) |
 | Resultados en JSON y métricas por navegador | Artefacto `playwright-resultados` (`resultados.json` y `metricas/*.json`) |
 | Tablas de este documento | Anotación "Resumen completo de Playwright" del trabajo E2E y resumen del flujo; se regeneran con [`resumen_playwright.py`](../../../scripts/resumen_playwright.py) |
 | Capturas de las pantallas clave | `E2E_EVIDENCIAS=1 npx playwright test --project=chromium e2e/evidencias.spec.ts` genera 8 imágenes en `test-results/evidencias/` |
@@ -316,8 +331,8 @@ Los artefactos se conservan 14 días en GitHub Actions; si caducan, basta ejecut
 ## 6. Conclusiones y límites
 
 - La suite cumple lo pedido: tres navegadores, flujos críticos al 100 %, métricas exactas de rendimiento por debajo de los límites, resiliencia verificada y reportes como artefactos.
-- Las cifras de rendimiento son de laboratorio (servidor y navegador en la misma máquina); la medición con red real depende de contar con la URL de producción (acción 1 de la [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)).
-- El uptime de 100 % corresponde a 90 sondeos de pocos segundos; el monitoreo continuo (una prueba de humo cada hora) está planificado en la acción 8.
+- Las cifras de rendimiento del contenedor son de laboratorio (servidor y navegador en la misma máquina). Contra producción se mide la disponibilidad y el tiempo de respuesta con red real (sección 4.2) y se ejecuta la prueba de humo en cada despliegue; la suite completa de rendimiento puede apuntar también a producción con `E2E_BASE_URL`.
+- El uptime de 100 % corresponde a 90 sondeos en el contenedor y 30 en producción, todos de pocos segundos; el monitoreo continuo (una prueba de humo cada hora) está planificado en la acción 8.
 
 ## Referencias cruzadas
 
@@ -332,3 +347,4 @@ Los artefactos se conservan 14 días en GitHub Actions; si caducan, basta ejecut
 | Versión | Fecha | Cambio |
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Primera versión: configuración, 130 ejecuciones E2E en tres navegadores y móvil, Web Vitals, tiempos de la API, uptime y resiliencia. |
+| 1.1.0 | 17/11/2026 | Cifras actualizadas con la ejecución en `main` tras fusionar el Pull Request #4; se añaden el uptime y el tiempo de respuesta del entorno desplegado y el resultado de la prueba de humo en producción. |
