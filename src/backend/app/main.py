@@ -1,6 +1,7 @@
 """
 EcoLogística Lima — Punto de entrada de la API REST (FastAPI).
-Hardening OWASP (EN-002), Cifrado (EN-008), Vehículos (US-001), Pedidos (US-003).
+Hardening OWASP (EN-002), Cifrado (EN-008), Vehículos (US-001), Pedidos (US-003),
+Rutas optimizadas (RF-003), Indicadores y CO₂ (RF-005, RF-010) y Reportes exportables (RF-006).
 Sprint 3: configuración endurecida (OWASP A02), cabeceras de seguridad y CORS acotado.
 """
 
@@ -14,7 +15,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import init_db
 from app.rendimiento import montar_frontend, politica_http
-from app.routers import auth_router, pedidos_router, vehiculos_router
+from app.routers import (
+    auth_router,
+    indicadores_router,
+    pedidos_router,
+    reportes_router,
+    rutas_router,
+    vehiculos_router,
+)
 
 _PRODUCCION = settings.ENVIRONMENT == "production"
 
@@ -72,6 +80,9 @@ app.add_middleware(BrotliMiddleware, quality=5, minimum_size=1000, gzip_fallback
 app.include_router(auth_router.router)
 app.include_router(vehiculos_router.router)
 app.include_router(pedidos_router.router)
+app.include_router(rutas_router.router)
+app.include_router(indicadores_router.router)
+app.include_router(reportes_router.router)
 
 
 @app.get("/api/health", tags=["Sistema"])

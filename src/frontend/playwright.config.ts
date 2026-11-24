@@ -13,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:8000';
 
 // Las capturas de evidencia (e2e/evidencias.spec.ts) solo se ejecutan a demanda con E2E_EVIDENCIAS=1.
-const ignorarEscritorio = process.env.E2E_EVIDENCIAS === '1' ? /(movil|smoke)\.spec\.ts/ : /(movil|smoke|evidencias)\.spec\.ts/;
+const ignorarEscritorio = process.env.E2E_EVIDENCIAS === '1' ? /(movil|smoke|rutas)\.spec\.ts/ : /(movil|smoke|rutas|evidencias)\.spec\.ts/;
 
 export default defineConfig({
   testDir: './e2e',
@@ -63,6 +63,26 @@ export default defineConfig({
       name: 'smoke',
       use: { ...devices['Desktop Chrome'] },
       testMatch: /smoke\.spec\.ts/,
+    },
+    // Rutas (RF-003): optimizar toma todos los pedidos pendientes de la base compartida, por eso estos proyectos corren
+    // en serie y solo cuando terminaron todos los demás (cada uno depende del anterior).
+    {
+      name: 'rutas-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup', 'chromium', 'firefox', 'webkit'],
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'rutas-firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['rutas-chromium'],
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'rutas-webkit',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['rutas-firefox'],
+      testMatch: /rutas\.spec\.ts/,
     },
     {
       name: 'movil',

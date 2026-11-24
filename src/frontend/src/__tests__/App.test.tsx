@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
-import { authApi, healthApi, pedidosApi, vehiculosApi } from '../api';
+import { authApi, healthApi, indicadoresApi, pedidosApi, vehiculosApi } from '../api';
 
 vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
@@ -10,6 +10,7 @@ vi.mock('../api', async (original) => ({
   healthApi: { check: vi.fn() },
   vehiculosApi: { count: vi.fn(), list: vi.fn(), listPage: vi.fn() },
   pedidosApi: { count: vi.fn(), list: vi.fn(), listPage: vi.fn() },
+  indicadoresApi: { resumen: vi.fn() },
 }));
 
 const usuario = { usuario_id: 'u1', nombre: 'Ana Pérez', email: 'ana@eco.pe', rol: 'ADMIN_FLOTA', estado: 'ACTIVO', creado_en: '' };
@@ -22,6 +23,7 @@ beforeEach(() => {
   vi.mocked(pedidosApi.count).mockResolvedValue({});
   vi.mocked(vehiculosApi.list).mockResolvedValue([]);
   vi.mocked(pedidosApi.list).mockResolvedValue([]);
+  vi.mocked(indicadoresApi.resumen).mockRejectedValue(new Error('sin datos'));
   vi.mocked(vehiculosApi.listPage).mockResolvedValue({ items: [], total: 0 });
   vi.mocked(pedidosApi.listPage).mockResolvedValue({ items: [], total: 0 });
 });

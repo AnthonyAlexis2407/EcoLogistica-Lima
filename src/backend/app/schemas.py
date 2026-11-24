@@ -173,6 +173,89 @@ class PedidoOut(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════
+#  RUTAS, INDICADORES Y CARBONO (RF-003, RF-004, RF-005, RF-010)
+# ═══════════════════════════════════════════════════════════════════════
+
+class OptimizarRequest(BaseModel):
+    limite_segundos: float = Field(40.0, ge=1, le=45, description="Tiempo máximo de cálculo; el SLA de RNF-001 es 45 s")
+
+
+class ParadaOut(BaseModel):
+    pedido_id: str
+    orden: int
+    direccion: str
+    latitud: float
+    longitud: float
+    peso_kg: float
+    distancia_desde_anterior_km: float
+    llegada_estimada: Optional[datetime] = None
+    espera_min: float = 0
+    en_ventana: Optional[bool] = None
+
+
+class RutaOut(BaseModel):
+    ruta_id: str
+    vehiculo_id: str
+    placa: str
+    tipo_combustible: str
+    capacidad_kg: float
+    estado: str
+    distancia_km: float
+    carga_kg: float
+    co2_kg: float
+    duracion_min: float
+    paradas: list[ParadaOut]
+
+
+class SinAsignarOut(BaseModel):
+    pedido_id: str
+    motivo: str
+
+
+class OptimizacionOut(BaseModel):
+    optimizacion_id: str
+    algoritmo: str
+    pedidos_planificados: int
+    pedidos_sin_asignar: int
+    distancia_km: float
+    distancia_base_km: float
+    ahorro_km_pct: float
+    co2_kg: float
+    co2_base_kg: float
+    co2_evitado_kg: float
+    ahorro_co2_pct: float
+    arboles_equivalentes: float
+    tiempo_ms: float
+    limite_alcanzado: bool
+    rutas: list[RutaOut]
+    sin_asignar: list[SinAsignarOut]
+
+
+class DepositoOut(BaseModel):
+    latitud: float
+    longitud: float
+
+
+class RutasActivasOut(BaseModel):
+    deposito: DepositoOut
+    rutas: list[RutaOut]
+
+
+class IndicadoresOut(BaseModel):
+    vehiculos: dict[str, int]
+    pedidos: dict[str, int]
+    rutas_activas: int
+    distancia_planificada_km: float
+    co2_planificado_kg: float
+    pedidos_en_ventana_pct: Optional[float] = None
+    optimizaciones: int
+    co2_evitado_kg: float
+    ahorro_co2_pct: float
+    ahorro_km_pct: float
+    arboles_equivalentes: float
+
+
+# ═══════════════════════════════════════════════════════════════════════
 #  RESPUESTAS GENÉRICAS
 # ═══════════════════════════════════════════════════════════════════════
 

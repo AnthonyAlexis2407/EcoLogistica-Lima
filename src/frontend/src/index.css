@@ -896,3 +896,25 @@ tbody tr:hover {
 
   .stats-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Mapa de rutas (RF-004) ───────────────────────────────────────── */
+.mapa-rutas {
+  height: 420px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.parada-marcador span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}

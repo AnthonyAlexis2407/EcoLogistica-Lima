@@ -214,6 +214,99 @@ export const pedidosApi = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════
+//  RUTAS (RF-003, RF-004), INDICADORES (RF-005, RF-010) Y REPORTES (RF-006)
+// ═══════════════════════════════════════════════════════════════════════
+
+export interface ParadaRuta {
+  pedido_id: string;
+  orden: number;
+  direccion: string;
+  latitud: number;
+  longitud: number;
+  peso_kg: number;
+  distancia_desde_anterior_km: number;
+  llegada_estimada: string | null;
+  espera_min: number;
+  en_ventana: boolean | null;
+}
+
+export interface Ruta {
+  ruta_id: string;
+  vehiculo_id: string;
+  placa: string;
+  tipo_combustible: string;
+  capacidad_kg: number;
+  estado: string;
+  distancia_km: number;
+  carga_kg: number;
+  co2_kg: number;
+  duracion_min: number;
+  paradas: ParadaRuta[];
+}
+
+export interface RutasActivas {
+  deposito: { latitud: number; longitud: number };
+  rutas: Ruta[];
+}
+
+export interface Optimizacion {
+  optimizacion_id: string;
+  algoritmo: string;
+  pedidos_planificados: number;
+  pedidos_sin_asignar: number;
+  distancia_km: number;
+  distancia_base_km: number;
+  ahorro_km_pct: number;
+  co2_kg: number;
+  co2_base_kg: number;
+  co2_evitado_kg: number;
+  ahorro_co2_pct: number;
+  arboles_equivalentes: number;
+  tiempo_ms: number;
+  limite_alcanzado: boolean;
+  rutas: Ruta[];
+  sin_asignar: { pedido_id: string; motivo: string }[];
+}
+
+export interface Indicadores {
+  vehiculos: Record<string, number>;
+  pedidos: Record<string, number>;
+  rutas_activas: number;
+  distancia_planificada_km: number;
+  co2_planificado_kg: number;
+  pedidos_en_ventana_pct: number | null;
+  optimizaciones: number;
+  co2_evitado_kg: number;
+  ahorro_co2_pct: number;
+  ahorro_km_pct: number;
+  arboles_equivalentes: number;
+}
+
+export type TipoReporte = 'pedidos' | 'rutas' | 'ambiental';
+
+export const rutasApi = {
+  activas: (token: string) => request<RutasActivas>('/api/rutas/', { token }),
+
+  optimizar: (token: string, limiteSegundos?: number) =>
+    request<Optimizacion>('/api/rutas/optimizar', {
+      method: 'POST', body: limiteSegundos ? { limite_segundos: limiteSegundos } : undefined, token,
+    }),
+
+  cancelar: (token: string, id: string) =>
+    request<{ mensaje: string }>(`/api/rutas/${id}/cancelar`, { method: 'POST', token }),
+};
+
+export const indicadoresApi = {
+  resumen: (token: string) => request<Indicadores>('/api/indicadores/resumen', { token }),
+};
+
+export const reportesApi = {
+  /** Descarga un reporte CSV; el token viaja en la cabecera, por eso no es un simple enlace. */
+  descargar: async (token: string, tipo: TipoReporte): Promise<Blob> =>
+    (await requestRaw(`/api/reportes/${tipo}.csv`, { token })).blob(),
+};
+
+// ═══════════════════════════════════════════════════════════════════════
 //  HEALTH
 // ═══════════════════════════════════════════════════════════════════════
 

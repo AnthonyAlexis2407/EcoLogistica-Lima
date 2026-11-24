@@ -27,9 +27,10 @@ CABECERAS_SEGURIDAD = {
     "Referrer-Policy": "no-referrer",
 }
 
-# La API solo se carga desde el mismo origen; img-src data: permite el favicon incrustado.
+# La API solo se carga desde el mismo origen; img-src data: permite el favicon incrustado y las teselas del mapa
+# (RF-004) se piden únicamente a OpenStreetMap.
 CSP_FRONTEND = (
-    "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+    "default-src 'self'; img-src 'self' data: https://*.tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; "
     "script-src 'self'; connect-src 'self'; frame-ancestors 'none'"
 )
 

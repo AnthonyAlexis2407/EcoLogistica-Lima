@@ -1,6 +1,6 @@
 """
-Modelos ORM — Sprint 1.
-Tablas: usuarios, conductores, bodegas, vehiculos, restricciones_vehiculares, pedidos.
+Modelos ORM — Sprint 1; optimizaciones, rutas y paradas_ruta se añaden en el Sprint final.
+Tablas: usuarios, conductores, bodegas, vehiculos, restricciones_vehiculares, pedidos, optimizaciones, rutas, paradas_ruta.
 Alineados con el DDL del Documento 11 (Base de datos V_1_0_0).
 """
 
@@ -133,3 +133,63 @@ class Pedido(Base):
         Index("idx_pedidos_bodega", "bodega_id"),
         Index("idx_pedidos_creado_en", "creado_en"),
     )
+
+
+# ── Optimizaciones y rutas (Sprint Final: RF-003, RF-005, RF-010) ──────────
+class Optimizacion(Base):
+    """Una corrida del motor de rutas: sus métricas permiten medir el CO₂ evitado de forma acumulada (RF-010)."""
+
+    __tablename__ = "optimizaciones"
+
+    optimizacion_id = Column(String(36), primary_key=True, default=_uuid)
+    creado_por = Column(String(36), ForeignKey("usuarios.usuario_id"), nullable=True)
+    creado_en = Column(DateTime(timezone=True), default=_now)
+    algoritmo = Column(String(60), nullable=False)
+    pedidos_planificados = Column(SmallInteger, nullable=False, default=0)
+    pedidos_sin_asignar = Column(SmallInteger, nullable=False, default=0)
+    distancia_km = Column(Numeric(12, 3), nullable=False, default=0)
+    distancia_base_km = Column(Numeric(12, 3), nullable=False, default=0)
+    co2_kg = Column(Numeric(12, 3), nullable=False, default=0)
+    co2_base_kg = Column(Numeric(12, 3), nullable=False, default=0)
+    tiempo_ms = Column(Numeric(10, 1), nullable=False, default=0)
+    limite_alcanzado = Column(Boolean, nullable=False, default=False)
+
+    rutas = relationship("Ruta", back_populates="optimizacion", cascade="all, delete-orphan")
+
+
+class Ruta(Base):
+    __tablename__ = "rutas"
+
+    ruta_id = Column(String(36), primary_key=True, default=_uuid)
+    optimizacion_id = Column(String(36), ForeignKey("optimizaciones.optimizacion_id"), nullable=False)
+    vehiculo_id = Column(String(36), ForeignKey("vehiculos.vehiculo_id"), nullable=False)
+    estado = Column(String(20), nullable=False, default="PLANIFICADA")  # PLANIFICADA | CANCELADA
+    distancia_km = Column(Numeric(10, 3), nullable=False)
+    carga_kg = Column(Numeric(10, 2), nullable=False)
+    co2_kg = Column(Numeric(10, 3), nullable=False)
+    duracion_min = Column(Numeric(8, 1), nullable=False)
+    creado_en = Column(DateTime(timezone=True), default=_now)
+
+    optimizacion = relationship("Optimizacion", back_populates="rutas")
+    vehiculo = relationship("Vehiculo")
+    paradas = relationship(
+        "ParadaRuta", back_populates="ruta", cascade="all, delete-orphan", order_by="ParadaRuta.orden",
+    )
+
+    __table_args__ = (Index("idx_rutas_estado", "estado"), Index("idx_rutas_vehiculo", "vehiculo_id"))
+
+
+class ParadaRuta(Base):
+    __tablename__ = "paradas_ruta"
+
+    parada_id = Column(String(36), primary_key=True, default=_uuid)
+    ruta_id = Column(String(36), ForeignKey("rutas.ruta_id"), nullable=False)
+    pedido_id = Column(String(36), ForeignKey("pedidos.pedido_id"), nullable=False)
+    orden = Column(SmallInteger, nullable=False)
+    distancia_desde_anterior_km = Column(Numeric(10, 3), nullable=False, default=0)
+    llegada_estimada = Column(DateTime(timezone=True), nullable=True)
+    espera_min = Column(Numeric(8, 1), nullable=False, default=0)
+    en_ventana = Column(Boolean, nullable=True)
+
+    ruta = relationship("Ruta", back_populates="paradas")
+    pedido = relationship("Pedido")

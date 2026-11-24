@@ -7,12 +7,14 @@ import { BrowserRouter, Routes, Route, Navigate, NavLink, useLocation } from 're
 import { AuthProvider, useAuth } from './AuthContext';
 import { healthApi } from './api';
 import LoginPage from './pages/LoginPage';
-import { LayoutDashboard, Truck, Package, LogOut, Leaf, Shield } from 'lucide-react';
+import { LayoutDashboard, Truck, Package, LogOut, Leaf, Shield, Route as RutaIcono } from 'lucide-react';
 
 // Code splitting (Informe Green IT, optimización 4): las pantallas autenticadas se descargan bajo demanda.
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const VehiculosPage = lazy(() => import('./pages/VehiculosPage'));
 const PedidosPage = lazy(() => import('./pages/PedidosPage'));
+const RutasPage = lazy(() => import('./pages/RutasPage'));
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   if (isLoading) {
@@ -26,6 +28,7 @@ const pageTitles: Record<string, string> = {
   '/': 'Dashboard',
   '/vehiculos': 'Gestión de Flota Vehicular',
   '/pedidos': 'Gestión de Pedidos',
+  '/rutas': 'Rutas Optimizadas',
 };
 
 function AppLayout() {
@@ -75,12 +78,15 @@ function AppLayout() {
             <LayoutDashboard size={18} /> Dashboard
           </NavLink>
 
-          <div className="sidebar-section-title">Módulos Sprint 2</div>
+          <div className="sidebar-section-title">Operación</div>
           <NavLink to="/vehiculos" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
             <Truck size={18} /> Vehículos
           </NavLink>
           <NavLink to="/pedidos" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
             <Package size={18} /> Pedidos
+          </NavLink>
+          <NavLink to="/rutas" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <RutaIcono size={18} /> Rutas
           </NavLink>
 
           <div className="sidebar-section-title">Seguridad</div>
@@ -113,8 +119,8 @@ function AppLayout() {
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981', display: 'inline-block' }}></span>
               {apiOnline === null ? 'Verificando API…' : apiOnline ? 'API conectada' : 'API sin conexión'}
             </div>
-            <span className="badge badge-teal">Sprint 2</span>
-            <span className="badge badge-green">v2.1.0</span>
+            <span className="badge badge-teal">Versión final</span>
+            <span className="badge badge-green">v4.0.0</span>
           </div>
         </header>
 
@@ -124,6 +130,7 @@ function AppLayout() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/vehiculos" element={<VehiculosPage />} />
               <Route path="/pedidos" element={<PedidosPage />} />
+              <Route path="/rutas" element={<RutasPage />} />
             </Routes>
           </Suspense>
         </main>

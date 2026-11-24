@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     # --- Aplicación ---
     APP_NAME: str = "EcoLogística Lima API"
-    APP_VERSION: str = "3.0.0"
+    APP_VERSION: str = "4.0.0"
     ENVIRONMENT: str = "development"  # "production" exige SECRET_KEY propia y oculta /docs
     # True carga usuarios, flota y pedidos de ejemplo al arrancar (idempotente). Solo para entornos de
     # demostración y pruebas: crea cuentas con contraseñas de prueba conocidas (ver app/seed.py).
@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     # --- Seguridad: intentos fallidos de login (EN-002 / RNF-002) ---
     MAX_LOGIN_ATTEMPTS: int = 3
     LOCKOUT_MINUTES: int = 15
+
+    # --- Motor de rutas (RF-003): depósito de salida y límite de cálculo por debajo del SLA de 45 s (RNF-001) ---
+    DEPOSITO_LATITUD: float = -12.0464
+    DEPOSITO_LONGITUD: float = -77.0428
+    OPTIMIZADOR_LIMITE_SEGUNDOS: float = 40.0
 
     # --- Frontend compilado (npm run build): si existe, la API lo sirve desde el mismo origen ---
     FRONTEND_DIST: Path = Path(__file__).resolve().parents[2] / "frontend" / "dist"

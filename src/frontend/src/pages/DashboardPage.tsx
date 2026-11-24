@@ -1,11 +1,11 @@
 /**
- * DashboardPage — Vista principal con diseño SaaS blanco y métricas del Sprint 2.
+ * DashboardPage — Vista principal: indicadores operativos y ambientales reales (RF-005, RF-010).
  */
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../AuthContext';
-import { vehiculosApi, pedidosApi, type Vehiculo, type Pedido } from '../api';
-import { Truck, Package, Activity, Leaf, ShieldCheck, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
+import { vehiculosApi, pedidosApi, indicadoresApi, type Vehiculo, type Pedido, type Indicadores } from '../api';
+import { Truck, Package, Activity, Leaf, ArrowRight, Sparkles, Route as RutaIcono, TreePine, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function DashboardPage() {
@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const [pStats, setPStats] = useState<Record<string, number>>({});
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  const [indicadores, setIndicadores] = useState<Indicadores | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -21,12 +22,13 @@ export default function DashboardPage() {
     pedidosApi.count(token).then(setPStats).catch(() => {});
     vehiculosApi.list(token).then(setVehiculos).catch(() => {});
     pedidosApi.list(token).then(setPedidos).catch(() => {});
+    indicadoresApi.resumen(token).then(setIndicadores).catch(() => {});
   }, [token]);
 
   const capacidadTotalKg = vehiculos.reduce((acc, v) => acc + (Number(v.capacidad_kg) || 0), 0);
   const factorEmisionPromedio = vehiculos.length > 0
     ? (vehiculos.reduce((acc, v) => acc + (Number(v.factor_emision_co2) || 0), 0) / vehiculos.length).toFixed(2)
-    : '1.78';
+    : '—';
 
   const pedidosPendientes = pStats.PENDIENTE ?? 0;
   const pedidosEnRuta = pStats.EN_RUTA ?? 0;
@@ -38,7 +40,7 @@ export default function DashboardPage() {
       <div className="hero-banner">
         <div className="hero-text">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(16, 185, 129, 0.2)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 700, color: '#6ee7b7', marginBottom: '0.75rem' }}>
-            <Sparkles size={14} /> Sprint 2 • Versión 2.1.0 Lista para Demostración
+            <Sparkles size={14} /> Versión final 4.0.0 · Rutas optimizadas y CO₂ evitado
           </div>
           <h3>Bienvenido, {user?.nombre || 'Usuario'}</h3>
           <p>Plataforma de optimización de logística verde y gestión de transporte de última milla para DistriRápido S.A.C.</p>
@@ -52,6 +54,9 @@ export default function DashboardPage() {
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Link to="/pedidos" className="btn btn-primary" style={{ background: '#10b981', border: 'none' }}>
             <Package size={16} /> Ver Pedidos
+          </Link>
+          <Link to="/rutas" className="btn btn-secondary" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <RutaIcono size={16} /> Ver Rutas
           </Link>
           {/* /docs solo existe en desarrollo: con ENVIRONMENT=production la API lo oculta */}
           {import.meta.env.DEV && (
@@ -145,59 +150,67 @@ export default function DashboardPage() {
           <ArrowRight size={18} style={{ color: 'var(--color-text-muted)' }} />
         </Link>
 
-        <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer" className="card" style={{ padding: '1.25rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link to="/rutas" className="card" style={{ padding: '1.25rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <div className="stat-icon teal" style={{ width: 44, height: 44, borderRadius: 12 }}>
-              <ShieldCheck size={20} />
+              <RutaIcono size={20} />
             </div>
             <div>
-              <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--color-secondary)' }}>Swagger API REST</h4>
-              <p style={{ fontSize: '0.775rem', color: 'var(--color-text-secondary)' }}>Documentación interactiva OpenAPI</p>
+              <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--color-secondary)' }}>Rutas Optimizadas</h4>
+              <p style={{ fontSize: '0.775rem', color: 'var(--color-text-secondary)' }}>Plan del día, mapa y reportes</p>
             </div>
           </div>
           <ArrowRight size={18} style={{ color: 'var(--color-text-muted)' }} />
-        </a>
+        </Link>
       </div>
 
-      {/* Tarjeta de Verificación del Sprint 2 */}
+      {/* Indicadores de rutas y compensación de carbono (RF-005, RF-010): todos salen de la base de datos */}
       <div className="card">
         <div className="card-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <CheckCircle2 size={22} style={{ color: 'var(--color-primary)' }} />
-            <h3>Informe de Estado del Incremento — Sprint 2</h3>
+            <TreePine size={22} style={{ color: 'var(--color-primary)' }} />
+            <h3>Rutas y compensación de carbono</h3>
           </div>
-          <span className="badge badge-teal">Sprint 2 v2.1.0 Verificado</span>
+          <span className="badge badge-teal">{indicadores?.optimizaciones ?? 0} optimizaciones</span>
         </div>
         <div className="card-body">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-            <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-bg)', border: '1px solid var(--color-primary-border)' }}>
-              <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-primary-hover)', marginBottom: '0.5rem' }}>✅ US-001 — Flota de Transporte</h4>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                Registro con validación de placa única, catálogo de combustibles ecológicos y bajas lógicas. Verificado con pruebas automatizadas (`test_us001`).
-              </p>
+          {!indicadores || indicadores.optimizaciones === 0 ? (
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+              Aún no hay rutas optimizadas. Registre pedidos y genere el plan del día en <Link to="/rutas">Rutas</Link> para ver el
+              CO₂ evitado.
+            </p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
+              <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-bg)', border: '1px solid var(--color-primary-border)' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>Rutas activas</h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{indicadores.rutas_activas}</div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                  {indicadores.distancia_planificada_km.toLocaleString('es-PE')} km · {indicadores.co2_planificado_kg.toLocaleString('es-PE')} kg CO₂
+                </p>
+              </div>
+              <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-teal-bg)', border: '1px solid #99f6e4' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>CO₂ evitado (acumulado)</h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{indicadores.co2_evitado_kg.toLocaleString('es-PE')} kg</div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                  {indicadores.ahorro_co2_pct}% menos CO₂ y {indicadores.ahorro_km_pct}% menos km que sin optimizar
+                </p>
+              </div>
+              <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-blue-bg)', border: '1px solid #bfdbfe' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>Compensación equivalente</h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{indicadores.arboles_equivalentes.toLocaleString('es-PE')} árboles</div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>absorbiendo CO₂ durante un año</p>
+              </div>
+              <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-amber-bg)', border: '1px solid #fde68a' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>
+                  <Clock size={14} style={{ verticalAlign: 'text-bottom' }} /> Entregas dentro de su ventana
+                </h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                  {indicadores.pedidos_en_ventana_pct === null ? '—' : `${indicadores.pedidos_en_ventana_pct}%`}
+                </div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>de las paradas de las rutas activas</p>
+              </div>
             </div>
-
-            <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-blue-bg)', border: '1px solid #bfdbfe' }}>
-              <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-blue-text)', marginBottom: '0.5rem' }}>✅ US-003 — Pedidos y Coordenadas</h4>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                Captura de ubicación, peso y ventana horaria. Validación de capacidad vehicular con rechazo HTTP 422 (`test_us003`).
-              </p>
-            </div>
-
-            <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-amber-bg)', border: '1px solid #fde68a' }}>
-              <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-amber-text)', marginBottom: '0.5rem' }}>🛡️ EN-002 — Hardening OWASP</h4>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                Protección contra fuerza bruta (bloqueo por 15 min tras 3 fallos) y aislamiento estricto por bodega (`DEF-001`, `DEF-002`, `DEF-003`).
-              </p>
-            </div>
-
-            <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-teal-bg)', border: '1px solid #99f6e4' }}>
-              <h4 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--color-teal-text)', marginBottom: '0.5rem' }}>⚡ Pruebas Automatizadas</h4>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                34 pruebas del backend (`pytest`) y 60 del frontend (Vitest) en verde, con 92,8 % de cobertura según SonarQube.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </>
