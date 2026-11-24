@@ -160,19 +160,31 @@ def test_ventana_matematicamente_incompatible_se_informa_y_no_genera_ruta_invali
     assert [p.punto_id for ruta in r.rutas for p in ruta.paradas] == ["c"]
 
 
-def test_una_parada_servida_despues_de_su_ventana_se_marca_fuera_de_ventana():
-    # Dos pedidos cercanos entre sí y lejos del depósito, ambos con una holgura de un minuto sobre su llegada directa:
-    # en un mismo recorrido el segundo llega tarde (servicio de 10 min del primero) y se señala.
+def _par_con_holgura_minima():
+    # Dos pedidos cercanos entre sí y lejos del depósito, ambos con una holgura de un minuto sobre su llegada directa.
     inicio = datetime(2026, 11, 24, 8, 0, tzinfo=timezone.utc)
     p1_lat, p1_lon, p2_lat, p2_lon = -12.10, -77.00, -12.10, -76.99
     directo1 = distancia_km(LIMA[0], LIMA[1], p1_lat, p1_lon) / 25.0 * 60.0
     directo2 = distancia_km(LIMA[0], LIMA[1], p2_lat, p2_lon) / 25.0 * 60.0
     a = Punto("a", p1_lat, p1_lon, 10.0, inicio, inicio + timedelta(minutes=directo1 + 1))
     b = Punto("b", p2_lat, p2_lon, 10.0, inicio, inicio + timedelta(minutes=directo2 + 1))
+    return inicio, a, b
+
+
+def test_ventana_dura_no_junta_en_una_ruta_pedidos_que_harian_llegar_tarde():
+    # En un mismo recorrido el segundo llegaría tarde (servicio de 10 min del primero): se separan en dos vehículos.
+    inicio, a, b = _par_con_holgura_minima()
+    flota = [Camion("v1", "V-1", 1000, "DIESEL"), Camion("v2", "V-2", 1000, "DIESEL")]
+    r = optimizar([a, b], flota, inicio_jornada=inicio)
+    assert len(r.rutas) == 2 and all(len(x.paradas) == 1 for x in r.rutas)
+    assert all(p.en_ventana is True for x in r.rutas for p in x.paradas)
+
+
+def test_ventana_dura_con_un_solo_vehiculo_deja_el_pedido_sin_asignar():
+    inicio, a, b = _par_con_holgura_minima()
     r = optimizar([a, b], [Camion("v", "V-1", 1000, "DIESEL")], inicio_jornada=inicio)
-    assert len(r.rutas) == 1 and len(r.rutas[0].paradas) == 2
-    estados = [p.en_ventana for p in r.rutas[0].paradas]
-    assert estados == [True, False]
+    assert len(r.rutas) == 1 and len(r.rutas[0].paradas) == 1
+    assert len(r.sin_asignar) == 1 and "vehículos" in r.sin_asignar[0][1]
 
 
 def test_pedido_sin_ventana_no_tiene_indicador_de_ventana():
@@ -203,3 +215,75 @@ def test_el_limite_de_tiempo_se_respeta_y_se_informa():
     # Con el límite mínimo el plan sigue siendo válido: cada pedido en una sola ruta o sin asignar.
     ids = [p.punto_id for ruta in r.rutas for p in ruta.paradas] + [pid for pid, _ in r.sin_asignar]
     assert len(ids) == len(set(ids)) == 400
+
+
+# ── Zonas protegidas (RN-003), volumen (RN-004) y caché (RNF-009) ─────────
+
+from app.optimizador import Zona, vaciar_cache, estadisticas_cache  # noqa: E402,I001
+
+ZONA = Zona("Reserva de prueba", -12.0464, -77.0100, 1.0)
+
+
+def test_destino_dentro_de_zona_protegida_no_se_asigna():
+    dentro = Punto("z", -12.0464, -77.0100, 10.0)
+    fuera = Punto("f", -12.0500, -77.0600, 10.0)
+    r = optimizar([dentro, fuera], FLOTA, zonas=[ZONA])
+    assert [pid for pid, _ in r.sin_asignar] == ["z"] and "zona protegida" in r.sin_asignar[0][1]
+    assert [p.punto_id for ruta in r.rutas for p in ruta.paradas] == ["f"]
+
+
+def test_destino_detras_de_la_zona_se_alcanza_rodeandola():
+    # El depósito está al oeste de la zona y el destino al este: la línea recta atraviesa la reserva.
+    detras = Punto("d", -12.0464, -76.9800, 10.0)
+    con_zona = optimizar([detras], FLOTA, zonas=[ZONA])
+    sin_zona = optimizar([detras], FLOTA)
+    assert con_zona.sin_asignar == [] and len(con_zona.rutas) == 1
+    assert con_zona.rutas[0].distancia_km > sin_zona.rutas[0].distancia_km * 1.02  # el rodeo cuesta kilómetros
+    assert con_zona.rutas[0].distancia_km < sin_zona.rutas[0].distancia_km * 1.5  # pero no es desproporcionado
+
+
+def test_con_zona_protegida_todas_las_rutas_son_mas_largas_o_iguales_y_ningun_destino_queda_dentro():
+    zona = Zona("Centro", -12.0464, -77.0428 + 0.05, 2.0)
+    pedidos = _puntos(60)
+    con = optimizar(pedidos, FLOTA, zonas=[zona])
+    sin = optimizar(pedidos, FLOTA)
+    atendidos = {p.punto_id for ruta in con.rutas for p in ruta.paradas}
+    por_id = {p.id: p for p in pedidos}
+    assert all(distancia_km(zona.latitud, zona.longitud, por_id[i].latitud, por_id[i].longitud) >= zona.radio_km for i in atendidos)
+    adentro = {pid for pid, motivo in con.sin_asignar if "dentro de la zona protegida" in motivo}
+    assert len(atendidos) + len(con.sin_asignar) == 60
+    if not adentro:
+        assert con.distancia_total_km >= sin.distancia_total_km - 1e-6
+
+
+def test_el_volumen_es_restriccion_dura():
+    pedidos = [Punto(f"v{i}", -12.05 - i * 0.001, -77.03, 10.0, volumen_m3=6.0) for i in range(3)]
+    camion = Camion("c1", "VOL-001", 1000, "DIESEL", volumen_m3=10.0)
+    r = optimizar(pedidos, [camion, Camion("c2", "VOL-002", 1000, "DIESEL", volumen_m3=10.0)])
+    assert all(ruta.volumen_m3 <= 10.0 for ruta in r.rutas)
+    assert len(r.rutas) == 2 and len(r.sin_asignar) == 1  # 3 pedidos de 6 m³ no caben en dos camiones de 10 m³
+
+
+def test_pedido_con_mas_volumen_que_toda_la_flota_se_informa():
+    gigante = Punto("g", -12.05, -77.03, 10.0, volumen_m3=50.0)
+    r = optimizar([gigante], [Camion("c", "VOL-003", 1000, "DIESEL", volumen_m3=10.0)])
+    assert "volumen" in r.sin_asignar[0][1]
+
+
+def test_la_cache_de_planes_evita_recalcular_y_ahorra_cpu():
+    vaciar_cache()
+    pedidos = _puntos(120)
+    primero = optimizar(pedidos, FLOTA * 4, usar_cache=True)
+    segundo = optimizar(pedidos, FLOTA * 4, usar_cache=True)
+    assert not primero.desde_cache and segundo.desde_cache
+    assert segundo.tiempo_ms <= primero.tiempo_ms * 0.7  # RNF-009: al menos 30 % menos de CPU
+    assert [r.camion_id for r in segundo.rutas] == [r.camion_id for r in primero.rutas]
+    assert estadisticas_cache["plan_aciertos"] == 1
+
+
+def test_la_cache_de_matriz_se_reutiliza_con_otros_camiones():
+    vaciar_cache()
+    pedidos = _puntos(40)
+    optimizar(pedidos, FLOTA)
+    optimizar(pedidos, FLOTA[:3] * 2)
+    assert estadisticas_cache["matriz_aciertos"] >= 1

@@ -25,6 +25,11 @@ CABECERAS_SEGURIDAD = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "no-referrer",
+    # HSTS (RNF-002): el navegador solo usa HTTPS con este sitio; se ignora si la respuesta llega por HTTP plano.
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    # El móvil del conductor necesita su ubicación y la cámara (evidencia de entrega); nada más.
+    "Permissions-Policy": "geolocation=(self), camera=(self), microphone=(), payment=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
 }
 
 # La API solo se carga desde el mismo origen; img-src data: permite el favicon incrustado y las teselas del mapa

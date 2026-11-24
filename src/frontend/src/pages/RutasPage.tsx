@@ -10,19 +10,41 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useAuth } from '../AuthContext';
 import {
-  ApiError, reportesApi, rutasApi,
-  type Optimizacion, type Ruta, type RutasActivas, type TipoReporte,
+  ApiError, adminApi, reportesApi, rutasApi,
+  type Conductor, type FormatoReporte, type Optimizacion, type Ruta, type RutasActivas, type TipoIncidencia,
+  type TipoReporte,
 } from '../api';
-import { Route as RutaIcono, Play, Download, Leaf, Gauge, TreePine, Timer, XCircle } from 'lucide-react';
+import Modal from '../components/Modal';
+import {
+  Route as RutaIcono, Play, Download, Leaf, Gauge, TreePine, Timer, XCircle, Flag, AlertTriangle, PlayCircle,
+} from 'lucide-react';
 
 const COLORES = ['#059669', '#2563eb', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#be185d', '#4d7c0f'];
 const LIMA: [number, number] = [-12.0464, -77.0428];
 
 const REPORTES: { tipo: TipoReporte; etiqueta: string }[] = [
-  { tipo: 'pedidos', etiqueta: 'Pedidos (CSV)' },
-  { tipo: 'rutas', etiqueta: 'Rutas (CSV)' },
-  { tipo: 'ambiental', etiqueta: 'Ambiental (CSV)' },
+  { tipo: 'pedidos', etiqueta: 'Pedidos' },
+  { tipo: 'rutas', etiqueta: 'Rutas' },
+  { tipo: 'ambiental', etiqueta: 'Ambiental' },
 ];
+
+const FORMATOS: { valor: FormatoReporte; etiqueta: string }[] = [
+  { valor: 'csv', etiqueta: 'CSV' },
+  { valor: 'xlsx', etiqueta: 'Excel' },
+  { valor: 'pdf', etiqueta: 'PDF' },
+];
+
+const INCIDENCIAS: { valor: TipoIncidencia; etiqueta: string }[] = [
+  { valor: 'VIA_CERRADA', etiqueta: 'Vía cerrada' },
+  { valor: 'ACCIDENTE', etiqueta: 'Accidente' },
+  { valor: 'AVERIA', etiqueta: 'Avería del vehículo' },
+  { valor: 'PEDIDO_CANCELADO', etiqueta: 'Pedido cancelado' },
+];
+
+const ESTADO_RUTA: Record<string, string> = {
+  PLANIFICADA: 'badge-blue', EN_CURSO: 'badge-teal', COMPLETADA: 'badge-green', CANCELADA: 'badge-red',
+  INTERRUMPIDA: 'badge-amber',
+};
 
 function hora(valor: string | null): string {
   if (!valor) return '—';
@@ -63,9 +85,9 @@ function Mapa({ datos }: { datos: RutasActivas | null }) {
 
     datos.rutas.forEach((ruta, i) => {
       const color = COLORES[i % COLORES.length];
-      const puntos: [number, number][] = ruta.paradas.map((p) => [p.latitud, p.longitud]);
+      const puntos: [number, number][] = ruta.paradas.filter((p) => p.estado !== 'RETIRADA').map((p) => [p.latitud, p.longitud]);
       L.polyline([deposito, ...puntos, deposito], { color, weight: 4, opacity: 0.85 }).addTo(grupo);
-      ruta.paradas.forEach((p) => {
+      ruta.paradas.filter((p) => p.estado !== 'RETIRADA').forEach((p) => {
         L.marker([p.latitud, p.longitud], {
           title: `${ruta.placa} · parada ${p.orden}: ${p.direccion}`,
           icon: L.divIcon({
@@ -84,9 +106,84 @@ function Mapa({ datos }: { datos: RutasActivas | null }) {
   return <div ref={contenedor} className="mapa-rutas" role="region" aria-label="Mapa de rutas" />;
 }
 
+function IncidenciaModal({
+  ruta, onEnviar, onCerrar,
+}: {
+  ruta: Ruta;
+  onEnviar: (datos: { tipo: TipoIncidencia; descripcion?: string; latitud?: number; longitud?: number; radio_km?: number; pedido_id?: string }) => void;
+  onCerrar: () => void;
+}) {
+  const pendientes = ruta.paradas.filter((p) => (p.estado ?? 'PENDIENTE') === 'PENDIENTE');
+  const [tipo, setTipo] = useState<TipoIncidencia>('VIA_CERRADA');
+  const [descripcion, setDescripcion] = useState('');
+  const [paradaId, setParadaId] = useState(pendientes[0]?.pedido_id ?? '');
+  const [radio, setRadio] = useState(0.5);
+  const parada = pendientes.find((p) => p.pedido_id === paradaId);
+  const necesitaUbicacion = tipo === 'VIA_CERRADA' || tipo === 'ACCIDENTE';
+  const necesitaPedido = tipo === 'PEDIDO_CANCELADO';
+
+  const enviar = (e: React.FormEvent) => {
+    e.preventDefault();
+    onEnviar({
+      tipo, descripcion: descripcion || undefined,
+      ...(necesitaUbicacion && parada ? { latitud: parada.latitud, longitud: parada.longitud, radio_km: radio } : {}),
+      ...(necesitaPedido ? { pedido_id: paradaId } : {}),
+    });
+  };
+
+  return (
+    <Modal titulo="Registrar incidencia" onCerrar={onCerrar} ancho={460}>
+      <form onSubmit={enviar}>
+        <div className="modal-body">
+          <p className="form-hint">
+            La ruta se recalcula en menos de 45 s. Una avería redistribuye los pedidos pendientes en otros vehículos.
+          </p>
+          <div className="form-group">
+            <label className="form-label" htmlFor="inc-tipo">Tipo de incidencia</label>
+            <select id="inc-tipo" className="form-input form-select" value={tipo} onChange={(e) => setTipo(e.target.value as TipoIncidencia)}>
+              {INCIDENCIAS.map((i) => <option key={i.valor} value={i.valor}>{i.etiqueta}</option>)}
+            </select>
+          </div>
+          {(necesitaUbicacion || necesitaPedido) && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="inc-parada">{necesitaPedido ? 'Pedido cancelado' : 'Ocurre cerca de la parada'}</label>
+              <select id="inc-parada" className="form-input form-select" value={paradaId} onChange={(e) => setParadaId(e.target.value)} required>
+                {pendientes.map((p) => <option key={p.pedido_id} value={p.pedido_id}>{p.orden}. {p.direccion}</option>)}
+              </select>
+            </div>
+          )}
+          {necesitaUbicacion && (
+            <div className="form-group">
+              <label className="form-label" htmlFor="inc-radio">Radio afectado (km)</label>
+              <input id="inc-radio" className="form-input" type="number" min={0.1} max={10} step="0.1" value={radio}
+                onChange={(e) => setRadio(Number(e.target.value))} />
+            </div>
+          )}
+          <div className="form-group">
+            <label className="form-label" htmlFor="inc-desc">Descripción (opcional)</label>
+            <input id="inc-desc" className="form-input" maxLength={300} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" onClick={onCerrar}>Cancelar</button>
+          <button type="submit" className="btn btn-primary" disabled={(necesitaUbicacion || necesitaPedido) && pendientes.length === 0}>
+            Re-optimizar
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 function TarjetaRuta({
-  ruta, color, puedeCancelar, onCancelar,
-}: { ruta: Ruta; color: string; puedeCancelar: boolean; onCancelar: (r: Ruta) => void }) {
+  ruta, color, puedeOperar, conductores, onCancelar, onAsignar, onIniciar, onCompletar, onIncidencia,
+}: {
+  ruta: Ruta; color: string; puedeOperar: boolean; conductores: Conductor[];
+  onCancelar: (r: Ruta) => void; onAsignar: (r: Ruta, conductorId: string) => void;
+  onIniciar: (r: Ruta) => void; onCompletar: (r: Ruta) => void; onIncidencia: (r: Ruta) => void;
+}) {
+  const abierta = ruta.estado === 'PLANIFICADA' || ruta.estado === 'EN_CURSO';
+  const resuelta = (e?: string) => e === 'ENTREGADA' || e === 'REPROGRAMADA' || e === 'RETIRADA';
   return (
     <div className="card" style={{ marginBottom: '1rem' }}>
       <div className="card-header">
@@ -94,21 +191,47 @@ function TarjetaRuta({
           <span style={{ width: 14, height: 14, borderRadius: '50%', background: color, display: 'inline-block' }} aria-hidden="true" />
           <h3 style={{ fontSize: '1rem' }}>Vehículo {ruta.placa}</h3>
           <span className="badge badge-teal">{ruta.tipo_combustible}</span>
+          <span className={`badge ${ESTADO_RUTA[ruta.estado] ?? 'badge-gray'}`}>{ruta.estado.replace('_', ' ')}</span>
           <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
             {ruta.carga_kg.toLocaleString('es-PE')} de {ruta.capacidad_kg.toLocaleString('es-PE')} kg ·
             {' '}{ruta.distancia_km.toFixed(1)} km · {ruta.co2_kg.toFixed(1)} kg CO₂ · {Math.round(ruta.duracion_min)} min
           </span>
+          {ruta.conductor_nombre && <span className="badge badge-gray">Conductor: {ruta.conductor_nombre}</span>}
         </div>
-        {puedeCancelar && (
-          <button className="btn btn-ghost btn-sm" onClick={() => onCancelar(ruta)} aria-label={`Cancelar la ruta del vehículo ${ruta.placa}`}>
-            <XCircle size={16} /> Cancelar ruta
-          </button>
+        {puedeOperar && abierta && (
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            {ruta.estado === 'PLANIFICADA' && (
+              <select
+                className="form-input form-select" style={{ width: 'auto' }} aria-label={`Conductor de la ruta ${ruta.placa}`}
+                value={ruta.conductor_id ?? ''} onChange={(e) => e.target.value && onAsignar(ruta, e.target.value)}
+              >
+                <option value="">Asignar conductor…</option>
+                {conductores.filter((c) => c.activo).map((c) => <option key={c.conductor_id} value={c.conductor_id}>{c.nombre}</option>)}
+              </select>
+            )}
+            {ruta.estado === 'PLANIFICADA' && ruta.conductor_id && (
+              <button className="btn btn-secondary btn-sm" onClick={() => onIniciar(ruta)} aria-label={`Iniciar la ruta del vehículo ${ruta.placa}`}>
+                <PlayCircle size={16} /> Iniciar
+              </button>
+            )}
+            {ruta.estado === 'EN_CURSO' && ruta.paradas.every((p) => resuelta(p.estado)) && (
+              <button className="btn btn-primary btn-sm" onClick={() => onCompletar(ruta)} aria-label={`Completar la ruta del vehículo ${ruta.placa}`}>
+                <Flag size={16} /> Completar
+              </button>
+            )}
+            <button className="btn btn-ghost btn-sm" onClick={() => onIncidencia(ruta)} aria-label={`Registrar incidencia en la ruta ${ruta.placa}`}>
+              <AlertTriangle size={16} /> Incidencia
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => onCancelar(ruta)} aria-label={`Cancelar la ruta del vehículo ${ruta.placa}`}>
+              <XCircle size={16} /> Cancelar ruta
+            </button>
+          </div>
         )}
       </div>
       <div className="table-container">
         <table>
           <thead>
-            <tr><th>Parada</th><th>Dirección</th><th>Peso</th><th>Distancia</th><th>Llegada</th><th>Ventana horaria</th></tr>
+            <tr><th>Parada</th><th>Dirección</th><th>Peso</th><th>Distancia</th><th>Llegada</th><th>Ventana horaria</th><th>Estado</th></tr>
           </thead>
           <tbody>
             {ruta.paradas.map((p) => (
@@ -123,6 +246,7 @@ function TarjetaRuta({
                     ? '—'
                     : <span className={`badge ${p.en_ventana ? 'badge-green' : 'badge-red'}`}>{p.en_ventana ? 'En ventana' : 'Fuera de ventana'}</span>}
                 </td>
+                <td>{(p.estado ?? 'PENDIENTE').toLowerCase()}</td>
               </tr>
             ))}
           </tbody>
@@ -143,6 +267,9 @@ export default function RutasPage() {
   const [version, setVersion] = useState(0);
   const [calculando, setCalculando] = useState(false);
   const [toast, setToast] = useState<{ type: string; msg: string } | null>(null);
+  const [conductores, setConductores] = useState<Conductor[]>([]);
+  const [formato, setFormato] = useState<FormatoReporte>('csv');
+  const [enIncidencia, setEnIncidencia] = useState<Ruta | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -152,6 +279,11 @@ export default function RutasPage() {
       .catch(() => { if (activo) { setDatos(null); setCargado(true); } });
     return () => { activo = false; };
   }, [token, version]);
+
+  useEffect(() => {
+    if (!token || !puedeOperar) return;
+    adminApi.conductores(token).then(setConductores).catch(() => {});
+  }, [token, puedeOperar]);
 
   const mostrar = (type: string, msg: string) => {
     setToast({ type, msg });
@@ -186,14 +318,50 @@ export default function RutasPage() {
     }
   };
 
+  const accion = async (promesa: Promise<unknown>, exito: string) => {
+    try {
+      await promesa;
+      mostrar('success', exito);
+      setVersion((v) => v + 1);
+    } catch (err) {
+      mostrar('error', err instanceof ApiError ? err.detail : 'Error de conexión');
+    }
+  };
+
+  const asignar = (r: Ruta, conductorId: string) =>
+    token && accion(rutasApi.asignarConductor(token, r.ruta_id, conductorId), `Conductor asignado a la ruta ${r.placa}`);
+  const iniciar = (r: Ruta) => token && accion(rutasApi.iniciar(token, r.ruta_id), `Ruta ${r.placa} iniciada`);
+  const completar = async (r: Ruta) => {
+    if (!token) return;
+    try {
+      const res = await rutasApi.completar(token, r.ruta_id);
+      mostrar('success', res.mensaje);
+      setVersion((v) => v + 1);
+    } catch (err) {
+      mostrar('error', err instanceof ApiError ? err.detail : 'Error de conexión');
+    }
+  };
+
+  const enviarIncidencia = async (datos: Parameters<typeof rutasApi.incidencia>[2]) => {
+    if (!token || !enIncidencia) return;
+    try {
+      const r = await rutasApi.incidencia(token, enIncidencia.ruta_id, datos);
+      mostrar(r.dentro_del_sla ? 'success' : 'error', `${r.sugerencia} (${Math.round(r.tiempo_ms)} ms)`);
+      setEnIncidencia(null);
+      setVersion((v) => v + 1);
+    } catch (err) {
+      mostrar('error', err instanceof ApiError ? err.detail : 'Error de conexión');
+    }
+  };
+
   const descargar = async (tipo: TipoReporte) => {
     if (!token) return;
     try {
-      const blob = await reportesApi.descargar(token, tipo);
+      const blob = await reportesApi.descargar(token, tipo, formato);
       const url = URL.createObjectURL(blob);
       const enlace = document.createElement('a');
       enlace.href = url;
-      enlace.download = `${tipo}.csv`;
+      enlace.download = `${tipo}.${formato}`;
       enlace.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -212,10 +380,16 @@ export default function RutasPage() {
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }} role="group" aria-label="Reportes exportables">
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }} role="group" aria-label="Reportes exportables">
+          <select
+            className="form-input form-select" style={{ width: 'auto' }} aria-label="Formato del reporte" value={formato}
+            onChange={(e) => setFormato(e.target.value as FormatoReporte)}
+          >
+            {FORMATOS.map((f) => <option key={f.valor} value={f.valor}>{f.etiqueta}</option>)}
+          </select>
           {REPORTES.map((r) => (
             <button key={r.tipo} className="btn btn-secondary btn-sm" onClick={() => descargar(r.tipo)}>
-              <Download size={14} /> {r.etiqueta}
+              <Download size={14} /> {r.etiqueta} ({FORMATOS.find((f) => f.valor === formato)?.etiqueta})
             </button>
           ))}
         </div>
@@ -312,9 +486,14 @@ export default function RutasPage() {
         </div>
       ) : (
         rutas.map((r, i) => (
-          <TarjetaRuta key={r.ruta_id} ruta={r} color={COLORES[i % COLORES.length]} puedeCancelar={puedeOperar} onCancelar={cancelar} />
+          <TarjetaRuta
+            key={r.ruta_id} ruta={r} color={COLORES[i % COLORES.length]} puedeOperar={puedeOperar} conductores={conductores}
+            onCancelar={cancelar} onAsignar={asignar} onIniciar={iniciar} onCompletar={completar} onIncidencia={setEnIncidencia}
+          />
         ))
       )}
+
+      {enIncidencia && <IncidenciaModal ruta={enIncidencia} onEnviar={enviarIncidencia} onCerrar={() => setEnIncidencia(null)} />}
     </>
   );
 }

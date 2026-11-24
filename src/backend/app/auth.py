@@ -8,6 +8,7 @@ Implementa:
 - Dependency de FastAPI para proteger endpoints por rol (RBAC)
 """
 
+import hashlib
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -139,3 +140,36 @@ async def reset_login_attempts(user: Usuario, db: AsyncSession) -> None:
     user.locked_until = None
     db.add(user)
     await db.flush()
+
+
+# ── Correos desconocidos: mismo comportamiento que uno real (sin enumeración de usuarios, OWASP A07) ───────────
+_HASH_SENUELO = bcrypt.hashpw(b"senuelo-sin-usuario", bcrypt.gensalt()).decode("utf-8")
+_FALLOS_DESCONOCIDOS: dict[str, tuple[int, datetime]] = {}
+_MAX_DESCONOCIDOS = 10_000
+
+
+def gastar_tiempo_de_verificacion(clave: str) -> None:
+    """Hace el mismo trabajo de bcrypt que un usuario real para que el tiempo de respuesta no delate si el correo existe."""
+    verify_password(clave, _HASH_SENUELO)
+
+
+def fallo_de_correo_desconocido(email: str) -> tuple[int, bool]:
+    """
+    Lleva la cuenta de fallos de un correo que no existe con las mismas reglas que una cuenta real: devuelve los
+    intentos restantes y si ya estaría bloqueada. Así la respuesta es idéntica a la de un correo registrado.
+    """
+    ahora = datetime.now(timezone.utc)
+    clave = hashlib.sha256(email.strip().lower().encode("utf-8")).hexdigest()
+    if len(_FALLOS_DESCONOCIDOS) >= _MAX_DESCONOCIDOS:
+        for k in [k for k, (_, hasta) in _FALLOS_DESCONOCIDOS.items() if hasta <= ahora]:
+            del _FALLOS_DESCONOCIDOS[k]
+        if len(_FALLOS_DESCONOCIDOS) >= _MAX_DESCONOCIDOS:
+            _FALLOS_DESCONOCIDOS.clear()
+    intentos, hasta = _FALLOS_DESCONOCIDOS.get(clave, (0, ahora))
+    if hasta <= ahora:
+        intentos = 0
+    if intentos >= settings.MAX_LOGIN_ATTEMPTS:
+        return 0, True
+    intentos += 1
+    _FALLOS_DESCONOCIDOS[clave] = (intentos, ahora + timedelta(minutes=settings.LOCKOUT_MINUTES))
+    return max(0, settings.MAX_LOGIN_ATTEMPTS - intentos), False

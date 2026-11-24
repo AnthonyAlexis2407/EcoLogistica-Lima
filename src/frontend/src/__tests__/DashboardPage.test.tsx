@@ -5,16 +5,18 @@ import DashboardPage from '../pages/DashboardPage';
 import { indicadoresApi, pedidosApi, vehiculosApi } from '../api';
 
 vi.mock('../AuthContext', () => ({
-  useAuth: () => ({ token: 'tok', user: { nombre: 'Ana Pérez' } }),
+  useAuth: () => ({ token: 'tok', user: { nombre: 'Ana Pérez', rol: 'ADMIN_FLOTA' } }),
 }));
 vi.mock('../api', () => ({
   vehiculosApi: { count: vi.fn(), list: vi.fn() },
   pedidosApi: { count: vi.fn(), list: vi.fn() },
-  indicadoresApi: { resumen: vi.fn() },
+  indicadoresApi: { resumen: vi.fn(), distritos: vi.fn() },
+  reportesApi: { descargar: vi.fn() },
 }));
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(indicadoresApi.distritos).mockResolvedValue(['Ate', 'Santa Anita']);
 });
 
 describe('DashboardPage', () => {

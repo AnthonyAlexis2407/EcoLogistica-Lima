@@ -11,13 +11,18 @@ from contextlib import asynccontextmanager
 from brotli_asgi import BrotliMiddleware
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 from app.config import settings
-from app.database import init_db
+from app.database import engine, init_db
 from app.rendimiento import montar_frontend, politica_http
 from app.routers import (
+    admin_router,
     auth_router,
+    conductor_router,
     indicadores_router,
+    notificaciones_router,
     pedidos_router,
     reportes_router,
     rutas_router,
@@ -83,6 +88,10 @@ app.include_router(pedidos_router.router)
 app.include_router(rutas_router.router)
 app.include_router(indicadores_router.router)
 app.include_router(reportes_router.router)
+app.include_router(conductor_router.router)
+app.include_router(notificaciones_router.router)
+app.include_router(admin_router.router)
+app.include_router(admin_router.router_privacidad)
 
 
 @app.get("/api/health", tags=["Sistema"])
@@ -93,6 +102,20 @@ async def health_check():
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
     }
+
+
+@app.get("/api/health/ready", tags=["Sistema"])
+async def health_ready():
+    """
+    Disponibilidad real (RNF-003): comprueba la conexión a la base de datos. Responde 503 si no está disponible, de modo
+    que el balanceador o la plataforma dejen de enviar tráfico a esta instancia y la conmuten a otra.
+    """
+    try:
+        async with engine.connect() as conexion:
+            await conexion.execute(text("SELECT 1"))
+    except Exception:  # noqa: BLE001 - cualquier fallo de conexión significa "no listo"
+        return JSONResponse(status_code=503, content={"status": "no_disponible", "db": "error"})
+    return {"status": "ok", "db": "ok", "version": settings.APP_VERSION}
 
 
 # El frontend compilado se registra al final: su ruta comodín no debe tapar la API.

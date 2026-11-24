@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import RutasPage from '../pages/RutasPage';
-import { ApiError, reportesApi, rutasApi, type Optimizacion, type Ruta, type RutasActivas } from '../api';
+import { ApiError, adminApi, reportesApi, rutasApi, type Optimizacion, type Ruta, type RutasActivas } from '../api';
 
 // Leaflet necesita un navegador real (medidas de pantalla); en jsdom se sustituye por un doble que registra las llamadas.
 const mapaDoble = vi.hoisted(() => {
@@ -28,6 +28,7 @@ vi.mock('../api', async (original) => ({
   ...(await original<typeof import('../api')>()),
   rutasApi: { activas: vi.fn(), optimizar: vi.fn(), cancelar: vi.fn() },
   reportesApi: { descargar: vi.fn() },
+  adminApi: { conductores: vi.fn() },
 }));
 
 const ruta: Ruta = {
@@ -54,6 +55,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   rol = 'OPERADOR';
   vi.mocked(rutasApi.activas).mockResolvedValue(activas([]));
+  vi.mocked(adminApi.conductores).mockResolvedValue([]);
 });
 
 describe('RutasPage', () => {
@@ -163,7 +165,7 @@ describe('RutasPage', () => {
 
     await usuario.click(await screen.findByRole('button', { name: /Ambiental \(CSV\)/ }));
 
-    await waitFor(() => expect(reportesApi.descargar).toHaveBeenCalledWith('tok', 'ambiental'));
+    await waitFor(() => expect(reportesApi.descargar).toHaveBeenCalledWith('tok', 'ambiental', 'csv'));
     expect(crear).toHaveBeenCalledWith(blob);
     expect(clic).toHaveBeenCalled();
     expect(revocar).toHaveBeenCalledWith('blob:prueba');

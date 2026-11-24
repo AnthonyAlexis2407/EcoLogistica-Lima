@@ -8,11 +8,12 @@ usuarios con los roles reales del seed (ADMIN_FLOTA, OPERADOR y BODEGA).
 from types import SimpleNamespace
 
 import pytest_asyncio
-from app import database
+from app import auth, database
 from app.auth import hash_password
 from app.database import Base
 from app.main import app
 from app.models import Bodega, Usuario
+from app.optimizador import vaciar_cache
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
@@ -23,6 +24,8 @@ from tests.utilidades import PASSWORDS
 @pytest_asyncio.fixture
 async def api(monkeypatch):
     """BD SQLite en memoria + get_db real (commit/rollback) + usuarios con roles reales."""
+    auth._FALLOS_DESCONOCIDOS.clear()  # el estado global del módulo no debe pasar de una prueba a otra
+    vaciar_cache()
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
         poolclass=StaticPool,

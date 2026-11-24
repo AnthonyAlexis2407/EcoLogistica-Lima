@@ -4,10 +4,12 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../AuthContext';
-import { pedidosApi, ApiError, PAGE_SIZE, type Pedido, type PedidoForm } from '../api';
+import { pedidosApi, indicadoresApi, ApiError, PAGE_SIZE, type Pedido, type PedidoForm } from '../api';
 import { useDebounced } from '../useDebounced';
 import Paginador from '../components/Paginador';
-import { Plus, Package, X, AlertCircle, MapPin, Clock, Search } from 'lucide-react';
+import Modal from '../components/Modal';
+import MapaSelector from '../components/MapaSelector';
+import { Plus, Package, AlertCircle, MapPin, Clock, Search } from 'lucide-react';
 
 const estadoBadge: Record<string, string> = {
   PENDIENTE: 'badge-amber',
@@ -22,6 +24,7 @@ const emptyForm: PedidoForm = {
   latitud: -12.0864,
   longitud: -77.0012,
   peso_kg: 350,
+  volumen_m3: undefined,
   ventana_inicio: '',
   ventana_fin: '',
 };
@@ -38,12 +41,14 @@ export default function PedidosPage() {
   const [formError, setFormError] = useState('');
   const [toast, setToast] = useState<{ type: string; msg: string } | null>(null);
   const [filter, setFilter] = useState('');
+  const [distritoFiltro, setDistritoFiltro] = useState('');
+  const [distritos, setDistritos] = useState<string[]>([]);
   const [searchAddress, setSearchAddress] = useState('');
   const [page, setPage] = useState(1);
   const busqueda = useDebounced(searchAddress.trim());
   // La carga se deriva de una clave (consulta + versión): al cambiar, la vista pasa a "cargando" sin
   // modificar estado dentro del efecto (regla react-hooks/set-state-in-effect).
-  const clave = `${token}|${page}|${filter}|${busqueda}|${version}`;
+  const clave = `${token}|${page}|${filter}|${distritoFiltro}|${busqueda}|${version}`;
   const loading = resultado?.clave !== clave;
   const pedidos = resultado?.items ?? [];
   const total = resultado?.total ?? 0;
@@ -53,20 +58,18 @@ export default function PedidosPage() {
     if (!token) return;
     let activo = true;
     pedidosApi.listPage(token, {
-      estado: filter || undefined, q: busqueda || undefined, page, limit: PAGE_SIZE,
+      estado: filter || undefined, q: busqueda || undefined, distrito: distritoFiltro || undefined, page, limit: PAGE_SIZE,
     })
       .then((data) => { if (activo) setResultado({ clave, items: data.items, total: data.total }); })
       .catch(() => { if (activo) setResultado({ clave, items: [], total: 0 }); });
     return () => { activo = false; };
-  }, [token, page, filter, busqueda, clave]);
+  }, [token, page, filter, distritoFiltro, busqueda, clave]);
 
-  // Teclado (WCAG 2.1.1): Escape cierra el modal.
+  // La lista de distritos la ofrece la API a quienes ven el dashboard; la bodega no filtra por distrito.
   useEffect(() => {
-    if (!showModal) return;
-    const alPresionar = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowModal(false); };
-    document.addEventListener('keydown', alPresionar);
-    return () => document.removeEventListener('keydown', alPresionar);
-  }, [showModal]);
+    if (!token || user?.rol === 'BODEGA') return;
+    indicadoresApi.distritos(token).then(setDistritos).catch(() => {});
+  }, [token, user?.rol]);
 
   const showToast = (type: string, msg: string) => {
     setToast({ type, msg });
@@ -157,6 +160,16 @@ export default function PedidosPage() {
             />
           </div>
 
+          {distritos.length > 0 && (
+            <select
+              aria-label="Filtrar por distrito" className="form-input form-select" value={distritoFiltro}
+              onChange={(e) => { setDistritoFiltro(e.target.value); setPage(1); }} style={{ width: 'auto' }}
+            >
+              <option value="">Todos los distritos</option>
+              {distritos.map((d) => <option key={d}>{d}</option>)}
+            </select>
+          )}
+
           <select
             aria-label="Filtrar por estado"
             className="form-input form-select"
@@ -214,7 +227,7 @@ export default function PedidosPage() {
                         <div>
                           <div style={{ fontWeight: 700, color: 'var(--color-secondary)' }}>{p.direccion}</div>
                           <div style={{ fontSize: '0.725rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
-                            {Number(p.latitud).toFixed(4)}, {Number(p.longitud).toFixed(4)}
+                            {Number(p.latitud).toFixed(4)}, {Number(p.longitud).toFixed(4)}{p.distrito ? ` · ${p.distrito}` : ''}
                           </div>
                         </div>
                       </div>
@@ -223,6 +236,7 @@ export default function PedidosPage() {
                       <strong style={{ fontSize: '0.9375rem', color: 'var(--color-secondary)' }}>
                         {Number(p.peso_kg).toLocaleString('es-PE')} kg
                       </strong>
+                      {p.volumen_m3 ? <div style={{ fontSize: '0.725rem', color: 'var(--color-text-muted)' }}>{Number(p.volumen_m3)} m³</div> : null}
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
@@ -255,68 +269,67 @@ export default function PedidosPage() {
         <Paginador page={page} total={total} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
-      {/* Modal */}
+      {/* Modal (foco atrapado y cierre con Escape: RNF-007) */}
       {showModal && (
-        <div className="modal-overlay" role="presentation" onClick={() => setShowModal(false)}>
-          <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Registrar Nuevo Pedido</h3>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)} aria-label="Cerrar ventana" title="Cerrar">
-                <X size={18} />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                {formError && (
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', padding: '0.65rem 0.875rem', borderRadius: 'var(--radius-md)', background: 'var(--color-danger-bg)', color: 'var(--color-danger-text)', fontSize: '0.8125rem' }}>
-                    <AlertCircle size={16} /> {formError}
-                  </div>
-                )}
+        <Modal titulo="Registrar Nuevo Pedido" onCerrar={() => setShowModal(false)}>
+          <form onSubmit={handleSubmit}>
+            <div className="modal-body">
+              {formError && (
+                <div role="alert" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', padding: '0.65rem 0.875rem', borderRadius: 'var(--radius-md)', background: 'var(--color-danger-bg)', color: 'var(--color-danger-text)', fontSize: '0.8125rem' }}>
+                  <AlertCircle size={16} /> {formError}
+                </div>
+              )}
 
+              <div className="form-group">
+                <label className="form-label" htmlFor="direccion">Dirección de Entrega *</label>
+                <input
+                  id="direccion"
+                  className="form-input"
+                  value={form.direccion}
+                  onChange={(e) => setForm({ ...form, direccion: e.target.value })}
+                  placeholder="Av. Javier Prado Este 2465, San Borja, Lima"
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="direccion">Dirección de Entrega *</label>
+                  <label className="form-label" htmlFor="lat">Latitud *</label>
                   <input
-                    id="direccion"
+                    id="lat"
                     className="form-input"
-                    value={form.direccion}
-                    onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-                    placeholder="Av. Javier Prado Este 2465, San Borja, Lima"
+                    type="number"
+                    value={form.latitud}
+                    onChange={(e) => setForm({ ...form, latitud: Number(e.target.value) })}
+                    step="0.0001"
+                    aria-describedby="ayuda-coordenadas"
                     required
                   />
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="lat">Latitud *</label>
-                    <input
-                      id="lat"
-                      className="form-input"
-                      type="number"
-                      value={form.latitud}
-                      onChange={(e) => setForm({ ...form, latitud: Number(e.target.value) })}
-                      step="0.0001"
-                      aria-describedby="ayuda-coordenadas"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="lng">Longitud *</label>
-                    <input
-                      id="lng"
-                      className="form-input"
-                      type="number"
-                      value={form.longitud}
-                      onChange={(e) => setForm({ ...form, longitud: Number(e.target.value) })}
-                      step="0.0001"
-                      aria-describedby="ayuda-coordenadas"
-                      required
-                    />
-                  </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="lng">Longitud *</label>
+                  <input
+                    id="lng"
+                    className="form-input"
+                    type="number"
+                    value={form.longitud}
+                    onChange={(e) => setForm({ ...form, longitud: Number(e.target.value) })}
+                    step="0.0001"
+                    aria-describedby="ayuda-coordenadas"
+                    required
+                  />
                 </div>
-                <p id="ayuda-coordenadas" className="form-hint">
-                  Use grados decimales. Ejemplo en Lima: latitud -12.0464 y longitud -77.0428 (el signo negativo es obligatorio).
-                </p>
+              </div>
+              <p id="ayuda-coordenadas" className="form-hint">
+                Use grados decimales o toque el mapa para elegir la ubicación. Ejemplo en Lima: latitud -12.0464 y longitud -77.0428
+                (el signo negativo es obligatorio).
+              </p>
+              <MapaSelector
+                latitud={form.latitud} longitud={form.longitud}
+                onElegir={(latitud, longitud) => setForm((f) => ({ ...f, latitud, longitud }))}
+              />
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div className="form-group">
                   <label className="form-label" htmlFor="peso">Peso del Paquete (kg) *</label>
                   <input
@@ -331,43 +344,56 @@ export default function PedidosPage() {
                     step="0.01"
                   />
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="v_inicio">Ventana Inicio *</label>
-                    <input
-                      id="v_inicio"
-                      className="form-input"
-                      type="datetime-local"
-                      value={form.ventana_inicio}
-                      onChange={(e) => setForm({ ...form, ventana_inicio: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="v_fin">Ventana Fin *</label>
-                    <input
-                      id="v_fin"
-                      className="form-input"
-                      type="datetime-local"
-                      value={form.ventana_fin}
-                      onChange={(e) => setForm({ ...form, ventana_fin: e.target.value })}
-                      required
-                    />
-                  </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="volumen">Volumen (m³)</label>
+                  <input
+                    id="volumen"
+                    className="form-input"
+                    type="number"
+                    value={form.volumen_m3 ?? ''}
+                    onChange={(e) => setForm({ ...form, volumen_m3: e.target.value === '' ? undefined : Number(e.target.value) })}
+                    placeholder="Opcional"
+                    min={0}
+                    step="0.01"
+                  />
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Registrar Pedido
-                </button>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="v_inicio">Ventana Inicio *</label>
+                  <input
+                    id="v_inicio"
+                    className="form-input"
+                    type="datetime-local"
+                    value={form.ventana_inicio}
+                    onChange={(e) => setForm({ ...form, ventana_inicio: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="v_fin">Ventana Fin *</label>
+                  <input
+                    id="v_fin"
+                    className="form-input"
+                    type="datetime-local"
+                    value={form.ventana_fin}
+                    onChange={(e) => setForm({ ...form, ventana_fin: e.target.value })}
+                    required
+                  />
+                </div>
               </div>
-            </form>
-          </div>
-        </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                Cancelar
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Registrar Pedido
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
     </>
   );

@@ -7,23 +7,28 @@ RBAC (Documento 08):
 - ADMIN_FLOTA: solo lectura
 """
 
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import require_roles
-from app.consultas import LIKE_ESCAPE, patron_like
 from app.database import get_db
+from app.distritos import distrito_mas_cercano
 from app.models import Bodega, Pedido, Usuario, Vehiculo
 from app.schemas import MensajeResponse, PedidoCreate, PedidoOut, PedidoUpdate
 
 router = APIRouter(prefix="/api/pedidos", tags=["Pedidos (US-003)"])
 
+# La dirección se guarda cifrada (RNF-008), por lo que la búsqueda por texto se hace sobre las filas ya descifradas.
+LIMITE_BUSQUEDA = 5000
 
 # Solo las columnas que expone PedidoOut: no se hidratan entidades ORM (equivalente a select + lean).
 _COLUMNAS = (
     Pedido.pedido_id, Pedido.bodega_id, Pedido.direccion, Pedido.latitud, Pedido.longitud,
-    Pedido.peso_kg, Pedido.ventana_inicio, Pedido.ventana_fin, Pedido.estado, Pedido.creado_en,
+    Pedido.peso_kg, Pedido.volumen_m3, Pedido.distrito, Pedido.ventana_inicio, Pedido.ventana_fin, Pedido.estado,
+    Pedido.reprogramaciones, Pedido.entregado_en, Pedido.creado_en,
 )
 
 
@@ -33,6 +38,9 @@ async def listar_pedidos(
     estado: str | None = Query(None, description="Filtrar por estado"),
     bodega_id: str | None = Query(None, description="Filtrar por bodega"),
     q: str | None = Query(None, max_length=100, description="Buscar por dirección"),
+    distrito: str | None = Query(None, max_length=40, description="Filtrar por distrito"),
+    desde: datetime | None = Query(None, description="Creados desde esta fecha"),
+    hasta: datetime | None = Query(None, description="Creados hasta esta fecha"),
     page: int = Query(1, ge=1),
     limit: int = Query(12, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
@@ -54,14 +62,24 @@ async def listar_pedidos(
 
     if estado:
         filtros.append(Pedido.estado == estado.upper())
+    if distrito:
+        filtros.append(Pedido.distrito == distrito)
+    if desde:
+        filtros.append(Pedido.creado_en >= desde)
+    if hasta:
+        filtros.append(Pedido.creado_en <= hasta)
+
+    orden = (Pedido.creado_en.desc(), Pedido.pedido_id)
     if q and q.strip():
-        filtros.append(Pedido.direccion.ilike(patron_like(q), escape=LIKE_ESCAPE))
+        aguja = q.strip().lower()
+        filas = await db.execute(select(*_COLUMNAS).where(*filtros).order_by(*orden).limit(LIMITE_BUSQUEDA))
+        coincidencias = [dict(f) for f in filas.mappings() if aguja in f["direccion"].lower()]
+        response.headers["X-Total-Count"] = str(len(coincidencias))
+        return coincidencias[(page - 1) * limit: page * limit]
 
     total = await db.scalar(select(func.count()).select_from(Pedido).where(*filtros))
     filas = await db.execute(
-        select(*_COLUMNAS).where(*filtros)
-        .order_by(Pedido.creado_en.desc(), Pedido.pedido_id)
-        .offset((page - 1) * limit).limit(limit)
+        select(*_COLUMNAS).where(*filtros).order_by(*orden).offset((page - 1) * limit).limit(limit)
     )
     response.headers["X-Total-Count"] = str(total or 0)
     return [dict(fila) for fila in filas.mappings()]
@@ -151,7 +169,21 @@ async def crear_pedido(
                    f"Registro rechazado por incompatibilidad de capacidad.",
         )
 
-    pedido = Pedido(**payload.model_dump())
+    datos = payload.model_dump()
+    if not datos.get("distrito"):
+        datos["distrito"] = distrito_mas_cercano(float(payload.latitud), float(payload.longitud))
+    # RN-004: el volumen del pedido no puede superar el mayor volumen registrado en la flota disponible.
+    if payload.volumen_m3 is not None:
+        max_vol = (await db.execute(
+            select(func.max(Vehiculo.volumen_m3)).where(Vehiculo.estado == "DISPONIBLE")
+        )).scalar()
+        if max_vol is not None and payload.volumen_m3 > max_vol:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"El volumen del pedido ({payload.volumen_m3} m³) excede el mayor volumen "
+                       f"de la flota ({max_vol} m³).",
+            )
+    pedido = Pedido(**datos)
     db.add(pedido)
     await db.flush()
     await db.refresh(pedido)

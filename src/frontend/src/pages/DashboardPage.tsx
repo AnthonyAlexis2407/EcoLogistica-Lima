@@ -4,8 +4,11 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../AuthContext';
-import { vehiculosApi, pedidosApi, indicadoresApi, type Vehiculo, type Pedido, type Indicadores } from '../api';
-import { Truck, Package, Activity, Leaf, ArrowRight, Sparkles, Route as RutaIcono, TreePine, Clock } from 'lucide-react';
+import {
+  vehiculosApi, pedidosApi, indicadoresApi, reportesApi,
+  type FormatoReporte, type Vehiculo, type Pedido, type Indicadores, type TipoReporte,
+} from '../api';
+import { Truck, Package, Activity, Leaf, ArrowRight, Sparkles, Route as RutaIcono, TreePine, Clock, Fuel, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function DashboardPage() {
@@ -15,15 +18,51 @@ export default function DashboardPage() {
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [indicadores, setIndicadores] = useState<Indicadores | null>(null);
+  const [distritos, setDistritos] = useState<string[]>([]);
+  const [distrito, setDistrito] = useState('');
+  const [desde, setDesde] = useState('');
+  const [hasta, setHasta] = useState('');
+  const [formato, setFormato] = useState<FormatoReporte>('xlsx');
+  // El auditor consulta indicadores y reportes; no ve la gestión de flota ni de pedidos (Documento 08).
+  const esAuditor = user?.rol === 'AUDITOR';
 
   useEffect(() => {
     if (!token) return;
-    vehiculosApi.count(token).then(setVStats).catch(() => {});
-    pedidosApi.count(token).then(setPStats).catch(() => {});
-    vehiculosApi.list(token).then(setVehiculos).catch(() => {});
-    pedidosApi.list(token).then(setPedidos).catch(() => {});
-    indicadoresApi.resumen(token).then(setIndicadores).catch(() => {});
-  }, [token]);
+    if (!esAuditor) {
+      vehiculosApi.count(token).then(setVStats).catch(() => {});
+      pedidosApi.count(token).then(setPStats).catch(() => {});
+      vehiculosApi.list(token).then(setVehiculos).catch(() => {});
+      pedidosApi.list(token).then(setPedidos).catch(() => {});
+    }
+    indicadoresApi.distritos(token).then(setDistritos).catch(() => {});
+  }, [token, esAuditor]);
+
+  // Los indicadores se recalculan al cambiar el filtro de distrito o de fechas (RF-005).
+  useEffect(() => {
+    if (!token) return;
+    let activo = true;
+    indicadoresApi.resumen(token, {
+      distrito: distrito || undefined,
+      desde: desde ? `${desde}T00:00:00` : undefined,
+      hasta: hasta ? `${hasta}T23:59:59` : undefined,
+    }).then((r) => { if (activo) setIndicadores(r); }).catch(() => {});
+    return () => { activo = false; };
+  }, [token, distrito, desde, hasta]);
+
+  const exportar = async (tipo: TipoReporte) => {
+    if (!token) return;
+    try {
+      const blob = await reportesApi.descargar(token, tipo, formato, {
+        distrito: distrito || undefined, desde: desde ? `${desde}T00:00:00` : undefined, hasta: hasta ? `${hasta}T23:59:59` : undefined,
+      });
+      const url = URL.createObjectURL(blob);
+      const enlace = document.createElement('a');
+      enlace.href = url;
+      enlace.download = `${tipo}.${formato}`;
+      enlace.click();
+      URL.revokeObjectURL(url);
+    } catch { /* el detalle del error se ve en la pantalla de rutas */ }
+  };
 
   const capacidadTotalKg = vehiculos.reduce((acc, v) => acc + (Number(v.capacidad_kg) || 0), 0);
   const factorEmisionPromedio = vehiculos.length > 0
@@ -68,6 +107,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Métricas KPI */}
+      {!esAuditor && (<>
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon green">
@@ -164,6 +204,8 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      </>)}
+
       {/* Indicadores de rutas y compensación de carbono (RF-005, RF-010): todos salen de la base de datos */}
       <div className="card">
         <div className="card-header">
@@ -174,6 +216,29 @@ export default function DashboardPage() {
           <span className="badge badge-teal">{indicadores?.optimizaciones ?? 0} optimizaciones</span>
         </div>
         <div className="card-body">
+          <div className="form-fila" role="group" aria-label="Filtros del dashboard" style={{ marginBottom: '1rem' }}>
+            <select className="form-input form-select" aria-label="Filtrar por distrito" value={distrito} onChange={(e) => setDistrito(e.target.value)}>
+              <option value="">Todos los distritos</option>
+              {distritos.map((d) => <option key={d}>{d}</option>)}
+            </select>
+            <label style={{ fontSize: '0.8125rem' }}>Desde{' '}
+              <input type="date" className="form-input" aria-label="Fecha desde" value={desde} onChange={(e) => setDesde(e.target.value)} />
+            </label>
+            <label style={{ fontSize: '0.8125rem' }}>Hasta{' '}
+              <input type="date" className="form-input" aria-label="Fecha hasta" value={hasta} onChange={(e) => setHasta(e.target.value)} />
+            </label>
+            <select className="form-input form-select" aria-label="Formato de exportación" value={formato} onChange={(e) => setFormato(e.target.value as FormatoReporte)}>
+              <option value="xlsx">Excel</option><option value="pdf">PDF</option><option value="csv">CSV</option>
+            </select>
+            {(['pedidos', 'rutas', 'ambiental'] as TipoReporte[]).map((tipo) => (
+              <button key={tipo} className="btn btn-secondary btn-sm" onClick={() => exportar(tipo)} aria-label={`Exportar reporte de ${tipo}`}>
+                <Download size={14} /> {tipo}
+              </button>
+            ))}
+          </div>
+          {esAuditor && (
+            <p className="form-hint">Los reportes del auditor no incluyen direcciones ni coordenadas (datos personales).</p>
+          )}
           {!indicadores || indicadores.optimizaciones === 0 ? (
             <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
               Aún no hay rutas optimizadas. Registre pedidos y genere el plan del día en <Link to="/rutas">Rutas</Link> para ver el
@@ -199,6 +264,20 @@ export default function DashboardPage() {
                 <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>Compensación equivalente</h4>
                 <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{indicadores.arboles_equivalentes.toLocaleString('es-PE')} árboles</div>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>absorbiendo CO₂ durante un año</p>
+              </div>
+              <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-bg)', border: '1px solid var(--color-primary-border)' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>
+                  <Fuel size={14} style={{ verticalAlign: 'text-bottom' }} /> Combustible ahorrado
+                </h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{(indicadores.combustible_ahorrado_litros ?? 0).toLocaleString('es-PE')} L</div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>frente a un viaje por pedido</p>
+              </div>
+              <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-teal-bg)', border: '1px solid #99f6e4' }}>
+                <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>Compensación confirmada</h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{(indicadores.arboles_compensados ?? 0).toLocaleString('es-PE')} árboles</div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                  {indicadores.rutas_completadas ?? 0} ruta(s) completada(s) · {(indicadores.co2_compensado_kg ?? 0).toLocaleString('es-PE')} kg CO₂
+                </p>
               </div>
               <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', background: 'var(--color-amber-bg)', border: '1px solid #fde68a' }}>
                 <h4 style={{ fontSize: '0.8125rem', fontWeight: 800, marginBottom: '0.35rem' }}>

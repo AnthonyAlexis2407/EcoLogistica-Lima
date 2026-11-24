@@ -22,7 +22,7 @@ router = APIRouter(prefix="/api/vehiculos", tags=["Vehículos (US-001)"])
 
 # Solo las columnas que expone VehiculoOut: no se hidratan entidades ORM (equivalente a select + lean).
 _COLUMNAS = (
-    Vehiculo.vehiculo_id, Vehiculo.placa, Vehiculo.capacidad_kg,
+    Vehiculo.vehiculo_id, Vehiculo.placa, Vehiculo.capacidad_kg, Vehiculo.volumen_m3,
     Vehiculo.tipo_combustible, Vehiculo.factor_emision_co2, Vehiculo.estado,
 )
 
