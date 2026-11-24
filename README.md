@@ -181,7 +181,7 @@ docker compose -f docker-compose.failover.yml up --build -d --wait && python scr
 | Sprint 02 · Registro de Impedimentos | 2.1.0 | 05/10/2026 | DEF-002 y DEF-003 corregidos |
 | Sprint 03 · 01 Revisión y 02 Retrospectiva | 1.1.0 | 20/10/2026 | Cierre formal, DoD y rutas de aceptación |
 | Sprint 03 · 03 Calidad de código | 1.2.0 | 21/10/2026 | Medición real con SonarQube |
-| Sprint 03 · 04 OWASP | 1.2.0 | 09/11/2026 | CSP aplicada al frontend servido por la API |
+| Sprint 03 · 04 OWASP | 1.3.0 | 28/11/2026 | Se corrige la enumeración de usuarios y se cierra el cifrado de datos personales |
 | Sprint 03 · 05 WCAG | 1.0.0 | 20/10/2026 | Primera evaluación |
 | Sprint 03 · 06 Informe de estado | 3.1.0 | 20/10/2026 | Sprint 3 |
 | Sprint 03 · 07 Registro de Impedimentos | 3.2.0 | 09/11/2026 | Solo impedimentos ajenos a la intervención del equipo |

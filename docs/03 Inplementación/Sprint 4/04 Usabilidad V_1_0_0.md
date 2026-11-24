@@ -4,7 +4,7 @@
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
 **Sprint:** Sprint 4  
 **Fecha de la evaluación:** 16/11/2026  
-**Versión del documento:** 1.1.0
+**Versión del documento:** 1.2.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md)
 
@@ -240,7 +240,7 @@ Lo que **no** es un cuello de botella: las pruebas automáticas confirman que la
 
 | Prioridad | Mejora | Cuello | Esfuerzo | Historia relacionada |
 |---|---|---|---|---|
-| 1 | Selector de ubicación en un mapa (o búsqueda de dirección) en lugar de escribir coordenadas | C2 | Alto | US-007 (mapa interactivo), [Artefactos Jira](../../02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_0_0.md) |
+| 1 | ~~Selector de ubicación en un mapa~~ **Aplicada el 28/11/2026:** el formulario de pedido ofrece un mapa donde se toca la ubicación; los campos de coordenadas se mantienen sincronizados como alternativa por teclado ([`MapaSelector.tsx`](../../../src/frontend/src/components/MapaSelector.tsx)). Falta búsqueda de dirección | C2 | Alto | US-007 (mapa interactivo), [Artefactos Jira](../../02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_0_0.md) |
 | 2 | Recorrido de primer uso (3 pasos) y mensajes de lista vacía con un botón de acción ("Registrar el primer vehículo") | C3 | Medio | EN-004 |
 | 3 | Mensaje de confirmación más descriptivo en dar de baja y cancelar, indicando qué se conserva ("el registro se conserva como historial") | C4 | Bajo | US-001, US-003 |
 
@@ -275,3 +275,4 @@ Repetir la evaluación con las mismas tareas y el mismo script tras las mejoras 
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Primera evaluación SUS (datos simulados con fines académicos), análisis, mejoras aplicadas y propuestas. |
 | 1.1.0 | 17/11/2026 | El sistema evaluado pasa a ser el desplegado en producción; las mejoras M1 y M2 ya están publicadas en `main`. |
+| 1.2.0 | 28/11/2026 | La mejora propuesta 1 (selector de ubicación en un mapa) se aplica en el cierre; el SUS no se repite y sigue siendo simulado. Además, la tarea de entrega del conductor se mide con una prueba automática: 3 toques y menos de 20 s. |

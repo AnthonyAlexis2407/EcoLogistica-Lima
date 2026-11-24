@@ -78,9 +78,11 @@ export default function PedidosPage() {
 
   const openCreate = () => {
     const defaultBodega = pedidos[0]?.bodega_id;
+    // El campo datetime-local usa la hora del reloj local (sin zona): se calcula con el desfase del navegador.
     const now = new Date();
-    const startStr = new Date(now.getTime() + 3600000).toISOString().slice(0, 16);
-    const endStr = new Date(now.getTime() + 18000000).toISOString().slice(0, 16);
+    const local = (ms: number) => new Date(now.getTime() + ms - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    const startStr = local(3600000);
+    const endStr = local(18000000);
 
     setForm({
       bodega_id: defaultBodega,

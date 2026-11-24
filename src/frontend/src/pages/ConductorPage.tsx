@@ -27,9 +27,16 @@ function hora(valor: string | null | undefined): string {
 function posicionActual(): Promise<{ lat: number; lng: number } | null> {
   return new Promise((resolver) => {
     if (!('geolocation' in navigator)) return resolver(null);
+    // Si el permiso queda sin responder el navegador nunca llama a las funciones de retorno: este plazo evita que la
+    // entrega se quede esperando.
+    const plazo = setTimeout(() => resolver(null), 2500);
+    const terminar = (valor: { lat: number; lng: number } | null) => {
+      clearTimeout(plazo);
+      resolver(valor);
+    };
     navigator.geolocation.getCurrentPosition(
-      (p) => resolver({ lat: Number(p.coords.latitude.toFixed(6)), lng: Number(p.coords.longitude.toFixed(6)) }),
-      () => resolver(null),
+      (p) => terminar({ lat: Number(p.coords.latitude.toFixed(6)), lng: Number(p.coords.longitude.toFixed(6)) }),
+      () => terminar(null),
       { timeout: 2000, maximumAge: 60_000 },
     );
   });
@@ -241,7 +248,7 @@ export default function ConductorPage() {
     }
   }, [token]);
 
-  const sincronizarAhora = useCallback(async () => {
+  const sincronizarAhora = useCallback(async (silencioso = false) => {
     if (!token || sincronizando.current || leerCola().length === 0) return;
     sincronizando.current = true;
     try {
@@ -249,7 +256,7 @@ export default function ConductorPage() {
       setPendientes(leerCola().length);
       if (resumen.rechazadas.length > 0) {
         mostrar('error', `${resumen.rechazadas.length} acción(es) no se pudieron aplicar: ${resumen.rechazadas[0].detalle}`);
-      } else if (resumen.enviadas > 0) {
+      } else if (resumen.enviadas > 0 && !silencioso) {
         mostrar('success', `${resumen.enviadas} acción(es) sincronizada(s)`);
       }
       if (resumen.enviadas > 0 || resumen.rechazadas.length > 0) await recargar();
@@ -339,7 +346,7 @@ export default function ConductorPage() {
     aplicarLocal(parada.parada_id, 'ENTREGADA', { entregada_en: new Date().toISOString() });
     setPendientes(leerCola().length);
     mostrar('success', navigator.onLine ? 'Entrega registrada' : 'Entrega guardada: se enviará al recuperar la señal');
-    void sincronizarAhora();
+    void sincronizarAhora(true); // el aviso de la entrega no se reemplaza por el de la sincronización
   };
 
   const confirmarReprogramacion = () => {
@@ -352,7 +359,7 @@ export default function ConductorPage() {
     aplicarLocal(parada.parada_id, 'REPROGRAMADA', { motivo });
     setPendientes(leerCola().length);
     mostrar('success', 'Parada reprogramada');
-    void sincronizarAhora();
+    void sincronizarAhora(true);
   };
 
   const iniciar = async () => {

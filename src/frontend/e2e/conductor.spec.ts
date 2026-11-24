@@ -69,11 +69,13 @@ async function firmar(page: Page) {
 
 /** Entrega la primera parada pendiente: «Entregar», un trazo de firma y «Confirmar» (3 toques). */
 async function entregarPrimera(page: Page) {
-  await page.getByRole('button', { name: /^Entregar parada/ }).first().click(); // toque 1
+  const botones = page.getByRole('button', { name: /^Entregar parada/ });
+  const antes = await botones.count();
+  await botones.first().click(); // toque 1
   await firmar(page); // toque 2: un solo gesto
   await page.getByRole('button', { name: /Confirmar/ }).click(); // toque 3
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page.getByText(/Entrega (registrada|guardada)/)).toBeVisible();
+  await expect(botones).toHaveCount(antes - 1); // la parada pasa a «Entregada» en la lista
 }
 
 test.describe('Conductor', () => {
