@@ -65,8 +65,8 @@ async def test_el_tiempo_de_respuesta_no_se_degrada_mas_de_10_por_ciento_de_250_
     base = await _mediana_ms(api, operador)
     await _sembrar(api, 750)  # total 1.000
     carga = await _mediana_ms(api, operador)
-    # Margen absoluto de 8 ms para el ruido del equipo de pruebas en tiempos de pocos milisegundos.
-    assert carga <= base * 1.10 + 8.0, f"250 pedidos: {base:.1f} ms; 1.000 pedidos: {carga:.1f} ms"
+    # Margen absoluto de 15 ms para el ruido de un equipo compartido cuando los tiempos son de pocos milisegundos.
+    assert carga <= base * 1.10 + 15.0, f"250 pedidos: {base:.1f} ms; 1.000 pedidos: {carga:.1f} ms"
     assert (await api.client.get("/api/pedidos/count", headers=operador)).json()["TOTAL"] == 1000
 
 

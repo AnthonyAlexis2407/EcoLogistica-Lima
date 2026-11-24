@@ -74,4 +74,4 @@ Después, agregar al README un enlace al archivo en la sección "Fase 04: Cierre
 
 - Consigna del cierre y entregables: [Reporte Final del Proyecto](../04%20Cierre/06%20Reporte%20Final%20del%20Proyecto%20V_1_0_0.md).
 - Riesgo asociado: RSK-15 en el [Registro de riesgos](../02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md).
-- Qué se muestra y cómo se verificó cada requisito: [Matriz de cumplimiento](../03%20Inplementaci%C3%B3n/Sprint%205/01%20Matriz%20de%20cumplimiento%20V_1_0_0.md).
+- Qué se muestra y cómo se verificó cada requisito: [Matriz de cumplimiento](../03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md).

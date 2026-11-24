@@ -143,7 +143,7 @@ Por tema de prueba (pasan / total):
 | `movil.spec.ts` | — | — | — | 4/4 | — |
 | `smoke.spec.ts` | — | — | — | — | 3/3 |
 
-La rúbrica pide 100 % de éxito en los flujos críticos en los tres navegadores: se cumple. Para que el análisis sea honesto, la sección 2.4 cuenta lo que falló antes de llegar a este resultado.
+El curso pide 100 % de éxito en los flujos críticos en los tres navegadores: se cumple. Para que el análisis sea honesto, la sección 2.4 cuenta lo que falló antes de llegar a este resultado.
 
 ### 2.2 Casos críticos cubiertos
 
@@ -226,7 +226,7 @@ Además, Vitest recogía por error los archivos de `e2e/` como pruebas unitarias
 
 ## 3. Monitoreo de rendimiento
 
-Las pruebas de [`rendimiento.spec.ts`](../../../src/frontend/e2e/rendimiento.spec.ts) miden con las APIs estándar del navegador (`PerformanceObserver` y *Navigation Timing*), sin herramientas externas, y guardan cada medición en `test-results/metricas/`. Los límites son los de Core Web Vitals ("bueno") y el presupuesto de 500 ms para la API que fija la rúbrica.
+Las pruebas de [`rendimiento.spec.ts`](../../../src/frontend/e2e/rendimiento.spec.ts) miden con las APIs estándar del navegador (`PerformanceObserver` y *Navigation Timing*), sin herramientas externas, y guardan cada medición en `test-results/metricas/`. Los límites son los de Core Web Vitals ("bueno") y el presupuesto de 500 ms para la API que fija el curso.
 
 ### 3.1 Web Vitals de la pantalla de inicio de sesión
 
@@ -249,7 +249,7 @@ Cada ruta se llama 15 veces con sesión de administrador (la de salud, sin sesi�
 | `/api/vehiculos/` | Chromium / Firefox / WebKit | 3,7 / 4,0 / 6,4 ms | 5,0 / 4,8 / 14,2 ms | 5,0 / 4,8 / 14,2 ms | 200 |
 | `/api/pedidos/` | Chromium / Firefox / WebKit | 3,9 / 3,9 / 4,2 ms | 4,9 / 5,9 / 6,0 ms | 4,9 / 5,9 / 6,0 ms | 200 |
 | `/api/vehiculos/count` | Chromium / Firefox / WebKit | 2,9 / 2,9 / 3,0 ms | 3,2 / 3,2 / 4,0 ms | 3,2 / 3,2 / 4,0 ms | 200 |
-| **Límite de la rúbrica** | | **< 500 ms** | **< 800 ms** | | |
+| **Límite del curso** | | **< 500 ms** | **< 800 ms** | | |
 
 La prueba falla si cualquier ruta supera esos límites o devuelve un código distinto de 200. Además, una prueba comprueba que la API comprime con Brotli y responde **304** cuando los datos no cambiaron (cabecera `ETag`), lo que ahorra transferencia ([Green IT](../reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md)).
 
@@ -287,7 +287,7 @@ Cada navegador hace 30 sondeos seguidos a `/api/health`, uno cada 150 ms:
 
 **Uptime del entorno desplegado (Render, <https://ecologistica-lima.onrender.com>).** Medido el 17/11/2026 desde internet con 30 sondeos a `/api/health`, uno cada 2 segundos:
 
-| Sondeos | Correctos | Disponibilidad | Tiempo de respuesta mediano | p95 | Mínimo | Máximo | Límite de la rúbrica |
+| Sondeos | Correctos | Disponibilidad | Tiempo de respuesta mediano | p95 | Mínimo | Máximo | Límite del curso |
 |---|---|---|---|---|---|---|---|
 | 30 | 30 | **100,0 %** | **295 ms** | 383 ms | 232 ms | 474 ms | < 500 ms |
 

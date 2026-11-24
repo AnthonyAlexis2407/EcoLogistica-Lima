@@ -110,9 +110,9 @@ Son las guías del W3C para sitios web sostenibles. Usamos la versión de borrad
 | 4.2 | Optimize caching and support offline access | Aprovechar la caché | [7](01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md#47-optimización-7-caché) |
 | 4.3 | Reduce data transfer with compression | Transferir menos datos con compresión | [2](01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md#42-optimización-2-paginación), [6](01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md#46-optimización-6-menos-peticiones-con-elementos-incrustados) y [8](01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md#48-optimización-8-compresión-brotli-y-gzip) |
 
-**Equivalencia con las pautas que cita la rúbrica.** La rúbrica menciona las pautas 1.2, 2.4 y 3.1. En la versión del documento W3C que consultamos, la numeración es otra. Por eso la equivalencia se establece **por tema, no por número**:
+**Equivalencia con las pautas que cita la consigna del curso.** La consigna menciona las pautas 1.2, 2.4 y 3.1. En la versión del documento W3C que consultamos, la numeración es otra. Por eso la equivalencia se establece **por tema, no por número**:
 
-| Pauta de la rúbrica | Tema | Directriz equivalente en el WSG consultado |
+| Pauta de la consigna | Tema | Directriz equivalente en el WSG consultado |
 |---|---|---|
 | 1.2 | Optimización de imágenes y formatos modernos | 2.9 |
 | 2.4 | Caché determinista e inmutable | 4.2 |

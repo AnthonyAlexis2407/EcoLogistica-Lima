@@ -486,7 +486,7 @@ Comprimir suma entre 0,2 y 0,5 milisegundos de trabajo por respuesta; solo se ha
 
 ### 5.1 Resultado final frente a los límites de referencia
 
-Estos son los límites que pide la rúbrica. Medición en móvil, **8 mediciones** del estado final:
+Estos son los límites que fija el curso. Medición en móvil, **8 mediciones** del estado final:
 
 | Métrica (qué significa) | Límite | ANTES (mediana de 3) | DESPUÉS (mediana de 8) | Rango DESPUÉS | ¿Cumple? |
 |---|---|---|---|---|---|

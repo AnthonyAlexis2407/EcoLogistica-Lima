@@ -106,7 +106,7 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 **Estado de los flujos de trabajo:** las insignias de la parte superior se actualizan solas con la última ejecución en la rama `main`. [`ci.yml`](.github/workflows/ci.yml) verifica el estilo, el análisis estático, la compilación y las dependencias; [`tests.yml`](.github/workflows/tests.yml) ejecuta las pruebas unitarias, de integración y E2E y guarda los informes como artefactos; [`deploy-production.yml`](.github/workflows/deploy-production.yml) despliega con GitHub Secrets.
 
 ### Sprint 5 (cierre, vigente)
-- [01 Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%205/01%20Matriz%20de%20cumplimiento%20V_1_0_0.md): verifica cada requisito funcional, no funcional y estándar del curso contra el código, las pruebas y los informes, con la evidencia y las brechas.
+- [01 Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md): verifica cada requisito funcional, no funcional y estándar del curso contra el código, las pruebas y los informes, con la evidencia y las brechas.
 
 **Novedades del producto (versión 4.0.0):** motor de optimización de rutas (Clarke-Wright y 2-opt; 1.000 pedidos en menos de 1 s), mapa interactivo de rutas, dashboard con indicadores reales, CO₂ evitado y árboles equivalentes, reglas de Pico y Placa y reportes CSV exportables.
 
