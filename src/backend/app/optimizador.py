@@ -319,6 +319,29 @@ def optimizar(
     if not cabe:
         return resultado
 
+    # Ventanas horarias matemáticamente incompatibles: ni yendo directo desde el depósito se llega a tiempo.
+    # Se informan como no asignables en lugar de generar una ruta inválida (RF-003, ruta infeliz).
+    referencia = inicio_jornada or min((p.ventana_inicio for p in cabe if p.ventana_inicio), default=None)
+    if referencia is not None:
+        viables = []
+        for p in cabe:
+            if p.ventana_fin is not None:
+                directo = distancia_km(deposito[0], deposito[1], p.latitud, p.longitud) / VELOCIDAD_KMH * 60.0
+                llegada = referencia + timedelta(minutes=directo)
+                if p.ventana_inicio is not None and llegada < p.ventana_inicio:
+                    llegada = p.ventana_inicio
+                if llegada > p.ventana_fin:
+                    motivo = (
+                        f"Ventana horaria incompatible: llegaría a las {llegada:%H:%M} "
+                        f"y la ventana cierra a las {p.ventana_fin:%H:%M}"
+                    )
+                    resultado.sin_asignar.append((p.id, motivo))
+                    continue
+            viables.append(p)
+        cabe = viables
+        if not cabe:
+            return resultado
+
     m = _matriz(deposito, cabe)
     pesos = [p.peso_kg for p in cabe]
 

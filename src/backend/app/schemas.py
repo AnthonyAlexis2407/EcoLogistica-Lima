@@ -212,6 +212,11 @@ class SinAsignarOut(BaseModel):
     motivo: str
 
 
+class VehiculoExcluidoOut(BaseModel):
+    placa: str
+    motivo: str
+
+
 class OptimizacionOut(BaseModel):
     optimizacion_id: str
     algoritmo: str
@@ -229,6 +234,7 @@ class OptimizacionOut(BaseModel):
     limite_alcanzado: bool
     rutas: list[RutaOut]
     sin_asignar: list[SinAsignarOut]
+    vehiculos_excluidos: list[VehiculoExcluidoOut] = []
 
 
 class DepositoOut(BaseModel):

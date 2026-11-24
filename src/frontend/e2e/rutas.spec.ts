@@ -37,7 +37,7 @@ async function asegurarFlota(request: APIRequestContext) {
   const admin = await autorizacion(request, 'admin');
   const marca = sufijo(4);
   for (let i = 0; i < 3; i++) {
-    await request.post('/api/vehiculos/', { headers: admin, data: { placa: `R${marca}-${i}`, capacidad_kg: 3000, tipo_combustible: 'GLP' } });
+    await request.post('/api/vehiculos/', { headers: admin, data: { placa: `R${marca}-${i}`, capacidad_kg: 3000, tipo_combustible: 'GLP', factor_emision_co2: 1.51 } });
   }
 }
 

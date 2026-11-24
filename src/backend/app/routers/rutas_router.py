@@ -8,6 +8,7 @@ RBAC (Documento 08):
 """
 
 import asyncio
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -17,7 +18,7 @@ from sqlalchemy.orm import selectinload
 from app.auth import require_roles
 from app.config import settings
 from app.database import get_db
-from app.models import Optimizacion, ParadaRuta, Pedido, Ruta, Usuario, Vehiculo
+from app.models import Optimizacion, ParadaRuta, Pedido, RestriccionVehicular, Ruta, Usuario, Vehiculo
 from app.optimizador import Camion, Punto, arboles_equivalentes, optimizar
 from app.schemas import (
     DepositoOut,
@@ -28,12 +29,14 @@ from app.schemas import (
     RutaOut,
     RutasActivasOut,
     SinAsignarOut,
+    VehiculoExcluidoOut,
 )
 
 router = APIRouter(prefix="/api/rutas", tags=["Rutas (RF-003)"])
 
 # RNF-006: el diseño apunta a 1.000 pedidos por día; el tope protege la API de una carga mayor.
 MAX_PEDIDOS_POR_OPTIMIZACION = 1000
+LIMA = timezone(timedelta(hours=-5))  # Perú no usa horario de verano
 
 _CON_DETALLE = (
     selectinload(Ruta.paradas).selectinload(ParadaRuta.pedido),
@@ -104,6 +107,27 @@ async def optimizar_rutas(
         select(Vehiculo).where(Vehiculo.estado == "DISPONIBLE", Vehiculo.vehiculo_id.not_in(ocupados))
     )).scalars().all()
 
+    # RN-002 (Pico y Placa): un vehículo restringido hoy y sin exoneración no entra al cálculo.
+    dia_hoy = datetime.now(LIMA).isoweekday()  # 1 = lunes … 7 = domingo, como en el DDL
+    restringidos = set((await db.execute(
+        select(RestriccionVehicular.vehiculo_id).where(
+            RestriccionVehicular.dia_restringido == dia_hoy, RestriccionVehicular.exonerado.is_(False),
+        )
+    )).scalars().all())
+    excluidos: list[VehiculoExcluidoOut] = []
+    aptos = []
+    for v in vehiculos:
+        if v.vehiculo_id in restringidos:
+            motivo = "Restringido por Pico y Placa hoy, sin exoneración (RN-002)"
+            excluidos.append(VehiculoExcluidoOut(placa=v.placa, motivo=motivo))
+        elif v.factor_emision_co2 is None:
+            # RF-010: sin factor de emisión no se puede calcular el CO₂; se pide completar el dato de la ficha técnica.
+            motivo = "Falta el factor de emisión de CO₂ en su ficha técnica"
+            excluidos.append(VehiculoExcluidoOut(placa=v.placa, motivo=motivo))
+        else:
+            aptos.append(v)
+    vehiculos = aptos
+
     puntos = [
         Punto(
             id=p.pedido_id, latitud=float(p.latitud), longitud=float(p.longitud), peso_kg=float(p.peso_kg),
@@ -161,6 +185,7 @@ async def optimizar_rutas(
         tiempo_ms=plan.tiempo_ms, limite_alcanzado=plan.limite_alcanzado,
         rutas=[_ruta_out(r) for r in sorted(rutas, key=lambda x: -float(x.carga_kg))],
         sin_asignar=[SinAsignarOut(pedido_id=pid, motivo=motivo) for pid, motivo in plan.sin_asignar],
+        vehiculos_excluidos=excluidos,
     )
 
 

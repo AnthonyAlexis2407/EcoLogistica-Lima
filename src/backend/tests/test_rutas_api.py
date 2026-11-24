@@ -5,14 +5,18 @@ Usan la base real en memoria y los roles reales del fixture `api` (ADMIN_FLOTA, 
 se crea por la propia API, como lo haría un administrador.
 """
 
+import logging
 from datetime import datetime, timedelta, timezone
 
 import pytest
+from app import database
+from app.models import RestriccionVehicular
 from app.routers.reportes_router import texto_seguro
 
 from tests.utilidades import _login
 
 AHORA = datetime.now(timezone.utc)
+HOY_LIMA = datetime.now(timezone(timedelta(hours=-5))).isoweekday()  # 1 = lunes … 7 = domingo, como el DDL
 
 
 def _pedido(bodega_id, peso_kg, lat=-12.04, lng=-77.00, direccion="Jr. Los Pinos 123, El Agustino"):
@@ -22,10 +26,11 @@ def _pedido(bodega_id, peso_kg, lat=-12.04, lng=-77.00, direccion="Jr. Los Pinos
     }
 
 
-async def _vehiculo(api, admin, placa, capacidad, combustible="DIESEL"):
-    res = await api.client.post(
-        "/api/vehiculos/", json={"placa": placa, "capacidad_kg": capacidad, "tipo_combustible": combustible}, headers=admin,
-    )
+async def _vehiculo(api, admin, placa, capacidad, combustible="DIESEL", factor=2.68):
+    datos = {"placa": placa, "capacidad_kg": capacidad, "tipo_combustible": combustible}
+    if factor is not None:
+        datos["factor_emision_co2"] = factor
+    res = await api.client.post("/api/vehiculos/", json=datos, headers=admin)
     assert res.status_code == 201, res.text
     return res.json()["vehiculo_id"]
 
@@ -276,3 +281,96 @@ async def test_los_reportes_exigen_un_rol_autorizado(api):
     for ruta in ("pedidos", "rutas", "ambiental"):
         assert (await api.client.get(f"/api/reportes/{ruta}.csv", headers=bodega)).status_code == 403
         assert (await api.client.get(f"/api/reportes/{ruta}.csv")).status_code == 401
+
+
+# ── Pico y Placa (RN-002), factor de emisión (RF-010) y ventanas imposibles (RF-003) ──────────────
+
+@pytest.mark.asyncio
+async def test_vehiculo_restringido_por_pico_y_placa_se_excluye_y_se_informa(api):
+    admin = await _login(api.client, "admin@test.pe")
+    operador = await _login(api.client, "operador@test.pe")
+    restringido = await _vehiculo(api, admin, "PYP-001", 2000)
+    await _vehiculo(api, admin, "LIB-002", 2000)
+    async with database.AsyncSessionLocal() as sesion:
+        sesion.add(RestriccionVehicular(vehiculo_id=restringido, dia_restringido=HOY_LIMA, exonerado=False))
+        await sesion.commit()
+    await _pedidos(api, operador, 2)
+
+    plan = (await api.client.post("/api/rutas/optimizar", headers=operador)).json()
+    assert [v["placa"] for v in plan["vehiculos_excluidos"]] == ["PYP-001"]
+    assert "Pico y Placa" in plan["vehiculos_excluidos"][0]["motivo"]
+    assert {r["placa"] for r in plan["rutas"]} == {"LIB-002"}
+
+
+@pytest.mark.asyncio
+async def test_la_exoneracion_devuelve_el_vehiculo_al_calculo(api):
+    admin = await _login(api.client, "admin@test.pe")
+    operador = await _login(api.client, "operador@test.pe")
+    exonerado = await _vehiculo(api, admin, "EXO-001", 2000)
+    async with database.AsyncSessionLocal() as sesion:
+        sesion.add(RestriccionVehicular(
+            vehiculo_id=exonerado, dia_restringido=HOY_LIMA, exonerado=True, motivo_exoneracion="Exoneración municipal",
+        ))
+        await sesion.commit()
+    await _pedidos(api, operador, 1)
+
+    plan = (await api.client.post("/api/rutas/optimizar", headers=operador)).json()
+    assert plan["vehiculos_excluidos"] == []
+    assert plan["rutas"][0]["placa"] == "EXO-001"
+
+
+@pytest.mark.asyncio
+async def test_restriccion_de_otro_dia_no_excluye_al_vehiculo(api):
+    admin = await _login(api.client, "admin@test.pe")
+    operador = await _login(api.client, "operador@test.pe")
+    vehiculo = await _vehiculo(api, admin, "OTR-001", 2000)
+    async with database.AsyncSessionLocal() as sesion:
+        sesion.add(RestriccionVehicular(vehiculo_id=vehiculo, dia_restringido=HOY_LIMA % 7 + 1, exonerado=False))
+        await sesion.commit()
+    await _pedidos(api, operador, 1)
+
+    plan = (await api.client.post("/api/rutas/optimizar", headers=operador)).json()
+    assert plan["vehiculos_excluidos"] == [] and len(plan["rutas"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_vehiculo_sin_factor_de_emision_no_se_planifica_y_se_pide_completarlo(api):
+    admin = await _login(api.client, "admin@test.pe")
+    operador = await _login(api.client, "operador@test.pe")
+    await _vehiculo(api, admin, "SIN-001", 2000, factor=None)
+    await _vehiculo(api, admin, "CON-002", 2000)
+    await _pedidos(api, operador, 1)
+
+    plan = (await api.client.post("/api/rutas/optimizar", headers=operador)).json()
+    assert [v["placa"] for v in plan["vehiculos_excluidos"]] == ["SIN-001"]
+    assert "factor de emisión" in plan["vehiculos_excluidos"][0]["motivo"]
+    assert [r["placa"] for r in plan["rutas"]] == ["CON-002"]
+
+
+@pytest.mark.asyncio
+async def test_pedido_con_ventana_imposible_se_informa_como_no_asignable(api):
+    admin = await _login(api.client, "admin@test.pe")
+    operador = await _login(api.client, "operador@test.pe")
+    await _vehiculo(api, admin, "ABC-123", 2000)
+    posible = _pedido(api.bodega_a, 50.0, lat=-12.047, lng=-77.043, direccion="Calle Cercana 1")
+    imposible = _pedido(api.bodega_a, 50.0, lat=-12.15, lng=-77.10, direccion="Calle Lejana 2")
+    imposible["ventana_fin"] = (AHORA + timedelta(minutes=1)).isoformat()
+    for cuerpo in (posible, imposible):
+        assert (await api.client.post("/api/pedidos/", json=cuerpo, headers=operador)).status_code == 201
+
+    plan = (await api.client.post("/api/rutas/optimizar", headers=operador)).json()
+    assert plan["pedidos_planificados"] == 1 and plan["pedidos_sin_asignar"] == 1
+    assert "Ventana horaria incompatible" in plan["sin_asignar"][0]["motivo"]
+
+
+# ── Auditoría del acceso denegado (RF-006, ruta infeliz) ─────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_el_acceso_denegado_a_reportes_se_registra_sin_datos_personales(api, caplog):
+    bodega = await _login(api.client, "bodega.a@test.pe")
+    with caplog.at_level(logging.WARNING, logger="ecologistica.security"):
+        res = await api.client.get("/api/reportes/pedidos.csv", headers=bodega)
+    assert res.status_code == 403
+    registro = " ".join(r.getMessage() for r in caplog.records)
+    assert "Acceso denegado" in registro and "rol=BODEGA" in registro and "/api/reportes/pedidos.csv" in registro
+    assert "bodega.a@test.pe" not in registro  # Ley 29733: el registro no incluye el correo

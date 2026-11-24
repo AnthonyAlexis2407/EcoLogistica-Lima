@@ -274,6 +274,17 @@ export default function RutasPage() {
         </div>
       )}
 
+      {ultima && ultima.vehiculos_excluidos.length > 0 && (
+        <div className="card" style={{ marginBottom: '1rem' }} role="status">
+          <div className="card-body">
+            <h4 style={{ fontWeight: 800, marginBottom: '0.5rem' }}>{ultima.vehiculos_excluidos.length} vehículo(s) excluido(s) del cálculo</h4>
+            <ul style={{ paddingLeft: '1.25rem', fontSize: '0.875rem' }}>
+              {ultima.vehiculos_excluidos.map((v) => <li key={v.placa}>{v.placa}: {v.motivo}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
+
       <div className="card" style={{ marginBottom: '1.25rem' }}>
         <div className="card-header"><h3>Mapa de rutas</h3></div>
         <div className="card-body">

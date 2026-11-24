@@ -47,6 +47,7 @@ const optimizacion: Optimizacion = {
   distancia_km: 42.3, distancia_base_km: 120, ahorro_km_pct: 64.8, co2_kg: 16.2, co2_base_kg: 45.9, co2_evitado_kg: 29.7,
   ahorro_co2_pct: 64.7, arboles_equivalentes: 1.36, tiempo_ms: 12.4, limite_alcanzado: false, rutas: [ruta],
   sin_asignar: [{ pedido_id: 'abcdef123456', motivo: 'No hay más vehículos disponibles para cubrir todas las rutas' }],
+  vehiculos_excluidos: [{ placa: 'PYP-001', motivo: 'Restringido por Pico y Placa hoy, sin exoneración (RN-002)' }],
 };
 
 beforeEach(() => {
@@ -99,6 +100,8 @@ describe('RutasPage', () => {
     expect(screen.getByText(/SLA: 45 000 ms/)).toBeInTheDocument();
     expect(screen.getByText('1 pedido(s) sin asignar')).toBeInTheDocument();
     expect(screen.getByText(/abcdef12: No hay más vehículos/)).toBeInTheDocument();
+    expect(screen.getByText('1 vehículo(s) excluido(s) del cálculo')).toBeInTheDocument();
+    expect(screen.getByText(/PYP-001: Restringido por Pico y Placa/)).toBeInTheDocument();
     expect(screen.getByText(/2 pedidos planificados en 1 rutas/)).toBeInTheDocument();
     expect(rutasApi.activas).toHaveBeenCalledTimes(2); // recarga el plan tras optimizar
   });

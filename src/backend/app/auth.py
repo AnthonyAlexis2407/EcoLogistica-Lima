@@ -8,11 +8,12 @@ Implementa:
 - Dependency de FastAPI para proteger endpoints por rol (RBAC)
 """
 
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import bcrypt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy import select
@@ -97,9 +98,13 @@ def require_roles(*allowed_roles: str):
     Devuelve un dependency que verifica que el usuario autenticado
     tenga uno de los roles permitidos (ADMIN_FLOTA, OPERADOR, AUDITOR, BODEGA).
     """
-    async def role_checker(user: Usuario = Depends(get_current_user)) -> Usuario:
+    async def role_checker(request: Request, user: Usuario = Depends(get_current_user)) -> Usuario:
         if user.rol in allowed_roles:
             return user
+        # Registro de auditoría del intento (RF-006): rol, método y ruta; nunca el correo ni otros datos personales.
+        logging.getLogger("ecologistica.security").warning(
+            "Acceso denegado: rol=%s método=%s ruta=%s", user.rol, request.method, request.url.path,
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Acceso denegado. Roles permitidos: {', '.join(allowed_roles)}",

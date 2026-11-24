@@ -140,14 +140,39 @@ def test_resultado_determinista():
 
 # ── Ventanas horarias ────────────────────────────────────────────────────
 
-def test_ventanas_se_evaluan_con_espera_si_se_llega_antes():
+def test_si_se_llega_antes_de_la_ventana_se_espera():
     inicio = datetime(2026, 11, 24, 8, 0, tzinfo=timezone.utc)
     cerca = Punto("a", -12.0470, -77.0430, 50.0, inicio + timedelta(hours=2), inicio + timedelta(hours=3))
+    r = optimizar([cerca], [Camion("v", "V-1", 1000, "DIESEL")], inicio_jornada=inicio)
+    parada = r.rutas[0].paradas[0]
+    assert parada.espera_min > 100 and parada.en_ventana is True
+    assert parada.llegada == inicio + timedelta(hours=2)
+
+
+def test_ventana_matematicamente_incompatible_se_informa_y_no_genera_ruta_invalida():
+    # RF-003, ruta infeliz: a ~12 km del depósito (unos 29 min) no se llega en la ventana de un minuto.
+    inicio = datetime(2026, 11, 24, 8, 0, tzinfo=timezone.utc)
     lejos = Punto("b", -12.1500, -77.1000, 50.0, inicio, inicio + timedelta(minutes=1))
-    r = optimizar([cerca, lejos], [Camion("v", "V-1", 1000, "DIESEL")], inicio_jornada=inicio)
-    paradas = {p.punto_id: p for ruta in r.rutas for p in ruta.paradas}
-    assert paradas["a"].espera_min > 0 and paradas["a"].en_ventana is True
-    assert paradas["b"].en_ventana is False  # llega después de su ventana de un minuto
+    posible = Punto("c", -12.0470, -77.0430, 50.0, inicio, inicio + timedelta(hours=2))
+    r = optimizar([lejos, posible], [Camion("v", "V-1", 1000, "DIESEL")], inicio_jornada=inicio)
+    assert [pid for pid, _ in r.sin_asignar] == ["b"]
+    assert "Ventana horaria incompatible" in r.sin_asignar[0][1]
+    assert [p.punto_id for ruta in r.rutas for p in ruta.paradas] == ["c"]
+
+
+def test_una_parada_servida_despues_de_su_ventana_se_marca_fuera_de_ventana():
+    # Dos pedidos cercanos entre sí y lejos del depósito, ambos con una holgura de un minuto sobre su llegada directa:
+    # en un mismo recorrido el segundo llega tarde (servicio de 10 min del primero) y se señala.
+    inicio = datetime(2026, 11, 24, 8, 0, tzinfo=timezone.utc)
+    p1_lat, p1_lon, p2_lat, p2_lon = -12.10, -77.00, -12.10, -76.99
+    directo1 = distancia_km(LIMA[0], LIMA[1], p1_lat, p1_lon) / 25.0 * 60.0
+    directo2 = distancia_km(LIMA[0], LIMA[1], p2_lat, p2_lon) / 25.0 * 60.0
+    a = Punto("a", p1_lat, p1_lon, 10.0, inicio, inicio + timedelta(minutes=directo1 + 1))
+    b = Punto("b", p2_lat, p2_lon, 10.0, inicio, inicio + timedelta(minutes=directo2 + 1))
+    r = optimizar([a, b], [Camion("v", "V-1", 1000, "DIESEL")], inicio_jornada=inicio)
+    assert len(r.rutas) == 1 and len(r.rutas[0].paradas) == 2
+    estados = [p.en_ventana for p in r.rutas[0].paradas]
+    assert estados == [True, False]
 
 
 def test_pedido_sin_ventana_no_tiene_indicador_de_ventana():

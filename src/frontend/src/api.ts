@@ -266,6 +266,7 @@ export interface Optimizacion {
   limite_alcanzado: boolean;
   rutas: Ruta[];
   sin_asignar: { pedido_id: string; motivo: string }[];
+  vehiculos_excluidos: { placa: string; motivo: string }[];
 }
 
 export interface Indicadores {
