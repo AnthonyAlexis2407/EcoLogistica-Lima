@@ -45,7 +45,7 @@ def generar_xlsx(encabezados: list[str], filas: list[list], hoja: str = "Reporte
             elif v is None or v == "":
                 celdas.append(f'<c r="{ref}" s="{estilo}"/>')
             else:
-                texto = escape(_celda_texto(str(v)))
+                texto = escape(_celda_texto(str(v)), quote=False)  # en el texto la comilla simple no necesita escape
                 celdas.append(f'<c r="{ref}" s="{estilo}" t="inlineStr"><is><t xml:space="preserve">{texto}</t></is></c>')
         return f'<row r="{numero}">{"".join(celdas)}</row>'
 

@@ -6,6 +6,7 @@ Sprint 3: configuración endurecida (OWASP A02), cabeceras de seguridad y CORS a
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from brotli_asgi import BrotliMiddleware
@@ -30,6 +31,8 @@ from app.routers import (
 )
 
 _PRODUCCION = settings.ENVIRONMENT == "production"
+# Render define RENDER_GIT_COMMIT con el commit desplegado: permite al flujo de despliegue comprobar QUÉ versión responde.
+COMMIT = os.environ.get("RENDER_GIT_COMMIT") or os.environ.get("GIT_COMMIT", "")
 
 
 @asynccontextmanager
@@ -101,6 +104,7 @@ async def health_check():
         "status": "ok",
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
+        "commit": COMMIT,
     }
 
 
@@ -115,7 +119,7 @@ async def health_ready():
             await conexion.execute(text("SELECT 1"))
     except Exception:  # noqa: BLE001 - cualquier fallo de conexión significa "no listo"
         return JSONResponse(status_code=503, content={"status": "no_disponible", "db": "error"})
-    return {"status": "ok", "db": "ok", "version": settings.APP_VERSION}
+    return {"status": "ok", "db": "ok", "version": settings.APP_VERSION, "commit": COMMIT}
 
 
 # El frontend compilado se registra al final: su ruta comodín no debe tapar la API.

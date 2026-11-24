@@ -2,9 +2,9 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
-**Sprint:** Sprint 4 (periodo 21/10/2026 al 16/11/2026)  
-**Fecha de retrospectiva:** 16/11/2026 (actualizada el 17/11/2026 tras el despliegue en producción)  
-**Versión del documento:** 1.1.0
+**Sprint:** Sprint 4 (periodo 21/10/2026 al 28/11/2026)  
+**Fecha de retrospectiva:** 16/11/2026 (actualizada el 17/11/2026 y el 28/11/2026 con la retrospectiva de cierre)  
+**Versión del documento:** 2.0.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) · [Usabilidad](04%20Usabilidad%20V_1_0_0.md)
 
@@ -97,6 +97,27 @@
 | 7 | Añadir SonarQube a `ci.yml` y fijar versiones del backend | Herramientas | Fernandez Condor Jhon Smith | 23/11/2026 | Quality Gate PASSED en Actions y archivo de versiones fijas |
 | 8 | Programar la prueba de humo de Playwright cada hora contra producción y publicar el resultado | Procesos | Perez Ordoñez Anthony Alexis | 23/11/2026 | Historial de ejecuciones con disponibilidad ≥ 99 % |
 
+## Retrospectiva de cierre (28/11/2026): seguimiento de las acciones del 16/11/2026
+
+| # | Acción de la retrospectiva del 16/11 | Resultado al 28/11 | Evidencia |
+|---|---|---|---|
+| 1 | Apuntar Render a `main` | **Pendiente** (acción manual en el panel de Render) | [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md), sección 2.5; el flujo de despliegue ahora espera el commit informado por `/api/health` |
+| 2 | Demostración con el Product Owner | **Pendiente**: depende de la reunión con el docente | [Revisión, sección Demostración](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) |
+| 3 | SUS con usuarios reales | **Pendiente**: requiere convocar usuarios | [Usabilidad](04%20Usabilidad%20V_1_0_0.md) |
+| 4 | Spike EN-001 con algoritmo genético, búsqueda tabú y OR-Tools | **Cumplida**: se ejecutó con 3 tamaños y 3 semillas; la búsqueda tabú se integró como opción del administrador | [`spike_algoritmos.py`](../../../scripts/spike_algoritmos.py) y [Informe del estudio](07%20Estudio%20de%20algoritmos%20V_1_0_0.md) |
+| 5 | Mejoras de interfaz priorizadas y nuevo SUS | **Parcial**: la ubicación del pedido se elige ahora en un mapa (resuelve la confusión de coordenadas); no se repitió el SUS | [`MapaSelector.tsx`](../../../src/frontend/src/components/MapaSelector.tsx) |
+| 6 | Migrar a PostgreSQL | **Cumplida en código y pruebas**: `render.yaml` define la base y el flujo completo corre contra PostgreSQL real en CI; falta sincronizar el Blueprint en Render | [`test_postgres.py`](../../../src/backend/tests/test_postgres.py), [`render.yaml`](../../../render.yaml) |
+| 7 | SonarQube en `ci.yml` y versiones fijas | **Pendiente**: requiere un token de la organización | [Registro de riesgos](../../02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md) |
+| 8 | Prueba de humo cada hora contra producción | **Cumplida**: el flujo existe y empieza a correr cuando se fusione en `main` (los flujos programados solo corren desde la rama por defecto) | [`monitoreo.yml`](../../../.github/workflows/monitoreo.yml) |
+
+**Lectura:** de 8 acciones, 3 cumplidas, 1 parcial y 4 pendientes; lo pendiente depende de personas externas al código (docente, usuarios, panel de Render) o de credenciales (SonarQube).
+
+### Qué funcionó y qué mejorar en el cierre
+
+- **Funcionó:** auditar los criterios de aceptación contra el código y cerrar cada brecha con una prueba; las pruebas "halladoras" (suite ofensiva, E2E sin conexión, axe-core) encontraron defectos reales antes de entregar (enumeración de usuarios, registro del service worker, contraste de enlaces); medir en lugar de suponer (algoritmos, RTO, degradación 250 a 1.000).
+- **Mejorar:** la auditoría y la ruta crítica llegaron en la última etapa y obligaron a una implementación masiva en pocos días; Docker local sin memoria obligó a depender de GitHub Actions para la suite completa; no hubo bitácora de horas.
+- **Acciones de mantenimiento:** plan de pago de la plataforma (EN-003, EN-006), SUS con usuarios reales, prueba con lector de pantalla y en un Android físico, auditoría de seguridad externa, SonarQube en CI y proveedor de correo y SMS.
+
 ## Referencias cruzadas
 
 - Plan y resultados del sprint: [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md).
@@ -110,3 +131,4 @@
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Sprint 4: primera retrospectiva, con seguimiento de las acciones del Sprint 3 y plan de mejora con responsables e indicadores. |
 | 1.1.0 | 17/11/2026 | Se registra el despliegue verificado en producción, se reformulan los obstáculos como asuntos de herramientas y procesos, y se actualizan el seguimiento y la acción 1. |
+| 2.0.0 | 28/11/2026 | Retrospectiva de cierre: seguimiento de las 8 acciones, lo que funcionó y lo que se debe mejorar. |

@@ -15,7 +15,7 @@
 - Tovar Arias Michael Aldo
 
 ### Descripción
-Sistema web para optimizar rutas de última milla con enfoque sostenible, aplicando metaheurísticas (Algoritmos Genéticos, Búsqueda Tabú) para reducir costos y emisiones de CO₂.
+Plataforma web para optimizar rutas de última milla con enfoque sostenible. Planifica las rutas de reparto con un algoritmo propio (Clarke-Wright, 2-opt y búsqueda tabú opcional) que respeta capacidad, volumen, ventanas horarias, Pico y Placa y zonas protegidas; guía al conductor con una app instalable que funciona sin conexión; re-optimiza ante incidencias; avisa a las bodegas; calcula el CO₂ evitado y su equivalente en árboles; y protege los datos personales con cifrado. Estado final: los 10 requisitos funcionales y las 10 reglas de negocio cumplen; 8 de los 10 requisitos no funcionales cumplen y 2 (conmutación por falla y escalado automático) cumplen en pruebas, pero necesitan un plan de pago de la plataforma para cumplir en la nube ([Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)).
 
 ## Estructura del repositorio
 
@@ -27,21 +27,21 @@ docs/
     Sprint 01/          informes del Sprint 1
     Sprint 02/          informes del Sprint 2
     Sprint 03/          informes y evaluaciones del Sprint 3
-    Sprint 4/           revisión, retrospectiva, Playwright, usabilidad (SUS) y guía de despliegue
-    Sprint 5/           matriz de cumplimiento de requisitos y estándares
+    Sprint 4/           revisión, retrospectiva, Playwright, usabilidad (SUS), guía de despliegue, matriz de cumplimiento y estudio de algoritmos
     reduccion del impacto ambiental/   informe Green IT y estándares de ingeniería de software
   04 Cierre/            siete documentos de gestión y cierre del proyecto (estado, variación, EVM, tableros, radiadores, final y lecciones)
   05 Video proyecto/    guion del video y el video MP4 de 5 minutos
 src/
   backend/              API FastAPI (Python) y sus pruebas (tests/)
   frontend/             interfaz React + TypeScript + Vite; pruebas E2E en e2e/ y playwright.config.ts
-.github/workflows/      ci.yml (calidad), tests.yml (pruebas y E2E), deploy-production.yml (despliegue) y green-audit.yml (Green IT)
+.github/workflows/      ci.yml (calidad), tests.yml (pruebas, PostgreSQL, conmutación por falla y E2E), deploy-production.yml (despliegue), monitoreo.yml (prueba de humo por hora) y green-audit.yml (Green IT)
 .github/pull_request_template.md   plantilla de Pull Request
 lighthouserc.json       umbrales de Lighthouse CI
 Dockerfile, render.yaml imagen de producción y plano de despliegue
 docker-compose.e2e.yml  entorno local de pruebas E2E (misma imagen que producción)
+docker-compose.failover.yml  dos instancias, balanceador y PostgreSQL para medir el RTO (docker/nginx-failover.conf)
 pyproject.toml          configuración de Ruff y Bandit
-scripts/                medición de la API, SWDM v4, cobertura, verificación de enlaces, resumen de Playwright, cálculo SUS y EVM
+scripts/                medición de la API, SWDM v4, cobertura, verificación de enlaces, resumen de Playwright, cálculo SUS y EVM, estudio de algoritmos y medición del RTO
 CONTRIBUTING.md         flujo de ramas, DoD y versionado
 sonar-project.properties, .coveragerc
 ```
@@ -99,16 +99,15 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 - [02 Retrospectiva del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md): aprendizajes y plan de mejora con responsables e indicadores.
 - [03 Análisis Playwright](docs/03%20Inplementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md): pruebas E2E en Chromium, Firefox y WebKit, Web Vitals, tiempos de la API, disponibilidad y resiliencia.
 - [04 Usabilidad (SUS)](docs/03%20Inplementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md): evaluación cuantitativa con la escala SUS (datos simulados con fines académicos).
-- [05 Guía de despliegue](docs/03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md): cómo llega la aplicación a producción y cómo configurar los secretos.
+- [05 Guía de despliegue](docs/03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md): cómo llega la aplicación a producción, cómo configurar los secretos y la base PostgreSQL.
+- [06 Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md): verifica cada requisito funcional, no funcional, regla de negocio y estándar del curso contra el código, las pruebas y los informes, con la evidencia y los límites.
+- [07 Estudio de algoritmos](docs/03%20Inplementaci%C3%B3n/Sprint%204/07%20Estudio%20de%20algoritmos%20V_1_0_0.md): comparación de Clarke-Wright, búsqueda tabú, algoritmo genético y OR-Tools (spike EN-001).
 
 **Producción:** la aplicación se despliega sola desde `main` y está activa en <https://ecologistica-lima.onrender.com>; la prueba de humo de Playwright confirma cada despliegue ([última ejecución](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768595)).
 
 **Estado de los flujos de trabajo:** las insignias de la parte superior se actualizan solas con la última ejecución en la rama `main`. [`ci.yml`](.github/workflows/ci.yml) verifica el estilo, el análisis estático, la compilación y las dependencias; [`tests.yml`](.github/workflows/tests.yml) ejecuta las pruebas unitarias, de integración y E2E y guarda los informes como artefactos; [`deploy-production.yml`](.github/workflows/deploy-production.yml) despliega con GitHub Secrets.
 
-### Sprint 5 (cierre, vigente)
-- [01 Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md): verifica cada requisito funcional, no funcional y estándar del curso contra el código, las pruebas y los informes, con la evidencia y las brechas.
-
-**Novedades del producto (versión 4.0.0):** motor de optimización de rutas (Clarke-Wright y 2-opt; 1.000 pedidos en menos de 1 s), mapa interactivo de rutas, dashboard con indicadores reales, CO₂ evitado y árboles equivalentes, reglas de Pico y Placa y reportes CSV exportables.
+**Novedades del producto (versión 4.0.0):** motor de rutas con restricciones duras (1.000 pedidos en alrededor de 1 s), mapa interactivo, app del conductor instalable y sin conexión, re-optimización ante incidencias, notificaciones a bodegas, administración, reportes CSV, Excel y PDF, dashboard con filtros, CO₂ evitado y compensación en árboles, datos personales cifrados y base PostgreSQL en producción.
 
 ## Fase 04: Cierre del Proyecto
 
@@ -146,6 +145,12 @@ docker compose -f docker-compose.e2e.yml up --build --abort-on-container-exit --
 python scripts/verificar_enlaces.py
 # Recalcular el EVM y regenerar los gráficos de los tableros de cierre
 python scripts/calcular_evm.py --graficos
+# Estudio comparativo de algoritmos de rutas (spike EN-001); con `pip install ortools` incluye OR-Tools
+python scripts/spike_algoritmos.py --tamanos 50 150 400 --semillas 3 --limite 10
+# Pruebas contra PostgreSQL real (defina la URL de una base de pruebas: se vacía y recrea)
+TEST_DATABASE_URL=postgresql+asyncpg://usuario:clave@localhost:5432/ecologistica PYTHONPATH=src/backend python -m pytest src/backend/tests/test_postgres.py -v
+# Conmutación por falla: dos instancias, balanceador y PostgreSQL; mide el RTO deteniendo cada instancia
+docker compose -f docker-compose.failover.yml up --build -d --wait && python scripts/medir_rto.py
 ```
 
 ## Código fuente
@@ -164,13 +169,13 @@ python scripts/calcular_evm.py --graficos
 | Inicio · 04 Registro de supuestos y restricciones | 1.1.0 | 08/09/2026 | Corrección de R01 (presupuesto S/ 16,300) |
 | Inicio · 08 Usuarios | 1.3.0 | 20/10/2026 | Se elimina el rol `ADMINISTRADOR` (IMP-008) |
 | Inicio · 03 Declaración de la visión | 1.1.0 | 28/11/2026 | Factor de conversión de CO₂ a árboles (RF-010) |
-| Inicio · 06 Requisitos funcionales | 1.1.0 | 28/11/2026 | Estado de implementación de cada requisito |
-| Inicio · 07 Requisitos no funcionales | 1.1.0 | 28/11/2026 | Estado de cumplimiento de cada requisito |
-| Inicio · 10 Stack tecnológico | 1.5.0 | 28/11/2026 | Motor de rutas propio, mapa con Leaflet y reportes CSV |
-| Inicio · 11 Base de datos | 1.2.0 | 28/11/2026 | Tablas de rutas implementadas (9 de 11) frente al DDL |
-| Inicio · 12 Modelo C4 | 1.3.0 | 28/11/2026 | Estado de implementación y componentes nuevos |
+| Inicio · 06 Requisitos funcionales | 1.2.0 | 28/11/2026 | Los diez requisitos implementados y verificados |
+| Inicio · 07 Requisitos no funcionales | 1.2.0 | 28/11/2026 | Ocho requisitos cumplen y dos cumplen en pruebas |
+| Inicio · 10 Stack tecnológico | 1.6.0 | 28/11/2026 | Cifrado, PostgreSQL, PWA, reportes y alta disponibilidad |
+| Inicio · 11 Base de datos | 1.3.0 | 28/11/2026 | Modelo implementado (15 tablas) y clasificación de datos personales |
+| Inicio · 12 Modelo C4 | 1.4.0 | 28/11/2026 | Estado de implementación final y componentes nuevos |
 | Planificación · 02 Artefactos Jira | 1.1.0 | 05/10/2026 | Estado real de Jira |
-| Planificación · 03 Registro de riesgos | 1.4.0 | 28/11/2026 | Se añaden RSK-15 y RSK-16 y se actualiza el estado de RSK-05 y RSK-09 |
+| Planificación · 03 Registro de riesgos | 1.5.0 | 28/11/2026 | Se añaden RSK-17 y RSK-18 y se actualiza el estado de los riesgos |
 | Sprint 01 · Informe de estado | 1.1.0 | 20/10/2026 | Se retira la demostración del informe |
 | Sprint 02 · Informe de estado, Revisión y Retrospectiva | 2.2.0 | 20/10/2026 | Criterios por ruta, cierre de sprint y rutas |
 | Sprint 02 · Registro de Impedimentos | 2.1.0 | 05/10/2026 | DEF-002 y DEF-003 corregidos |
@@ -183,5 +188,7 @@ python scripts/calcular_evm.py --graficos
 | Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, glosario y referencias cruzadas |
 | Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, guía del YAML y referencias cruzadas |
 | Sprint 4 · 01 Revisión, 02 Retrospectiva, 03 Análisis Playwright, 04 Usabilidad y 05 Guía de despliegue | 1.1.0 | 17/11/2026 | Primera versión del 16/11; actualizada con el despliegue en producción y las cifras de `main` |
-| Sprint 5 · 01 Matriz de cumplimiento | 1.0.0 | 24/11/2026 | Primera versión |
-| Cierre · 01 a 07 (Estado, Variación, EVM, Tableros, Radiadores, Final y Lecciones) | 1.0.0 | 28/11/2026 | Primera versión |
+| Sprint 4 · 01 Revisión, 02 Retrospectiva y 05 Guía de despliegue | 2.0.0 | 28/11/2026 | Cierre del sprint: implementación final, retrospectiva de cierre y PostgreSQL |
+| Sprint 4 · 06 Matriz de cumplimiento | 2.0.0 | 28/11/2026 | Cumplimiento final de requisitos, reglas de negocio y estándares |
+| Sprint 4 · 07 Estudio de algoritmos | 1.0.0 | 28/11/2026 | Primera versión |
+| Cierre · 01 a 07 (Estado, Variación, EVM, Tableros, Radiadores, Final y Lecciones) | 2.0.0 | 28/11/2026 | Recalculados con el cierre del proyecto en cuatro sprints |

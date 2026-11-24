@@ -4,7 +4,7 @@
 
 **Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.
 **Archivo a entregar en esta carpeta:** `Video proyecto EcoLogistica Lima.mp4` (formato MP4, 5 minutos con una tolerancia de ±15 segundos).
-**Versión del documento:** 1.0.0 · **Fecha:** 24/11/2026
+**Versión del documento:** 1.1.0 · **Fecha:** 28/11/2026
 
 > **Para qué sirve esta guía.** La consigna final pide un video de unos 5 minutos con dos partes continuas: **1 minuto** de presentación de la idea (*elevator pitch*) y **4 minutos** de demostración técnica en vivo. Esta guía dice qué decir, qué mostrar y en qué segundo, y trae una lista para revisar el archivo antes de subirlo. El video lo graba el equipo; esta carpeta debe contener el `.mp4` final.
 
@@ -13,7 +13,7 @@
 | Parte | Minuto | Contenido |
 |---|---|---|
 | **Presentación de la idea** | 0:00 a 1:00 | Problema, solución, propuesta de valor y público objetivo |
-| **Demostración funcional** | 1:00 a 5:00 | Recorrido por el sistema desplegado: acceso, flota, pedidos, rutas con mapa, indicadores y reportes, calidad y despliegue |
+| **Demostración funcional** | 1:00 a 5:00 | Recorrido por el sistema desplegado: acceso, pedidos, rutas con mapa, app del conductor sin conexión, re-optimización, avisos a la bodega, indicadores y reportes, calidad y despliegue |
 
 **Entorno de grabación.** Usar la aplicación en producción, <https://ecologistica-lima.onrender.com>, con las cuentas de demostración que crea el archivo [`seed.py`](../../src/backend/app/seed.py). Abrir la página **1 minuto antes de grabar**: el plan gratuito de Render se duerme tras 15 minutos sin uso y la primera visita puede tardar hasta 1 minuto.
 
@@ -32,18 +32,20 @@
 
 | Tiempo | Qué se muestra | Qué se dice y se hace |
 |---|---|---|
-| **1:00 a 1:25** Acceso y roles | Pantalla de inicio de sesión; entrar como **administrador de flota**; mostrar el Dashboard | "Entramos con un usuario de **administrador de flota**. Cada rol ve solo lo que le corresponde: el menú lo muestra." |
-| **1:25 a 2:05** Flota (RF-001) | Vehículos → **Registrar Vehículo**: placa, capacidad, combustible y factor de CO₂; guardar y ver la fila | "Registramos un vehículo con su capacidad y su factor de emisión. Si repito la placa, el sistema la rechaza. Sin factor de emisión, el planificador no lo usa." |
-| **2:05 a 2:40** Pedidos (RF-002) | Cerrar sesión y entrar como **operador**; Pedidos → **Registrar Pedido**: dirección, coordenadas (con su ayuda de formato), peso y ventana; ver estado PENDIENTE | "El operador registra pedidos con su ubicación, peso y ventana horaria. Si el peso excede la flota, el sistema lo rechaza con un mensaje claro." |
-| **2:40 a 3:35** Rutas y mapa (RF-003, RF-004) | Rutas → **Optimizar rutas**: resultados (rutas, kilómetros, **CO₂ evitado**, árboles equivalentes, tiempo de cálculo en milisegundos); recorrer el mapa y una tabla de paradas con "En ventana" | "Un clic planifica todos los pedidos pendientes. Calculó las rutas en milisegundos, frente al límite de 45 segundos. Cada color es una ruta; el mapa y la tabla muestran el orden de las paradas y si llegan dentro de su ventana. Los vehículos con Pico y Placa quedan fuera y el sistema lo informa." |
-| **3:35 a 4:10** Indicadores y reportes (RF-005, RF-006, RF-010) | Dashboard con "Rutas y compensación de carbono"; en Rutas, pulsar **Pedidos (CSV)** y abrir el archivo | "El dashboard resume kilómetros, CO₂ evitado acumulado y su equivalente en árboles. Los reportes se descargan en CSV y se abren en Excel." |
-| **4:10 a 4:40** Calidad y despliegue | Pestaña **Actions** de GitHub con los cuatro flujos en verde; informe de Playwright (152 ejecuciones); README con los índices | "Cada cambio pasa por tres flujos automáticos: calidad, pruebas y despliegue. Tenemos 96 pruebas de backend con 94 % de cobertura, 81 de frontend y 152 ejecuciones de extremo a extremo en tres navegadores, todas en verde. Al fusionar a `main`, la aplicación se publica sola." |
-| **4:40 a 5:00** Cierre | Pantalla final con la URL y el repositorio | "Entregamos un producto operativo, probado y desplegado. Lo pendiente está documentado en los reportes de cierre. Gracias." |
+| **1:00 a 1:20** Acceso y roles | Inicio de sesión como **administrador de flota**; el Dashboard con sus filtros por distrito y fechas | "Entramos como administrador. Cada rol ve solo lo que le corresponde: el menú lo muestra, y el servidor lo exige." |
+| **1:20 a 1:50** Pedidos (RF-002) | Cerrar sesión y entrar como **operador**; Pedidos → **Registrar Pedido**: elegir la ubicación tocando el mapa, peso, volumen y ventana horaria | "El operador registra pedidos y elige la ubicación en un mapa. Si el peso o el volumen exceden la flota, el sistema lo rechaza." |
+| **1:50 a 2:25** Rutas y mapa (RF-003, RF-004) | Rutas → **Optimizar rutas**: rutas, kilómetros, **CO₂ evitado**, árboles equivalentes y tiempo de cálculo; el mapa; asignar un conductor y **Iniciar** | "Un clic planifica todos los pedidos respetando capacidad, ventanas horarias y Pico y Placa. Calcula en milisegundos frente al límite de 45 segundos. Asignamos un conductor y la ruta sale." |
+| **2:25 a 3:10** App del conductor (RF-008, RNF-004, RNF-010) | Abrir `/conductor` en una ventana angosta o en el móvil; **Entregar** → un trazo de firma → **Confirmar**; apagar la red en las herramientas del navegador, entregar otra parada y mostrar «pendiente de sincronizar»; volver a encender la red | "El conductor entrega en tres toques con firma. Sin señal, la entrega queda guardada en el dispositivo y se envía sola al volver la red, sin duplicarse." |
+| **3:10 a 3:35** Re-optimización (RF-007) | Rutas → **Incidencia** → vía cerrada junto a una parada: mostrar el aviso con el tiempo de recálculo y el pedido devuelto a pendiente | "Si se cierra una vía, el sistema recalcula lo que falta de la ruta, evitando el área, en una fracción de segundo." |
+| **3:35 a 4:05** Avisos, indicadores y reportes (RF-009, RF-005, RF-006, RF-010) | Entrar como **bodega** y ver los avisos con la hora estimada; terminar la ruta como conductor; Dashboard con la compensación confirmada; descargar el reporte en **Excel** y en **PDF** | "La bodega recibe sus avisos. Al terminar la ruta se registra el CO₂ evitado y su equivalente en árboles. Los reportes salen en CSV, Excel y PDF; el auditor los recibe sin direcciones." |
+| **4:05 a 4:40** Calidad, seguridad y despliegue | Pestaña **Actions** de GitHub con los flujos en verde (incluidos PostgreSQL y conmutación por falla); informe de Playwright; README | "Cada cambio pasa por flujos automáticos de calidad, pruebas y despliegue. Tenemos 175 pruebas de backend con 93 % de cobertura, más pruebas contra PostgreSQL real, 108 de frontend y {E2E} ejecuciones de extremo a extremo en tres navegadores, con accesibilidad y seguridad verificadas. Los datos personales están cifrados." |
+| **4:40 a 5:00** Cierre | Pantalla final con la URL y el repositorio | "Entregamos un producto completo, probado y desplegado. Lo que falta depende de una plataforma de pago y de usuarios reales, y está documentado. Gracias." |
 
 ## 3. Preparación antes de grabar
 
 - [ ] Abrir la aplicación en producción 1 minuto antes (para que Render esté despierto).
 - [ ] Tener **pedidos pendientes** y **vehículos disponibles con factor de emisión** para que "Optimizar rutas" muestre resultados (registrar 5 a 8 pedidos con coordenadas distintas de Lima).
+- [ ] Tener a mano las cuentas de **operador**, **conductor** y **bodega** del seed y dos ventanas del navegador (una de ellas angosta, para el móvil); ensayar apagar y encender la red en las herramientas del navegador.
 - [ ] Cerrar notificaciones, otras pestañas y ventanas; usar el navegador a pantalla completa con zoom del 100 %.
 - [ ] Probar el micrófono: sin ruido y volumen constante.
 - [ ] Ensayar con el cronómetro: la presentación no debe pasar de 1 minuto ni la demostración de 4.
