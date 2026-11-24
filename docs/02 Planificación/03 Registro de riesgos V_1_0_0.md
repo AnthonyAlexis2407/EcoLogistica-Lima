@@ -6,8 +6,8 @@
   - Fernandez Condor Jhon Smith
   - Perez Ordoñez Anthony Alexis
   - Tovar Arias Michael Aldo
-- **Fecha:** 08 de septiembre de 2026 (actualizado el 16 de noviembre de 2026)
-- **Versión:** 1.3.0
+- **Fecha:** 08 de septiembre de 2026 (actualizado el 28 de noviembre de 2026)
+- **Versión:** 1.4.0
 
 [← Volver al README Principal](../../README.md)
 
@@ -40,7 +40,7 @@
 |---|---|---|
 | **Alta (15-25)** | 1 | RSK-05 |
 | **Media (8-12)** | 6 | RSK-01, RSK-02, RSK-03, RSK-04, RSK-06, RSK-08 |
-| **Baja (1-6)** | 1 | RSK-07 |
+| **Baja (1-6)** | 2 | RSK-07, RSK-16 |
 
 **Observación:** el único riesgo de severidad **Alta** (RSK-05) recae directamente sobre el núcleo técnico del proyecto (el motor de optimización bajo RNF-001), por lo que su mitigación —un *spike* técnico comparativo en el primer Sprint— se recomienda como parte del *Sprint Goal* del Sprint 1.
 
@@ -66,12 +66,21 @@ El spike comparativo que debía reducir este riesgo en el Sprint 1 no se ejecut�
 | **RSK-13** | Pérdida de datos en producción: SQLite en el disco temporal del plan gratuito se reinicia con cada despliegue o reinicio. | Datos / Infraestructura | 4 | 3 | **12 (Media)** | Cargar datos de demostración al arrancar (`SEED_DEMO_DATA`); declarar la limitación en la [Guía de despliegue](../03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md); migrar a PostgreSQL con controlador asíncrono (acción 6 de la [Retrospectiva](../03%20Inplementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md)). | No registrar datos reales en producción hasta contar con PostgreSQL. | Fernandez Condor Jhon Smith |
 | **RSK-14** | Equipos de desarrollo con poca memoria: Docker se detiene durante las ejecuciones largas de la suite E2E y retrasa la verificación local. | Herramientas / Recursos | 4 | 2 | **8 (Media)** | Ejecutar la suite completa en GitHub Actions; en el equipo local usar `scripts/e2e-por-tandas.sh` (tandas cortas con reintentos). | Verificar solo con la prueba de humo local y confiar en Actions para la suite completa. | Equipo completo |
 
+### Riesgos añadidos y actualizados en el cierre (28/11/2026)
+
+| ID | Descripción del Riesgo | Categoría | Prob. | Imp. | Severidad | Plan de Mitigación (Preventivo) | Plan de Contingencia (Reactivo) | Responsable |
+|---|---|---|---|---|---|---|---|---|
+| **RSK-15** | El video de cierre (MP4 de 5 minutos) no se produce a tiempo o sin la calidad exigida. | Entregables / Cronograma | 3 | 4 | **12 (Media)** | [Guion minuto a minuto y lista de verificación](../05%20Video%20proyecto/Guion%20del%20video.md); grabar con la aplicación en producción. | Grabar una versión sencilla con la pantalla y la voz del equipo. | Perez Ordoñez Anthony Alexis |
+| **RSK-16** | Las teselas del mapa dependen de un servicio externo (OpenStreetMap). | Técnica / Dependencia externa | 2 | 2 | **4 (Baja)** | Si no cargan, el recorrido, las paradas y la tabla equivalente siguen visibles; la CSP solo admite ese dominio. | Cambiar de proveedor de teselas en un solo archivo. | Fernandez Condor Jhon Smith |
+
+**Estado de riesgos existentes al cierre.** **RSK-05** (límite de 45 s del optimizador): **no se materializó**; 50 pedidos se planifican en 4 a 31 ms y 1.000 en menos de 1 s. **RSK-09** (retraso del cronograma): **se materializó**; SPI 0,341 y 50 puntos diferidos ([Reporte de Variación](../04%20Cierre/02%20Reporte%20de%20Variaci%C3%B3n%20V_1_0_0.md)). **RSK-11** (sin CI ni lint): **mitigado** con tres flujos de Actions, ESLint, Ruff y Bandit.
+
 ### Resumen de exposición actualizado
 
 | Nivel de Severidad | Cantidad de Riesgos | IDs |
 |---|---|---|
 | **Alta (15-25)** | 2 | RSK-05 (reevaluado a 20), RSK-09 |
-| **Media (8-12)** | 10 | RSK-01, RSK-02, RSK-03, RSK-04, RSK-06, RSK-08, RSK-10, RSK-11, RSK-13, RSK-14 |
+| **Media (8-12)** | 11 | RSK-01, RSK-02, RSK-03, RSK-04, RSK-06, RSK-08, RSK-10, RSK-11, RSK-13, RSK-14, RSK-15 |
 | **Baja (1-6)** | 1 | RSK-07 |
 
 La reserva de contingencia del 12 % (Documento 04 de Planificación) cubre la materialización parcial de RSK-05 y RSK-09 únicamente si se recorta el alcance; no cubre una extensión del plazo de entrega.
@@ -84,6 +93,7 @@ La reserva de contingencia del 12 % (Documento 04 de Planificación) cubre la ma
 | 1.1.0 | 05/10/2026 | Reevaluación de RSK-05 (severidad 20) y alta de RSK-09, RSK-10 y RSK-11 a partir de la verificación técnica y la consulta a Jira del Sprint 2; la matriz original no se modifica. |
 | 1.2.0 | 20/10/2026 | Sprint 3: se actualiza RSK-11 (CI creado) y se añade RSK-12 (configuración insegura por defecto). |
 | 1.3.0 | 16/11/2026 | Sprint 4: se añaden RSK-13 (datos no persistentes con SQLite en producción) y RSK-14 (memoria insuficiente para la suite E2E local); se actualiza el resumen de exposición. |
+| 1.4.0 | 28/11/2026 | Cierre: se añaden RSK-15 y RSK-16 y se actualiza el estado de RSK-05 (no se materializó), RSK-09 (se materializó) y RSK-11 (mitigado). |
 
 ---
 

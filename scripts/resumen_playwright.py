@@ -138,7 +138,7 @@ def tablas_de_metricas(carpeta: Path) -> None:
 
     optimizaciones = sorted(metricas.glob("*-optimizacion.json"))
     if optimizaciones:
-        emitir("\n### Motor de rutas: 50 pedidos frente al SLA de 45 s (RNF-001)\n")
+        emitir("\n### Motor de rutas frente al SLA de 45 s (RNF-001); cada corrida incluye 50 pedidos propios y los pendientes previos\n")
         emitir("| Navegador | Pedidos | Rutas | Sin asignar | Cálculo (ms) | Respuesta HTTP (ms) | Ahorro de km | Ahorro de CO₂ | CO₂ evitado (kg) |")
         emitir("|---|---|---|---|---|---|---|---|---|")
         for ruta in optimizaciones:

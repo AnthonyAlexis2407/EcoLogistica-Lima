@@ -28,7 +28,10 @@ docs/
     Sprint 02/          informes del Sprint 2
     Sprint 03/          informes y evaluaciones del Sprint 3
     Sprint 4/           revisión, retrospectiva, Playwright, usabilidad (SUS) y guía de despliegue
+    Sprint 5/           matriz de cumplimiento de requisitos y estándares
     reduccion del impacto ambiental/   informe Green IT y estándares de ingeniería de software
+  04 Cierre/            siete documentos de gestión y cierre del proyecto (estado, variación, EVM, tableros, radiadores, final y lecciones)
+  05 Video proyecto/    guion del video y el video MP4 de 5 minutos
 src/
   backend/              API FastAPI (Python) y sus pruebas (tests/)
   frontend/             interfaz React + TypeScript + Vite; pruebas E2E en e2e/ y playwright.config.ts
@@ -38,7 +41,7 @@ lighthouserc.json       umbrales de Lighthouse CI
 Dockerfile, render.yaml imagen de producción y plano de despliegue
 docker-compose.e2e.yml  entorno local de pruebas E2E (misma imagen que producción)
 pyproject.toml          configuración de Ruff y Bandit
-scripts/                medición de la API, SWDM v4, cobertura, verificación de enlaces, resumen de Playwright y cálculo SUS
+scripts/                medición de la API, SWDM v4, cobertura, verificación de enlaces, resumen de Playwright, cálculo SUS y EVM
 CONTRIBUTING.md         flujo de ramas, DoD y versionado
 sonar-project.properties, .coveragerc
 ```
@@ -91,7 +94,7 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 - [06 Informe de estado del proyecto](docs/03%20Inplementaci%C3%B3n/Sprint%2003/06%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
 - [07 Registro de Impedimentos](docs/03%20Inplementaci%C3%B3n/Sprint%2003/07%20Registro%20de%20Impedimentos%20V_1_0_0.md)
 
-### Sprint 4 (vigente)
+### Sprint 4
 - [01 Revisión del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md): historias completadas con enlaces a commits y pull requests, demostración y pendientes.
 - [02 Retrospectiva del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md): aprendizajes y plan de mejora con responsables e indicadores.
 - [03 Análisis Playwright](docs/03%20Inplementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md): pruebas E2E en Chromium, Firefox y WebKit, Web Vitals, tiempos de la API, disponibilidad y resiliencia.
@@ -101,6 +104,27 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 **Producción:** la aplicación se despliega sola desde `main` y está activa en <https://ecologistica-lima.onrender.com>; la prueba de humo de Playwright confirma cada despliegue ([última ejecución](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768595)).
 
 **Estado de los flujos de trabajo:** las insignias de la parte superior se actualizan solas con la última ejecución en la rama `main`. [`ci.yml`](.github/workflows/ci.yml) verifica el estilo, el análisis estático, la compilación y las dependencias; [`tests.yml`](.github/workflows/tests.yml) ejecuta las pruebas unitarias, de integración y E2E y guarda los informes como artefactos; [`deploy-production.yml`](.github/workflows/deploy-production.yml) despliega con GitHub Secrets.
+
+### Sprint 5 (cierre, vigente)
+- [01 Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%205/01%20Matriz%20de%20cumplimiento%20V_1_0_0.md): verifica cada requisito funcional, no funcional y estándar del curso contra el código, las pruebas y los informes, con la evidencia y las brechas.
+
+**Novedades del producto (versión 4.0.0):** motor de optimización de rutas (Clarke-Wright y 2-opt; 1.000 pedidos en menos de 1 s), mapa interactivo de rutas, dashboard con indicadores reales, CO₂ evitado y árboles equivalentes, reglas de Pico y Placa y reportes CSV exportables.
+
+## Fase 04: Cierre del Proyecto
+
+Carpeta `docs/04 Cierre/`; cada documento enlaza de regreso a este README. Fecha de corte: 28/11/2026; sustentación: 30/11/2026.
+
+- [01 Reporte de Estado](docs/04%20Cierre/01%20Reporte%20de%20Estado%20V_1_0_0.md): alcance, cronograma, costos, proyección y riesgos del último periodo.
+- [02 Reporte de Variación](docs/04%20Cierre/02%20Reporte%20de%20Variaci%C3%B3n%20V_1_0_0.md): planificado frente a real en cronograma, costo y calidad, con causa raíz y respuesta.
+- [03 Reporte de Análisis de Valor Ganado - EVM](docs/04%20Cierre/03%20Reporte%20de%20An%C3%A1lisis%20de%20Valor%20Ganado%20-%20EVM%20V_1_0_0.md): PV, EV, AC, SV, CV, SPI, CPI y las tres fórmulas de EAC.
+- [04 Tableros de Control - Híbridos](docs/04%20Cierre/04%20Tableros%20de%20Control%20-%20H%C3%ADbridos%20V_1_0_0.md): semáforo por componente y gráficos de tendencia, flujo, burbujas y barras.
+- [05 Radiadores de Información](docs/04%20Cierre/05%20Radiadores%20de%20Informaci%C3%B3n%20V_1_0_0.md): burndown, burnup, tablero Kanban, mood chart y tablero de retrospectiva.
+- [06 Reporte Final del Proyecto](docs/04%20Cierre/06%20Reporte%20Final%20del%20Proyecto%20V_1_0_0.md): descripción, desempeño, riesgos y evaluación del éxito.
+- [07 Reporte Final de Lecciones Aprendidas](docs/04%20Cierre/07%20Reporte%20Final%20de%20Lecciones%20Aprendidas%20V_1_0_0.md): matriz de aprendizajes y conclusiones.
+
+## Fase 05: Video del proyecto
+
+- [Guion del video](docs/05%20Video%20proyecto/Guion%20del%20video.md): estructura minuto a minuto (1 minuto de presentación y 4 de demostración) y lista de verificación. El archivo `.mp4` va en esa misma carpeta.
 
 ## Reducción del impacto ambiental (Green IT)
 
@@ -120,6 +144,8 @@ cd src/frontend && npm ci && npm run typecheck && npm run lint && npm run test:c
 docker compose -f docker-compose.e2e.yml up --build --abort-on-container-exit --exit-code-from e2e
 # Verificar los enlaces y referencias cruzadas de la documentación
 python scripts/verificar_enlaces.py
+# Recalcular el EVM y regenerar los gráficos de los tableros de cierre
+python scripts/calcular_evm.py --graficos
 ```
 
 ## Código fuente
@@ -137,11 +163,14 @@ python scripts/verificar_enlaces.py
 |---|---|---|---|
 | Inicio · 04 Registro de supuestos y restricciones | 1.1.0 | 08/09/2026 | Corrección de R01 (presupuesto S/ 16,300) |
 | Inicio · 08 Usuarios | 1.3.0 | 20/10/2026 | Se elimina el rol `ADMINISTRADOR` (IMP-008) |
-| Inicio · 10 Stack tecnológico | 1.4.0 | 16/11/2026 | Sprint 4: Playwright, lint, CI/CD, Docker y Render |
-| Inicio · 11 Base de datos | 1.1.0 | 05/10/2026 | Modelo implementado frente al DDL |
-| Inicio · 12 Modelo C4 | 1.2.0 | 16/11/2026 | Vista de despliegue en producción (un solo contenedor) |
+| Inicio · 03 Declaración de la visión | 1.1.0 | 28/11/2026 | Factor de conversión de CO₂ a árboles (RF-010) |
+| Inicio · 06 Requisitos funcionales | 1.1.0 | 28/11/2026 | Estado de implementación de cada requisito |
+| Inicio · 07 Requisitos no funcionales | 1.1.0 | 28/11/2026 | Estado de cumplimiento de cada requisito |
+| Inicio · 10 Stack tecnológico | 1.5.0 | 28/11/2026 | Motor de rutas propio, mapa con Leaflet y reportes CSV |
+| Inicio · 11 Base de datos | 1.2.0 | 28/11/2026 | Tablas de rutas implementadas (9 de 11) frente al DDL |
+| Inicio · 12 Modelo C4 | 1.3.0 | 28/11/2026 | Estado de implementación y componentes nuevos |
 | Planificación · 02 Artefactos Jira | 1.1.0 | 05/10/2026 | Estado real de Jira |
-| Planificación · 03 Registro de riesgos | 1.3.0 | 16/11/2026 | Se añaden RSK-13 y RSK-14 |
+| Planificación · 03 Registro de riesgos | 1.4.0 | 28/11/2026 | Se añaden RSK-15 y RSK-16 y se actualiza el estado de RSK-05 y RSK-09 |
 | Sprint 01 · Informe de estado | 1.1.0 | 20/10/2026 | Se retira la demostración del informe |
 | Sprint 02 · Informe de estado, Revisión y Retrospectiva | 2.2.0 | 20/10/2026 | Criterios por ruta, cierre de sprint y rutas |
 | Sprint 02 · Registro de Impedimentos | 2.1.0 | 05/10/2026 | DEF-002 y DEF-003 corregidos |
@@ -154,3 +183,5 @@ python scripts/verificar_enlaces.py
 | Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, glosario y referencias cruzadas |
 | Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, guía del YAML y referencias cruzadas |
 | Sprint 4 · 01 Revisión, 02 Retrospectiva, 03 Análisis Playwright, 04 Usabilidad y 05 Guía de despliegue | 1.1.0 | 17/11/2026 | Primera versión del 16/11; actualizada con el despliegue en producción y las cifras de `main` |
+| Sprint 5 · 01 Matriz de cumplimiento | 1.0.0 | 24/11/2026 | Primera versión |
+| Cierre · 01 a 07 (Estado, Variación, EVM, Tableros, Radiadores, Final y Lecciones) | 1.0.0 | 28/11/2026 | Primera versión |

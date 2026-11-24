@@ -1,6 +1,7 @@
 """
-Modelos ORM — Sprint 1; optimizaciones, rutas y paradas_ruta se añaden en el Sprint final.
-Tablas: usuarios, conductores, bodegas, vehiculos, restricciones_vehiculares, pedidos, optimizaciones, rutas, paradas_ruta.
+Modelos ORM — Sprint 1; ejecuciones_optimizacion, rutas y ruta_paradas se añaden en el Sprint final.
+Tablas: usuarios, conductores, bodegas, vehiculos, restricciones_vehiculares, pedidos,
+ejecuciones_optimizacion, rutas y ruta_paradas.
 Alineados con el DDL del Documento 11 (Base de datos V_1_0_0).
 """
 
@@ -139,7 +140,7 @@ class Pedido(Base):
 class Optimizacion(Base):
     """Una corrida del motor de rutas: sus métricas permiten medir el CO₂ evitado de forma acumulada (RF-010)."""
 
-    __tablename__ = "optimizaciones"
+    __tablename__ = "ejecuciones_optimizacion"
 
     optimizacion_id = Column(String(36), primary_key=True, default=_uuid)
     creado_por = Column(String(36), ForeignKey("usuarios.usuario_id"), nullable=True)
@@ -161,7 +162,7 @@ class Ruta(Base):
     __tablename__ = "rutas"
 
     ruta_id = Column(String(36), primary_key=True, default=_uuid)
-    optimizacion_id = Column(String(36), ForeignKey("optimizaciones.optimizacion_id"), nullable=False)
+    optimizacion_id = Column(String(36), ForeignKey("ejecuciones_optimizacion.optimizacion_id"), nullable=False)
     vehiculo_id = Column(String(36), ForeignKey("vehiculos.vehiculo_id"), nullable=False)
     estado = Column(String(20), nullable=False, default="PLANIFICADA")  # PLANIFICADA | CANCELADA
     distancia_km = Column(Numeric(10, 3), nullable=False)
@@ -180,7 +181,7 @@ class Ruta(Base):
 
 
 class ParadaRuta(Base):
-    __tablename__ = "paradas_ruta"
+    __tablename__ = "ruta_paradas"
 
     parada_id = Column(String(36), primary_key=True, default=_uuid)
     ruta_id = Column(String(36), ForeignKey("rutas.ruta_id"), nullable=False)
