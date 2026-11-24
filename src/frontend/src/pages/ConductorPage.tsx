@@ -30,7 +30,7 @@ function posicionActual(): Promise<{ lat: number; lng: number } | null> {
     navigator.geolocation.getCurrentPosition(
       (p) => resolver({ lat: Number(p.coords.latitude.toFixed(6)), lng: Number(p.coords.longitude.toFixed(6)) }),
       () => resolver(null),
-      { timeout: 4000, maximumAge: 30_000 },
+      { timeout: 2000, maximumAge: 60_000 },
     );
   });
 }
@@ -326,7 +326,8 @@ export default function ConductorPage() {
     const parada = entregando;
     if (!parada?.parada_id) return;
     setEntregando(null);
-    const p = await posicionActual();
+    // Se usa la última posición medida; si todavía no hay ninguna, se pide una con un plazo corto para no demorar la entrega.
+    const p = posicion ? { lat: posicion[0], lng: posicion[1] } : await posicionActual();
     const ok = encolar({
       tipo: 'ENTREGA', parada_id: parada.parada_id, clave_sync: nuevaClave(), evidencia_tipo: tipo, evidencia,
       latitud: p?.lat, longitud: p?.lng, momento: new Date().toISOString(),

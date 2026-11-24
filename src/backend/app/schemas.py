@@ -9,6 +9,8 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from app.tiempo import como_utc, lima_a_utc
+
 # ═══════════════════════════════════════════════════════════════════════
 #  AUTH (EN-002)
 # ═══════════════════════════════════════════════════════════════════════
@@ -147,9 +149,15 @@ class PedidoCreate(BaseModel):
     ventana_inicio: datetime
     ventana_fin: datetime
 
+    @field_validator("ventana_inicio")
+    @classmethod
+    def inicio_en_utc(cls, v: datetime) -> datetime:
+        return lima_a_utc(v)
+
     @field_validator("ventana_fin")
     @classmethod
     def ventana_fin_posterior(cls, v: datetime, info) -> datetime:
+        v = lima_a_utc(v)
         inicio = info.data.get("ventana_inicio")
         if inicio and v <= inicio:
             raise ValueError("ventana_fin debe ser posterior a ventana_inicio")
@@ -166,6 +174,11 @@ class PedidoUpdate(BaseModel):
     ventana_inicio: Optional[datetime] = None
     ventana_fin: Optional[datetime] = None
     estado: Optional[str] = None
+
+    @field_validator("ventana_inicio", "ventana_fin")
+    @classmethod
+    def ventana_en_utc(cls, v: Optional[datetime]) -> Optional[datetime]:
+        return lima_a_utc(v)
 
 
 class PedidoOut(BaseModel):
@@ -185,6 +198,11 @@ class PedidoOut(BaseModel):
     creado_en: datetime
 
     model_config = {"from_attributes": True}
+
+    @field_validator("ventana_inicio", "ventana_fin", "entregado_en", "creado_en")
+    @classmethod
+    def instante_en_utc(cls, v: Optional[datetime]) -> Optional[datetime]:
+        return como_utc(v)  # SQLite no guarda la zona horaria: lo leído está en UTC
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -470,6 +488,7 @@ class ParametrosIn(BaseModel):
     velocidad_kmh: float = Field(..., ge=5, le=80)
     servicio_min: float = Field(..., ge=0, le=60)
     limite_segundos: float = Field(..., ge=1, le=45)
+    algoritmo: str = Field("clarke_wright_2opt", pattern=r"^(clarke_wright_2opt|tabu)$")
 
 
 class ParametrosOut(ParametrosIn):

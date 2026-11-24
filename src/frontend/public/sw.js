@@ -8,9 +8,22 @@
 const VERSION = 'ecologistica-v4';
 const TESELAS = 'ecologistica-teselas-v1';
 const MAX_TESELAS = 300;
+// El servidor añade «Vary» (CORS, compresión): se ignora para que una petición de módulo coincida con lo ya guardado.
+const COINCIDIR = { ignoreVary: true };
 
 self.addEventListener('install', (evento) => {
-  evento.waitUntil(caches.open(VERSION).then((c) => c.addAll(['/', '/manifest.webmanifest'])).then(() => self.skipWaiting()));
+  evento.waitUntil((async () => {
+    const cache = await caches.open(VERSION);
+    await cache.addAll(['/', '/manifest.webmanifest', '/img/icono-192.png']);
+    // precache.json lo genera la compilación con los módulos de la app del conductor; si falta, se sigue con lo básico.
+    try {
+      const lista = await (await fetch('/precache.json', { cache: 'no-store' })).json();
+      await Promise.all(lista.map((u) => cache.add(u).catch(() => undefined)));
+    } catch {
+      /* sin lista: el shell y lo que cargue la página se guardan por el mensaje o al usarse */
+    }
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (evento) => {
@@ -61,14 +74,14 @@ self.addEventListener('fetch', (evento) => {
 
   if (peticion.mode === 'navigate') {
     evento.respondWith(
-      fetch(peticion).catch(() => caches.match('/').then((r) => r || Response.error())),
+      fetch(peticion).catch(() => caches.match('/', COINCIDIR).then((r) => r || Response.error())),
     );
     return;
   }
 
   if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/img/') || url.pathname === '/manifest.webmanifest') {
     evento.respondWith(
-      caches.match(peticion).then((guardada) => guardada || fetch(peticion).then((respuesta) => {
+      caches.match(peticion, COINCIDIR).then((guardada) => guardada || fetch(peticion).then((respuesta) => {
         const copia = respuesta.clone();
         if (respuesta.ok) caches.open(VERSION).then((c) => c.put(peticion, copia));
         return respuesta;

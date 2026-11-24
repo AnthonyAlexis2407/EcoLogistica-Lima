@@ -52,29 +52,20 @@ from app.schemas import (
     SinAsignarOut,
     VehiculoExcluidoOut,
 )
+from app.tiempo import LIMA, ahora, utc
 
 log = logging.getLogger("ecologistica.servicios")
-LIMA = timezone(timedelta(hours=-5))  # Perú no usa horario de verano
 MAX_PEDIDOS_POR_OPTIMIZACION = 1000  # RNF-006
 SLA_REOPTIMIZACION_S = 45.0  # RF-007
 UMBRAL_DESVIO_KM = 0.5  # RF-004: más de 500 m fuera de la ruta planificada
 
-PARAMETROS_POR_DEFECTO = {
+PARAMETROS_POR_DEFECTO: dict[str, float | str] = {
     "velocidad_kmh": 25.0,
     "servicio_min": 10.0,
     "limite_segundos": settings.OPTIMIZADOR_LIMITE_SEGUNDOS,
+    "algoritmo": "clarke_wright_2opt",
 }
-
-
-def ahora() -> datetime:
-    return datetime.now(timezone.utc)
-
-
-def utc(valor: datetime | None) -> datetime | None:
-    """SQLite devuelve fechas sin zona horaria; se interpretan como UTC."""
-    if valor is not None and valor.tzinfo is None:
-        return valor.replace(tzinfo=timezone.utc)
-    return valor
+ALGORITMOS = ("clarke_wright_2opt", "tabu")
 
 
 def sumar_dias_habiles(desde: datetime, dias: int) -> datetime:
@@ -90,17 +81,20 @@ def sumar_dias_habiles(desde: datetime, dias: int) -> datetime:
 
 # ── Parámetros y zonas ─────────────────────────────────────────────────
 
-async def cargar_parametros_dict(db: AsyncSession) -> dict[str, float]:
+async def cargar_parametros_dict(db: AsyncSession) -> dict[str, float | str]:
     valores = dict(PARAMETROS_POR_DEFECTO)
     for fila in (await db.execute(select(ParametroSistema))).scalars().all():
-        if fila.clave in valores:
+        if fila.clave == "algoritmo" and fila.valor in ALGORITMOS:
+            valores["algoritmo"] = fila.valor
+        elif fila.clave in valores and fila.clave != "algoritmo":
             valores[fila.clave] = float(fila.valor)
     return valores
 
 
 async def cargar_parametros(db: AsyncSession) -> tuple[Parametros, float]:
     valores = await cargar_parametros_dict(db)
-    return Parametros(valores["velocidad_kmh"], valores["servicio_min"]), valores["limite_segundos"]
+    parametros = Parametros(float(valores["velocidad_kmh"]), float(valores["servicio_min"]), str(valores["algoritmo"]))
+    return parametros, float(valores["limite_segundos"])
 
 
 async def cargar_zonas(db: AsyncSession) -> tuple[Zona, ...]:

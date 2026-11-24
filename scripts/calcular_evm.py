@@ -13,9 +13,14 @@ SUPUESTOS DECLARADOS (no existe una bitácora de horas ni costos reales del equi
    iteración de la hoja de ruta (Acta de constitución y Artefactos Jira). Las épicas transversales (EL-6, 53 puntos) se
    reparten en partes casi iguales entre las cuatro iteraciones.
 3. Valor Ganado (EV): regla de crédito fijo 0/50/100 sobre los puntos de cada ítem del backlog, acreditado en el sprint en
-   que sus pruebas lo verifican (Revisiones de Sprint y Matriz de cumplimiento). Un ítem parcial gana el 50 %.
+   que sus pruebas lo verifican (Revisiones de Sprint y Matriz de cumplimiento). Un ítem gana el 100 % cuando está
+   implementado y sus criterios de aceptación verificables por el equipo se cumplen con pruebas automáticas; gana el 50 % si
+   queda implementado pero depende de infraestructura de pago o de validación externa que aún no existe.
+   El trabajo de calidad, seguridad, Green IT, E2E y despliegue no tenía puntos en el backlog y NO se acredita (criterio
+   conservador).
 4. Costo Real (AC): dedicación planificada constante: AC = BAC x semanas transcurridas desde el 01/09/2026 / 14 semanas
    presupuestadas.
+5. El proyecto tiene cuatro sprints; el cuarto se extiende hasta la fecha de corte, el 28/11/2026.
 """
 
 from __future__ import annotations
@@ -36,24 +41,37 @@ SPRINTS = [
     ("Sprint 1", date(2026, 9, 22), 24),
     ("Sprint 2", date(2026, 10, 6), 68),
     ("Sprint 3", date(2026, 10, 20), 94),
-    ("Sprint 4", date(2026, 11, 16), 116),
-    ("Sprint 5 (final)", date(2026, 11, 28), 116),
+    ("Sprint 4 (cierre)", date(2026, 11, 28), 116),
 ]
 
-# (id, puntos, crédito, índice del sprint en que se acredita)
+# (id, puntos, crédito, índice del sprint en que se acredita); un ítem puede acreditarse en dos momentos (50 % y luego el resto).
 GANADO = [
-    ("US-001", 3, 1.0, 1), ("US-003", 5, 1.0, 1), ("EN-002", 5, 0.5, 1),
-    ("EN-007", 3, 0.5, 2),
-    ("EN-009", 3, 0.5, 3),
-    ("US-005", 13, 0.5, 4), ("US-007", 5, 0.5, 4), ("US-008", 8, 0.5, 4), ("US-009", 3, 0.5, 4),
-    ("US-010", 5, 0.5, 4), ("EN-005", 5, 1.0, 4), ("EN-001", 8, 0.5, 4),
+    # Sprint 1
+    ("US-001", 3, 1.0, 0), ("US-003", 5, 1.0, 0), ("EN-002", 5, 0.5, 0),
+    # Sprint 2 y 3: avances parciales de accesibilidad y de reducción de recómputo
+    ("EN-007", 3, 0.5, 1),
+    ("EN-009", 3, 0.5, 2),
+    # Sprint 4 (hasta el 28/11): implementación completa y verificada con pruebas
+    ("EN-002", 5, 0.5, 3), ("EN-007", 3, 0.5, 3), ("EN-009", 3, 0.5, 3),
+    ("US-005", 13, 1.0, 3), ("US-007", 5, 1.0, 3), ("US-008", 8, 1.0, 3), ("US-009", 3, 1.0, 3),
+    ("US-010", 5, 1.0, 3), ("EN-005", 5, 1.0, 3), ("EN-001", 8, 1.0, 3), ("US-002", 8, 1.0, 3),
+    ("US-004", 5, 1.0, 3), ("US-006", 8, 1.0, 3), ("EN-004", 3, 1.0, 3), ("EN-008", 5, 1.0, 3),
+    ("EN-010", 8, 1.0, 3),
+    # Implementados pero que requieren infraestructura de pago para cumplir su medida en producción
+    ("EN-003", 5, 0.5, 3), ("EN-006", 8, 0.5, 3),
 ]
 
-NO_INICIADOS = ["US-002", "US-004", "US-006", "EN-003", "EN-004", "EN-006", "EN-008", "EN-010"]
-PUNTOS_NO_INICIADOS = {"US-002": 8, "US-004": 5, "US-006": 8, "EN-003": 5, "EN-004": 3, "EN-006": 8, "EN-008": 5, "EN-010": 8}
+PARCIALES = {"EN-003": 5, "EN-006": 8}  # 50 %: el failover y el escalado se demuestran con dos instancias, no en la nube
+NO_INICIADOS: list[str] = []
+PUNTOS_NO_INICIADOS: dict[str, int] = {}
+ITEMS_TOTALES = 20
+HECHOS_FINAL = [
+    "US-001", "US-002", "US-003", "US-004", "US-005", "US-006", "US-007", "US-008", "US-009", "US-010",
+    "EN-001", "EN-002", "EN-004", "EN-005", "EN-007", "EN-008", "EN-009", "EN-010",
+]
 
 # Flujo acumulado de ítems (de 20) al cierre de cada sprint: (Hecho, En curso, Por hacer)
-FLUJO = [(0, 0, 20), (2, 1, 17), (2, 2, 16), (2, 3, 15), (3, 9, 8)]
+FLUJO = [(2, 1, 17), (2, 2, 16), (2, 3, 15), (18, 2, 0)]
 
 
 def semanas(fin: date) -> float:
@@ -99,7 +117,7 @@ def tablas() -> None:
     for f in filas:
         print(f"| {f['sprint']} ({f['fin']:%d/%m}) | {f['pv_pts']} | {f['ev_pts']:g} | {d(f['pv'])} | {d(f['ev'])} | {d(f['ac'])} | "
               f"{d(f['sv'])} | {d(f['cv'])} | {d(f['spi'], 3)} | {d(f['cpi'], 3)} |")
-    print("\nPeriodo actual (Sprint 5) = acumulado actual - acumulado anterior:")
+    print("\nPeriodo actual (Sprint 4, hasta el cierre) = acumulado actual - acumulado del Sprint 3:")
     a, b = filas[-1], filas[-2]
     pv_p, ev_p, ac_p = a["pv"] - b["pv"], a["ev"] - b["ev"], a["ac"] - b["ac"]
     print(f"PV={d(pv_p)} EV={d(ev_p)} AC={d(ac_p)} SV={d(ev_p - pv_p)} CV={d(ev_p - ac_p)} "
@@ -109,29 +127,8 @@ def tablas() -> None:
     e = eac(a)
     print(f"\nEAC1 = {d(e['f1'])} | EAC2 = {d(e['f2'])} | EAC3 = {d(e['f3'])}")
     print(f"ETC (con EAC1) = {d(e['f1'] - a['ac'])} | VAC (BAC-EAC1) = {d(BAC - e['f1'])}")
-    print(f"Puntos ganados: {a['ev_pts']:g} de {PUNTOS_TOTALES}; sin iniciar: {sum(PUNTOS_NO_INICIADOS.values())} pts en {len(NO_INICIADOS)} ítems")
-
-
-# Escenario de re-baselining PROPUESTO (no aprobado por el Product Owner): los 8 ítems sin iniciar pasan al backlog de
-# mantenimiento y se incorporan, como cambios de alcance, el trabajo de calidad no planificado ya ejecutado.
-# Los puntos de los cambios son una estimación relativa del equipo, pendiente de validación.
-CAMBIOS_PROPUESTOS = [("CR-01 Calidad, seguridad y accesibilidad (Sprint 3)", 8),
-                      ("CR-02 Reducción del impacto ambiental, Green IT (Sprint 4)", 8),
-                      ("CR-03 E2E, CI/CD, despliegue y usabilidad (Sprints 4 y 5)", 13)]
-
-
-def escenario_rebaseline() -> None:
-    filas = calcular()
-    final = filas[-1]
-    quitados = sum(PUNTOS_NO_INICIADOS.values())
-    agregados = sum(p for _, p in CAMBIOS_PROPUESTOS)
-    total = PUNTOS_TOTALES - quitados + agregados
-    valor = BAC / total
-    ev_pts = final["ev_pts"] + agregados
-    ev, pv, ac = ev_pts * valor, total * valor, final["ac"]
-    print(f"\nRe-baselining propuesto: {PUNTOS_TOTALES} - {quitados} + {agregados} = {total} pts; valor por punto USD {d(valor)}")
-    print(f"EV={d(ev)} PV={d(pv)} AC={d(ac)} SV={d(ev - pv)} CV={d(ev - ac)} SPI={d(ev / pv, 3)} CPI={d(ev / ac, 3)} "
-          f"% ganado={d(ev / BAC * 100, 1)}  EAC1={d(BAC / (ev / ac))}")
+    pendiente = sum(PARCIALES.values()) / 2
+    print(f"Puntos ganados: {a['ev_pts']:g} de {PUNTOS_TOTALES}; pendientes por el 50 % de {', '.join(PARCIALES)}: {pendiente:g} pts")
 
 
 # ── Gráficos SVG sin dependencias ───────────────────────────────────────
@@ -180,7 +177,7 @@ def _leyenda(items, x, y):
 def grafico_evm(filas):
     ancho, alto, x0, x1, y0, y1 = 640, 340, 70, 610, 50, 280
     ymax = 25000
-    etiquetas = ["Inicio"] + [f["sprint"].replace(" (final)", "") for f in filas]
+    etiquetas = ["Inicio"] + [f["sprint"].replace(" (cierre)", "") for f in filas]
     cuerpo = _ejes(x0, y0, x1, y1, ymax, etiquetas, 5000)
 
     def pos(i, v):
@@ -197,7 +194,7 @@ def grafico_evm(filas):
 def grafico_indices(filas):
     ancho, alto, x0, x1, y0, y1 = 640, 340, 70, 610, 50, 280
     ymax = 1.5
-    etiquetas = [f["sprint"].replace(" (final)", "") for f in filas]
+    etiquetas = [f["sprint"].replace(" (cierre)", "") for f in filas]
     cuerpo = _ejes(x0, y0, x1, y1, ymax, etiquetas, 0.25)
     ref = y1 - (y1 - y0) * 1.0 / ymax
     cuerpo += f'<line x1="{x0}" y1="{ref}" x2="{x1}" y2="{ref}" stroke="#059669" stroke-dasharray="5 4"/><text x="{x1 - 4}" y="{ref - 5}" text-anchor="end" font-size="10" fill="#059669">1,0 = según lo planificado</text>'
@@ -213,7 +210,7 @@ def grafico_indices(filas):
 
 def grafico_flujo():
     ancho, alto, x0, x1, y0, y1 = 640, 340, 70, 610, 50, 280
-    etiquetas = [s[0].replace(" (final)", "") for s in SPRINTS]
+    etiquetas = [s[0].replace(" (cierre)", "") for s in SPRINTS]
     n = len(etiquetas)
     cuerpo = _ejes(x0, y0, x1, y1, 20, etiquetas, 5)
 
@@ -231,7 +228,7 @@ def grafico_flujo():
 
 def grafico_burndown(filas):
     ancho, alto, x0, x1, y0, y1 = 640, 340, 70, 610, 50, 280
-    etiquetas = ["Inicio"] + [f["sprint"].replace(" (final)", "") for f in filas]
+    etiquetas = ["Inicio"] + [f["sprint"].replace(" (cierre)", "") for f in filas]
     cuerpo = _ejes(x0, y0, x1, y1, 120, etiquetas, 20)
 
     def pos(i, v):
@@ -248,7 +245,7 @@ def grafico_burndown(filas):
 
 def grafico_burnup(filas):
     ancho, alto, x0, x1, y0, y1 = 640, 340, 70, 610, 50, 280
-    etiquetas = ["Inicio"] + [f["sprint"].replace(" (final)", "") for f in filas]
+    etiquetas = ["Inicio"] + [f["sprint"].replace(" (cierre)", "") for f in filas]
     cuerpo = _ejes(x0, y0, x1, y1, 120, etiquetas, 20)
 
     def pos(i, v):
@@ -284,7 +281,7 @@ def grafico_burbujas(filas):
         y = y1 - (y1 - y0) * min(cpi, 1.5) / 1.5
         radio = 8 + 40 * min(csi, 1.0)
         cuerpo += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{radio:.1f}" fill="#2563eb" fill-opacity="0.35" stroke="#1d4ed8"/>'
-        cuerpo += f'<text x="{x:.1f}" y="{y - radio - 4:.1f}" text-anchor="middle" font-size="10" fill="#111827">{f["sprint"].replace(" (final)", "")}</text>'
+        cuerpo += f'<text x="{x:.1f}" y="{y - radio - 4:.1f}" text-anchor="middle" font-size="10" fill="#111827">{f["sprint"].replace(" (cierre)", "")}</text>'
     return _marco(ancho, alto, "SPI vs CPI (tamaño de burbuja = CSI = SPI x CPI)", cuerpo)
 
 
@@ -316,11 +313,12 @@ def _texto_lineas(x, y, lineas, tam=11, paso=15, color="#111827"):
 
 def grafico_kanban():
     """Instantánea del tablero Scrum al 28/11/2026: 20 ítems del backlog repartidos por columna."""
-    ancho, alto = 700, 360
-    hecho = ["US-001", "US-003", "EN-005"]
-    curso = [i for i, _, c, _ in GANADO if c == 0.5]
-    por_hacer = sorted(NO_INICIADOS)
-    columnas = [("Por hacer (8)", "#e5e7eb", por_hacer), ("En curso (9, parciales)", "#fde68a", curso), ("Hecho (3)", "#a7f3d0", hecho)]
+    ancho, alto = 700, 400
+    columnas = [
+        ("Por hacer (0)", "#e5e7eb", []),
+        (f"En curso ({len(PARCIALES)})", "#fde68a", sorted(PARCIALES)),
+        (f"Hecho ({len(HECHOS_FINAL)})", "#a7f3d0", HECHOS_FINAL),
+    ]
     cuerpo = ""
     for k, (titulo, color, ids) in enumerate(columnas):
         x = 20 + k * 225
@@ -328,10 +326,11 @@ def grafico_kanban():
         cuerpo += f'<text x="{x + 105}" y="68" text-anchor="middle" font-size="13" font-weight="bold" fill="#111827">{titulo}</text>'
         for j, ident in enumerate(ids):
             fila, col = divmod(j, 2)
-            cx, cy = x + 10 + col * 100, 82 + fila * 32
-            cuerpo += f'<rect x="{cx}" y="{cy}" width="92" height="26" fill="#ffffff" stroke="#6b7280" rx="4"/>'
-            cuerpo += f'<text x="{cx + 46}" y="{cy + 17}" text-anchor="middle" font-size="12" fill="#111827">{ident}</text>'
-    cuerpo += '<text x="350" y="352" text-anchor="middle" font-size="10" fill="#374151">Cuello de botella: 9 ítems parciales esperan criterios que dependen de la app móvil, la re-optimización y el PO</text>'
+            cx, cy = x + 10 + col * 100, 82 + fila * 30
+            cuerpo += f'<rect x="{cx}" y="{cy}" width="92" height="24" fill="#ffffff" stroke="#6b7280" rx="4"/>'
+            cuerpo += f'<text x="{cx + 46}" y="{cy + 16}" text-anchor="middle" font-size="12" fill="#111827">{ident}</text>'
+    cuerpo += '<text x="350" y="360" text-anchor="middle" font-size="10" fill="#374151">EN-003 (failover) y EN-006 (escalado) están implementados y medidos con dos instancias;</text>'
+    cuerpo += '<text x="350" y="375" text-anchor="middle" font-size="10" fill="#374151">cumplir su medida en la nube exige un plan de pago de la plataforma (varias instancias y escalado automático).</text>'
     return _marco(ancho, alto, "Tablero Scrum al 28/11/2026 (20 ítems del backlog)", cuerpo)
 
 
@@ -339,25 +338,25 @@ def grafico_retrospectiva():
     ancho, alto = 760, 380
     columnas = [
         ("Qué funcionó", "#a7f3d0", [
-            "Tres flujos de Actions en verde",
-            "Pruebas E2E en 3 navegadores",
-            "Trazabilidad historia-commit-PR",
-            "Motor de rutas con 98 % de cobertura",
-            "Documentación con enlaces verificados",
+            "Flujos de Actions en verde",
+            "E2E en 3 navegadores y móvil",
+            "Trazabilidad requisito-prueba",
+            "Auditoría contra los requisitos",
+            "Documentos con enlaces verificados",
         ]),
         ("Qué mejorar", "#fde68a", [
-            "Ruta crítica (EN-001) iniciada tarde",
+            "El motor y la app de campo llegaron tarde",
             "Docker con poca memoria local",
             "Demostración al Product Owner",
             "SUS con usuarios reales",
             "Registro de horas por sprint",
         ]),
         ("Acciones", "#bfdbfe", [
-            "Spike formal GA / Tabú / OR-Tools",
-            "Ejecutar la suite completa en Actions",
+            "Spike EN-001 ejecutado y publicado",
+            "Suite completa en Actions",
+            "Pruebas ofensivas en cada commit",
             "Agendar demo con fecha desde el inicio",
-            "Repetir el SUS con 5+ usuarios",
-            "Bitácora de horas y re-baselining",
+            "Bitácora de horas desde el Sprint 1",
         ]),
     ]
     cuerpo = ""
@@ -369,7 +368,7 @@ def grafico_retrospectiva():
             y = 86 + j * 54
             cuerpo += f'<rect x="{x + 12}" y="{y}" width="206" height="44" fill="#fffbe6" stroke="#9ca3af" rx="3"/>'
             cuerpo += _texto_lineas(x + 20, y + 26, [nota], tam=11)
-    return _marco(ancho, alto, "Tablero de retrospectiva del cierre (Sprint 5)", cuerpo)
+    return _marco(ancho, alto, "Tablero de retrospectiva del cierre (Sprint 4)", cuerpo)
 
 
 def escribir_graficos(carpeta: Path) -> None:
@@ -393,6 +392,5 @@ def escribir_graficos(carpeta: Path) -> None:
 
 if __name__ == "__main__":
     tablas()
-    escenario_rebaseline()
     if "--graficos" in sys.argv:
         escribir_graficos(Path("docs/04 Cierre/imagenes"))

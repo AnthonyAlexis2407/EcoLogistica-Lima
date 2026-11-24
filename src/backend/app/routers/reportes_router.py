@@ -26,6 +26,7 @@ from app.database import get_db
 from app.exportar import generar_pdf, generar_xlsx
 from app.models import Optimizacion, ParadaRuta, Pedido, Ruta, Usuario
 from app.optimizador import arboles_equivalentes
+from app.tiempo import lima_a_utc
 
 router = APIRouter(prefix="/api/reportes", tags=["Reportes (RF-006)"])
 
@@ -83,9 +84,9 @@ def _filtros_pedido(distrito: str | None, desde: datetime | None, hasta: datetim
     if distrito:
         filtros.append(Pedido.distrito == distrito)
     if desde:
-        filtros.append(Pedido.creado_en >= desde)
+        filtros.append(Pedido.creado_en >= lima_a_utc(desde))
     if hasta:
-        filtros.append(Pedido.creado_en <= hasta)
+        filtros.append(Pedido.creado_en <= lima_a_utc(hasta))
     return filtros
 
 
@@ -175,9 +176,9 @@ def _cumple(pedido: Pedido, distrito: str | None, desde: datetime | None, hasta:
 async def _datos_ambiental(db: AsyncSession, desde: datetime | None, hasta: datetime | None) -> tuple[list[str], list[list]]:
     consulta = select(Optimizacion).order_by(Optimizacion.creado_en.desc()).limit(LIMITE_FILAS)
     if desde:
-        consulta = consulta.where(Optimizacion.creado_en >= desde)
+        consulta = consulta.where(Optimizacion.creado_en >= lima_a_utc(desde))
     if hasta:
-        consulta = consulta.where(Optimizacion.creado_en <= hasta)
+        consulta = consulta.where(Optimizacion.creado_en <= lima_a_utc(hasta))
     optimizaciones = (await db.execute(consulta)).scalars().all()
     filas = []
     for o in optimizaciones:

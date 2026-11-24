@@ -18,6 +18,7 @@ from app.database import get_db
 from app.distritos import distrito_mas_cercano
 from app.models import Bodega, Pedido, Usuario, Vehiculo
 from app.schemas import MensajeResponse, PedidoCreate, PedidoOut, PedidoUpdate
+from app.tiempo import lima_a_utc
 
 router = APIRouter(prefix="/api/pedidos", tags=["Pedidos (US-003)"])
 
@@ -65,9 +66,9 @@ async def listar_pedidos(
     if distrito:
         filtros.append(Pedido.distrito == distrito)
     if desde:
-        filtros.append(Pedido.creado_en >= desde)
+        filtros.append(Pedido.creado_en >= lima_a_utc(desde))
     if hasta:
-        filtros.append(Pedido.creado_en <= hasta)
+        filtros.append(Pedido.creado_en <= lima_a_utc(hasta))
 
     orden = (Pedido.creado_en.desc(), Pedido.pedido_id)
     if q and q.strip():

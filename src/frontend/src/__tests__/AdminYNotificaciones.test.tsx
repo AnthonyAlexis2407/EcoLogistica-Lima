@@ -32,7 +32,7 @@ beforeEach(() => {
   vi.mocked(adminApi.conductores).mockResolvedValue([]);
   vi.mocked(adminApi.zonas).mockResolvedValue([]);
   vi.mocked(adminApi.solicitudes).mockResolvedValue([]);
-  vi.mocked(adminApi.parametros).mockResolvedValue({ velocidad_kmh: 25, servicio_min: 10, limite_segundos: 40 });
+  vi.mocked(adminApi.parametros).mockResolvedValue({ velocidad_kmh: 25, servicio_min: 10, limite_segundos: 40, algoritmo: 'clarke_wright_2opt' });
   vi.mocked(notificacionesApi.pendientesDeContacto).mockResolvedValue([]);
 });
 
@@ -102,7 +102,7 @@ describe('AdminPage', () => {
     await usuario.clear(velocidad);
     await usuario.type(velocidad, '30');
     await usuario.click(screen.getByRole('button', { name: 'Guardar parámetros' }));
-    await waitFor(() => expect(adminApi.guardarParametros).toHaveBeenCalledWith('tok', { velocidad_kmh: 30, servicio_min: 10, limite_segundos: 40 }));
+    await waitFor(() => expect(adminApi.guardarParametros).toHaveBeenCalledWith('tok', { velocidad_kmh: 30, servicio_min: 10, limite_segundos: 40, algoritmo: 'clarke_wright_2opt' }));
   });
 
   it('las zonas protegidas se registran y se eliminan con confirmación', async () => {

@@ -500,6 +500,7 @@ export interface Parametros {
   velocidad_kmh: number;
   servicio_min: number;
   limite_segundos: number;
+  algoritmo: 'clarke_wright_2opt' | 'tabu';
 }
 
 export interface Zona {

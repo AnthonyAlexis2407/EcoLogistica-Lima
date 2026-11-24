@@ -10,7 +10,7 @@ Ambos son deliberadamente simples: sirven para entregar datos tabulares, no maqu
 
 import io
 import zipfile
-from xml.sax.saxutils import escape
+from html import escape  # escapa & < > y comillas: válido también para texto y atributos XML
 
 _TIPOS_PELIGROSOS = ("=", "+", "-", "@", "\t", "\r")
 

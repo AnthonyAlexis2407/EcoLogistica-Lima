@@ -130,9 +130,10 @@ async def test_parametros_del_algoritmo_se_guardan_y_cambian_el_resultado(api):
     assert por_defecto["velocidad_kmh"] == 25 and por_defecto["servicio_min"] == 10
     rapido = {"velocidad_kmh": 60, "servicio_min": 2, "limite_segundos": 30}
     assert (await api.client.put("/api/admin/parametros", json=rapido, headers=admin)).status_code == 200
-    assert (await api.client.get("/api/admin/parametros", headers=admin)).json() == rapido
+    assert (await api.client.get("/api/admin/parametros", headers=admin)).json() == {**rapido, "algoritmo": "clarke_wright_2opt"}
     plan = (await api.client.post("/api/rutas/optimizar", headers=operador)).json()
     assert plan["rutas"][0]["duracion_min"] < 120
+    assert plan["algoritmo"] == "Clarke-Wright + 2-opt"
     fuera = await api.client.put("/api/admin/parametros", json={**rapido, "velocidad_kmh": 500}, headers=admin)
     assert fuera.status_code == 422
     assert (await api.client.put("/api/admin/parametros", json=rapido, headers=operador)).status_code == 403
@@ -344,3 +345,15 @@ async def test_pedidos_creados_directamente_en_la_base_conservan_tipos(api):
         await sesion.commit()
         leido = (await sesion.execute(text("SELECT 1"))).scalar_one()
     assert leido == 1
+
+
+@pytest.mark.asyncio
+async def test_el_administrador_cambia_el_algoritmo_a_busqueda_tabu_sin_tocar_otros_modulos(api):
+    admin, operador = await _escenario(api, vehiculos=(("ABC-123", 1500), ("DEF-456", 2000)), pedidos=6)
+    parametros = {"velocidad_kmh": 25, "servicio_min": 10, "limite_segundos": 20, "algoritmo": "tabu"}
+    assert (await api.client.put("/api/admin/parametros", json=parametros, headers=admin)).status_code == 200
+    plan = (await api.client.post("/api/rutas/optimizar", headers=operador)).json()
+    assert plan["algoritmo"] == "Clarke-Wright + 2-opt + Búsqueda tabú"
+    assert plan["pedidos_planificados"] == 6 and plan["distancia_km"] <= plan["distancia_base_km"]
+    invalido = await api.client.put("/api/admin/parametros", json={**parametros, "algoritmo": "magico"}, headers=admin)
+    assert invalido.status_code == 422

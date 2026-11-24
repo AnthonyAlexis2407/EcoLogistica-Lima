@@ -12,7 +12,8 @@ createRoot(document.getElementById('root')!).render(
 // PWA (RNF-010): el service worker guarda la aplicación para abrirla sin conexión. Solo en producción: en desarrollo
 // interferiría con la recarga en caliente de Vite.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
+  // Este módulo se carga después del primer pintado, a veces cuando 'load' ya ocurrió: se registra en ambos casos.
+  const registrar = () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {
       /* sin service worker la aplicación sigue funcionando con conexión */
     });
@@ -24,5 +25,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
         .map((u) => u.pathname);
       registro.active?.postMessage({ tipo: 'cachear', urls: ['/', ...urls] });
     }).catch(() => {});
-  });
+  };
+  if (document.readyState === 'complete') registrar();
+  else window.addEventListener('load', registrar);
 }

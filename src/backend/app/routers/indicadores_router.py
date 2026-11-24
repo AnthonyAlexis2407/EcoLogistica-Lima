@@ -20,6 +20,7 @@ from app.models import EmisionCO2, Optimizacion, ParadaRuta, Pedido, Ruta, Usuar
 from app.optimizador import arboles_equivalentes
 from app.schemas import IndicadoresOut
 from app.servicios import litros_ahorrados
+from app.tiempo import lima_a_utc
 
 router = APIRouter(prefix="/api/indicadores", tags=["Indicadores (RF-005, RF-010)"])
 
@@ -54,9 +55,9 @@ async def resumen_indicadores(
     if distrito:
         filtros_pedido.append(Pedido.distrito == distrito)
     if desde:
-        filtros_pedido.append(Pedido.creado_en >= desde)
+        filtros_pedido.append(Pedido.creado_en >= lima_a_utc(desde))
     if hasta:
-        filtros_pedido.append(Pedido.creado_en <= hasta)
+        filtros_pedido.append(Pedido.creado_en <= lima_a_utc(hasta))
     filtrado = bool(filtros_pedido)
 
     vehiculos = await _conteo_por_estado(db, Vehiculo.estado, Vehiculo)

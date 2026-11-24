@@ -54,6 +54,8 @@ class Parametros:
 
     velocidad_kmh: float = VELOCIDAD_KMH
     servicio_min: float = SERVICIO_MIN
+    # "clarke_wright_2opt" (por defecto) o "tabu": suma una búsqueda tabú entre rutas (ver algoritmos_alternativos.py).
+    algoritmo: str = "clarke_wright_2opt"
 
 
 @dataclass(frozen=True)
@@ -610,6 +612,10 @@ def _planificar(
             mejor, tiempo_agotado = _dos_opt(prob, ruta, vence)
             agotado = agotado or tiempo_cw or tiempo_agotado
             mejoradas.append(mejor)
+        if params.algoritmo == "tabu":
+            from app.algoritmos_alternativos import busqueda_tabu  # import diferido: el módulo depende de este
+
+            mejoradas = busqueda_tabu(prob, mejoradas, capacidad, capacidad_vol, vence)
         nuevas, _sobrantes, libres = _asignar(mejoradas, pesos, vols, libres)
         if not nuevas:
             break
@@ -641,5 +647,7 @@ def _planificar(
     resultado.co2_base_kg = round(resultado.distancia_base_km * emision_media, 3)
 
     resultado.limite_alcanzado = agotado
+    if params.algoritmo == "tabu":
+        resultado.algoritmo = "Clarke-Wright + 2-opt + Búsqueda tabú"
     resultado.tiempo_ms = round((time.perf_counter() - inicio) * 1000.0, 1)
     return resultado

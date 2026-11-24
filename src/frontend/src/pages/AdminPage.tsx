@@ -242,7 +242,7 @@ function SeccionParametros({ token, avisar }: Props) {
     } catch (err) { avisar('error', mensajeDe(err)); }
   };
 
-  const campo = (clave: keyof Parametros, etiqueta: string, ayuda: string, min: number, max: number) => (
+  const campo = (clave: 'velocidad_kmh' | 'servicio_min' | 'limite_segundos', etiqueta: string, ayuda: string, min: number, max: number) => (
     <div className="form-group">
       <label className="form-label" htmlFor={`p-${clave}`}>{etiqueta}</label>
       <input id={`p-${clave}`} className="form-input" type="number" min={min} max={max} step="0.5" value={valores[clave]} required
@@ -256,6 +256,17 @@ function SeccionParametros({ token, avisar }: Props) {
       {campo('velocidad_kmh', 'Velocidad media (km/h)', 'Velocidad urbana supuesta para estimar los tiempos de viaje (5 a 80).', 5, 80)}
       {campo('servicio_min', 'Tiempo de descarga por parada (min)', 'Minutos que se reservan en cada entrega (0 a 60).', 0, 60)}
       {campo('limite_segundos', 'Límite de cálculo (s)', 'Tiempo máximo del optimizador; el acuerdo de servicio es de 45 s (1 a 45).', 1, 45)}
+      <div className="form-group">
+        <label className="form-label" htmlFor="p-algoritmo">Algoritmo de optimización</label>
+        <select
+          id="p-algoritmo" className="form-input form-select" value={valores.algoritmo} aria-describedby="ayuda-algoritmo"
+          onChange={(e) => setValores({ ...valores, algoritmo: e.target.value as Parametros['algoritmo'] })}
+        >
+          <option value="clarke_wright_2opt">Clarke-Wright + 2-opt (rápido, por defecto)</option>
+          <option value="tabu">Clarke-Wright + 2-opt + búsqueda tabú (hasta 3 % menos km)</option>
+        </select>
+        <p id="ayuda-algoritmo" className="form-hint">Comparación en el estudio EN-001 de la documentación; el cambio no afecta a pedidos ni flota.</p>
+      </div>
       <button className="btn btn-primary" type="submit">Guardar parámetros</button>
     </form>
   );

@@ -13,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:8000';
 
 // Las capturas de evidencia (e2e/evidencias.spec.ts) solo se ejecutan a demanda con E2E_EVIDENCIAS=1.
-const ignorarEscritorio = process.env.E2E_EVIDENCIAS === '1' ? /(movil|smoke|rutas)\.spec\.ts/ : /(movil|smoke|rutas|evidencias)\.spec\.ts/;
+const ignorarEscritorio = process.env.E2E_EVIDENCIAS === '1' ? /(movil|smoke|rutas|conductor)\.spec\.ts/ : /(movil|smoke|rutas|conductor|evidencias)\.spec\.ts/;
 
 export default defineConfig({
   testDir: './e2e',
@@ -70,19 +70,19 @@ export default defineConfig({
       name: 'rutas-chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup', 'chromium', 'firefox', 'webkit'],
-      testMatch: /rutas\.spec\.ts/,
+      testMatch: /(rutas|conductor)\.spec\.ts/,
     },
     {
       name: 'rutas-firefox',
       use: { ...devices['Desktop Firefox'] },
       dependencies: ['rutas-chromium'],
-      testMatch: /rutas\.spec\.ts/,
+      testMatch: /(rutas|conductor)\.spec\.ts/,
     },
     {
       name: 'rutas-webkit',
       use: { ...devices['Desktop Safari'] },
       dependencies: ['rutas-firefox'],
-      testMatch: /rutas\.spec\.ts/,
+      testMatch: /(rutas|conductor)\.spec\.ts/,
     },
     {
       name: 'movil',

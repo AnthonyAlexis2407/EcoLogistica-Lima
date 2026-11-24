@@ -287,3 +287,56 @@ def test_la_cache_de_matriz_se_reutiliza_con_otros_camiones():
     optimizar(pedidos, FLOTA)
     optimizar(pedidos, FLOTA[:3] * 2)
     assert estadisticas_cache["matriz_aciertos"] >= 1
+
+
+# ── Metaheurísticas alternativas (EN-001, RNF-005) ────────────────────────
+
+from app.algoritmos_alternativos import algoritmo_genetico, busqueda_tabu  # noqa: E402
+from app.optimizador import Parametros, _clarke_wright, _dos_opt, _matriz, _Problema  # noqa: E402
+
+
+def _problema(n=40, capacidad=900.0):
+    puntos = _puntos(n)
+    m = _matriz(LIMA, puntos)
+    prob = _Problema(m, puntos, None, Parametros())
+    rutas, _ = _clarke_wright(prob, list(range(1, n + 1)), capacidad, float("inf"), time.perf_counter() + 30)
+    return prob, [_dos_opt(prob, r, time.perf_counter() + 30)[0] for r in rutas]
+
+
+def _largo_total(prob, rutas):
+    from app.optimizador import _largo
+
+    return sum(_largo(prob.m, r) for r in rutas)
+
+
+def test_busqueda_tabu_nunca_empeora_y_respeta_la_capacidad():
+    prob, base = _problema()
+    mejora = busqueda_tabu(prob, base, 900.0, float("inf"), time.perf_counter() + 20)
+    assert _largo_total(prob, mejora) <= _largo_total(prob, base) + 1e-6
+    assert sorted(i for r in mejora for i in r) == list(range(1, 41))  # ningún pedido se pierde ni se repite
+    assert all(sum(prob.pesos[i - 1] for i in r) <= 900.0 for r in mejora)
+
+
+def test_busqueda_tabu_respeta_el_limite_de_tiempo():
+    prob, base = _problema(60)
+    inicio = time.perf_counter()
+    busqueda_tabu(prob, base, 900.0, float("inf"), inicio + 0.05, max_iteraciones=10_000)
+    assert time.perf_counter() - inicio < 2.0
+
+
+def test_algoritmo_genetico_cubre_todos_los_pedidos_dentro_de_la_capacidad():
+    prob, _ = _problema(30)
+    rutas = algoritmo_genetico(prob, list(range(1, 31)), 900.0, float("inf"), time.perf_counter() + 5, generaciones=60)
+    assert sorted(i for r in rutas for i in r) == list(range(1, 31))
+    assert all(sum(prob.pesos[i - 1] for i in r) <= 900.0 for r in rutas)
+    # Es determinista con la misma semilla.
+    otra = algoritmo_genetico(prob, list(range(1, 31)), 900.0, float("inf"), time.perf_counter() + 5, generaciones=60)
+    assert rutas == otra
+
+
+def test_el_motor_con_tabu_conserva_todas_las_garantias():
+    r = optimizar(_puntos(50), FLOTA, parametros=Parametros(algoritmo="tabu"))
+    assert r.algoritmo.endswith("Búsqueda tabú") and r.sin_asignar == []
+    assert r.distancia_total_km < r.distancia_base_km
+    for ruta in r.rutas:
+        assert ruta.carga_kg <= _capacidad(ruta.camion_id)
