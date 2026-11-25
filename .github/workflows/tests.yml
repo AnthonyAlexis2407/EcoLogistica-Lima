@@ -129,7 +129,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Levantar dos instancias de la API, un balanceador y PostgreSQL
-        run: docker compose -f docker-compose.failover.yml up --build -d --wait --wait-timeout 300
+        run: |
+          docker compose -f docker-compose.failover.yml up --build -d --wait --wait-timeout 300 || {
+            docker compose -f docker-compose.failover.yml ps -a | sed 's/%/%25/g' | paste -sd '|' | sed 's/^/::error title=Estado::/'
+            docker compose -f docker-compose.failover.yml logs --tail 25 api1 | sed 's/%/%25/g' | cut -c1-220 | paste -sd '|' | sed 's/^/::error title=Registro api1::/'
+            exit 1
+          }
 
       - name: Medir el RTO deteniendo una instancia y luego la otra
         run: |
