@@ -2,7 +2,7 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
-**Sprint:** Sprint 4 (periodo 21/10/2026 al 28/11/2026)  
+**Sprint:** Etapa final (periodo 21/10/2026 al 28/11/2026)  
 **Fecha de retrospectiva:** 16/11/2026 (actualizada el 17/11/2026 y el 28/11/2026 con la retrospectiva de cierre)  
 **Versión del documento:** 2.0.0
 
@@ -66,7 +66,7 @@
 
 ### Relaciones
 
-- **La aceptación del Product Owner lleva cuatro sprints abierta.** Se propone fijar la fecha de la demostración con el docente al **inicio** de cada sprint, no al final.
+- **La aceptación del Product Owner lleva tres sprints y una etapa final abierta.** Se propone fijar la fecha de la demostración con el docente al **inicio** de cada sprint, no al final.
 - **Coordinación frontend/backend/pruebas.** Las pruebas E2E dependen de los textos de la interfaz y del formato regional de los números (por ejemplo `2,750` o `2.750`); un catálogo de textos de referencia evita desajustes entre la interfaz y las pruebas.
 - **Stakeholders.** Validar con DistriRápido (cliente ficticio) los hallazgos de usabilidad antes de aplicarlos.
 
@@ -129,6 +129,6 @@
 
 | Versión | Fecha | Cambio |
 |---|---|---|
-| 1.0.0 | 16/11/2026 | Sprint 4: primera retrospectiva, con seguimiento de las acciones del Sprint 3 y plan de mejora con responsables e indicadores. |
+| 1.0.0 | 16/11/2026 | Etapa final: primera retrospectiva, con seguimiento de las acciones del Sprint 3 y plan de mejora con responsables e indicadores. |
 | 1.1.0 | 17/11/2026 | Se registra el despliegue verificado en producción, se reformulan los obstáculos como asuntos de herramientas y procesos, y se actualizan el seguimiento y la acción 1. |
 | 2.0.0 | 28/11/2026 | Retrospectiva de cierre: seguimiento de las 8 acciones, lo que funcionó y lo que se debe mejorar. |

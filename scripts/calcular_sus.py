@@ -1,7 +1,7 @@
 """Calcula la puntuación SUS (System Usability Scale) a partir de un CSV con respuestas REALES.
 
 Uso:
-    python scripts/calcular_sus.py "docs/03 Inplementación/Sprint 4/datos/respuestas_sus.csv"
+    python scripts/calcular_sus.py "docs/03 Inplementación/Etapa final/datos/respuestas_sus.csv"
 
 Formato del CSV (una fila por participante, 10 respuestas de 1 a 5):
     participante,perfil,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10

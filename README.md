@@ -15,7 +15,7 @@
 - Tovar Arias Michael Aldo
 
 ### Descripción
-Plataforma web para optimizar rutas de última milla con enfoque sostenible. Planifica las rutas de reparto con un algoritmo propio (Clarke-Wright, 2-opt y búsqueda tabú opcional) que respeta capacidad, volumen, ventanas horarias, Pico y Placa y zonas protegidas; guía al conductor con una app instalable que funciona sin conexión; re-optimiza ante incidencias; avisa a las bodegas; calcula el CO₂ evitado y su equivalente en árboles; y protege los datos personales con cifrado. Estado final: los 10 requisitos funcionales y las 10 reglas de negocio cumplen; 8 de los 10 requisitos no funcionales cumplen y 2 (conmutación por falla y escalado automático) cumplen en pruebas, pero necesitan un plan de pago de la plataforma para cumplir en la nube ([Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)).
+Plataforma web para optimizar rutas de última milla con enfoque sostenible. Planifica las rutas de reparto con un algoritmo propio (Clarke-Wright, 2-opt y búsqueda tabú opcional) que respeta capacidad, volumen, ventanas horarias, Pico y Placa y zonas protegidas; guía al conductor con una app instalable que funciona sin conexión; re-optimiza ante incidencias; avisa a las bodegas; calcula el CO₂ evitado y su equivalente en árboles; y protege los datos personales con cifrado. Estado final: los 10 requisitos funcionales y las 10 reglas de negocio cumplen; 8 de los 10 requisitos no funcionales cumplen y 2 (conmutación por falla y escalado automático) cumplen en pruebas, pero necesitan un plan de pago de la plataforma para cumplir en la nube ([Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Etapa%20final/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)).
 
 ## Estructura del repositorio
 
@@ -27,7 +27,7 @@ docs/
     Sprint 01/          informes del Sprint 1
     Sprint 02/          informes del Sprint 2
     Sprint 03/          informes y evaluaciones del Sprint 3
-    Sprint 4/           revisión, retrospectiva, Playwright, usabilidad (SUS), guía de despliegue, matriz de cumplimiento y estudio de algoritmos
+    Etapa final/           revisión, retrospectiva, Playwright, usabilidad (SUS), guía de despliegue, matriz de cumplimiento y estudio de algoritmos
     reduccion del impacto ambiental/   informe Green IT y estándares de ingeniería de software
   04 Cierre/            siete documentos de gestión y cierre del proyecto (estado, variación, EVM, tableros, radiadores, final y lecciones)
   05 Video proyecto/    guion del video y el video MP4 de 5 minutos
@@ -94,14 +94,14 @@ Cada sprint cerrado tiene una etiqueta Git: `sprint-1-cierre`, `sprint-2-cierre`
 - [06 Informe de estado del proyecto](docs/03%20Inplementaci%C3%B3n/Sprint%2003/06%20Informe%20de%20estado%20del%20proyecto%20V_1_0_0.md)
 - [07 Registro de Impedimentos](docs/03%20Inplementaci%C3%B3n/Sprint%2003/07%20Registro%20de%20Impedimentos%20V_1_0_0.md)
 
-### Sprint 4
-- [01 Revisión del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%204/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md): historias completadas con enlaces a commits y pull requests, demostración y pendientes.
-- [02 Retrospectiva del Sprint](docs/03%20Inplementaci%C3%B3n/Sprint%204/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md): aprendizajes y plan de mejora con responsables e indicadores.
-- [03 Análisis Playwright](docs/03%20Inplementaci%C3%B3n/Sprint%204/03%20Analisis%20PlayWrigth%20V_1_0_0.md): pruebas E2E en Chromium, Firefox y WebKit, Web Vitals, tiempos de la API, disponibilidad y resiliencia.
-- [04 Usabilidad (SUS)](docs/03%20Inplementaci%C3%B3n/Sprint%204/04%20Usabilidad%20V_1_0_0.md): evaluación cuantitativa con la escala SUS (datos simulados con fines académicos).
-- [05 Guía de despliegue](docs/03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md): cómo llega la aplicación a producción, cómo configurar los secretos y la base PostgreSQL.
-- [06 Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md): verifica cada requisito funcional, no funcional, regla de negocio y estándar del curso contra el código, las pruebas y los informes, con la evidencia y los límites.
-- [07 Estudio de algoritmos](docs/03%20Inplementaci%C3%B3n/Sprint%204/07%20Estudio%20de%20algoritmos%20V_1_0_0.md): comparación de Clarke-Wright, búsqueda tabú, algoritmo genético y OR-Tools (spike EN-001).
+### Etapa final
+- [01 Revisión del Sprint](docs/03%20Inplementaci%C3%B3n/Etapa%20final/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md): historias completadas con enlaces a commits y pull requests, demostración y pendientes.
+- [02 Retrospectiva del Sprint](docs/03%20Inplementaci%C3%B3n/Etapa%20final/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md): aprendizajes y plan de mejora con responsables e indicadores.
+- [03 Análisis Playwright](docs/03%20Inplementaci%C3%B3n/Etapa%20final/03%20Analisis%20PlayWrigth%20V_1_0_0.md): pruebas E2E en Chromium, Firefox y WebKit, Web Vitals, tiempos de la API, disponibilidad y resiliencia.
+- [04 Usabilidad (SUS)](docs/03%20Inplementaci%C3%B3n/Etapa%20final/04%20Usabilidad%20V_1_0_0.md): evaluación cuantitativa con la escala SUS (datos simulados con fines académicos).
+- [05 Guía de despliegue](docs/03%20Inplementaci%C3%B3n/Etapa%20final/05%20Gu%C3%ADa%20de%20despliegue.md): cómo llega la aplicación a producción, cómo configurar los secretos y la base PostgreSQL.
+- [06 Matriz de cumplimiento](docs/03%20Inplementaci%C3%B3n/Etapa%20final/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md): verifica cada requisito funcional, no funcional, regla de negocio y estándar del curso contra el código, las pruebas y los informes, con la evidencia y los límites.
+- [07 Estudio de algoritmos](docs/03%20Inplementaci%C3%B3n/Etapa%20final/07%20Estudio%20de%20algoritmos%20V_1_0_0.md): comparación de Clarke-Wright, búsqueda tabú, algoritmo genético y OR-Tools (spike EN-001).
 
 **Producción:** la aplicación se despliega sola desde `main` y está activa en <https://ecologistica-lima.onrender.com>; la prueba de humo de Playwright confirma cada despliegue ([última ejecución](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/actions/runs/44020768595)).
 
@@ -162,7 +162,7 @@ docker compose -f docker-compose.failover.yml up --build -d --wait && python scr
 ## Convención de versionado y nombres de archivo
 
 - El **nombre** de cada archivo conserva el sufijo `V_1_0_0` que exigen las consignas. La **versión vigente** (Semantic Versioning) de cada documento está en su encabezado y en su control de versiones.
-- En los informes de Implementación la versión mayor coincide con el sprint: `1.x.x`, `2.x.x` y `3.x.x`. Los documentos nuevos del Sprint 4 nacen en `1.0.0`, versión que exige su nombre de archivo.
+- En los informes de Implementación la versión mayor coincide con el sprint: `1.x.x`, `2.x.x` y `3.x.x`. Los documentos nuevos de la etapa final nacen en `1.0.0`, versión que exige su nombre de archivo.
 
 | Documento | Versión | Última actualización | Motivo |
 |---|---|---|---|
@@ -187,8 +187,8 @@ docker compose -f docker-compose.failover.yml up --build -d --wait && python scr
 | Sprint 03 · 07 Registro de Impedimentos | 3.2.0 | 09/11/2026 | Solo impedimentos ajenos a la intervención del equipo |
 | Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, glosario y referencias cruzadas |
 | Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, guía del YAML y referencias cruzadas |
-| Sprint 4 · 01 Revisión, 02 Retrospectiva, 03 Análisis Playwright, 04 Usabilidad y 05 Guía de despliegue | 1.1.0 | 17/11/2026 | Primera versión del 16/11; actualizada con el despliegue en producción y las cifras de `main` |
-| Sprint 4 · 01 Revisión, 02 Retrospectiva y 05 Guía de despliegue | 2.0.0 | 28/11/2026 | Cierre del sprint: implementación final, retrospectiva de cierre y PostgreSQL |
-| Sprint 4 · 06 Matriz de cumplimiento | 2.0.0 | 28/11/2026 | Cumplimiento final de requisitos, reglas de negocio y estándares |
-| Sprint 4 · 07 Estudio de algoritmos | 1.0.0 | 28/11/2026 | Primera versión |
-| Cierre · 01 a 07 (Estado, Variación, EVM, Tableros, Radiadores, Final y Lecciones) | 2.0.0 | 28/11/2026 | Recalculados con el cierre del proyecto en cuatro sprints |
+| Etapa final · 01 Revisión, 02 Retrospectiva, 03 Análisis Playwright, 04 Usabilidad y 05 Guía de despliegue | 1.1.0 | 17/11/2026 | Primera versión del 16/11; actualizada con el despliegue en producción y las cifras de `main` |
+| Etapa final · 01 Revisión, 02 Retrospectiva y 05 Guía de despliegue | 2.0.0 | 28/11/2026 | Cierre del sprint: implementación final, retrospectiva de cierre y PostgreSQL |
+| Etapa final · 06 Matriz de cumplimiento | 2.0.0 | 28/11/2026 | Cumplimiento final de requisitos, reglas de negocio y estándares |
+| Etapa final · 07 Estudio de algoritmos | 1.0.0 | 28/11/2026 | Primera versión |
+| Cierre · 01 a 07 (Estado, Variación, EVM, Tableros, Radiadores, Final y Lecciones) | 2.0.0 | 28/11/2026 | Recalculados con el cierre del proyecto en tres sprints y una etapa final |

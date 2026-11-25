@@ -2,7 +2,7 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
-**Sprint:** Sprint 4  
+**Sprint:** Etapa final  
 **Fecha de la evaluación:** 16/11/2026  
 **Versión del documento:** 1.2.0
 
@@ -164,7 +164,7 @@ SUS global = (92,5 + 75,0 + 77,5 + 85,0 + 60,0 + 80,0 + 95,0 + 70,0) / 8
 | Umbral de aceptación | 68 |
 | ¿Supera el umbral? | Sí (+11,4 puntos) |
 
-> Los datos y cálculos se reproducen con un solo comando: `python scripts/calcular_sus.py "docs/03 Inplementación/Sprint 4/datos/respuestas_sus.csv"` ([`calcular_sus.py`](../../../scripts/calcular_sus.py)). Si se cambia el CSV por respuestas reales, el script entrega las mismas tablas.
+> Los datos y cálculos se reproducen con un solo comando: `python scripts/calcular_sus.py "docs/03 Inplementación/Etapa final/datos/respuestas_sus.csv"` ([`calcular_sus.py`](../../../scripts/calcular_sus.py)). Si se cambia el CSV por respuestas reales, el script entrega las mismas tablas.
 
 ## 4. Análisis e interpretación
 

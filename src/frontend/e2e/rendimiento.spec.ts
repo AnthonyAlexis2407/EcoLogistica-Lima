@@ -4,7 +4,7 @@
  * Playwright mide con las APIs estándar del navegador (`PerformanceObserver`, `Navigation Timing`).
  * Cada medición se guarda en `test-results/metricas/<navegador>-<nombre>.json`, de donde
  * `scripts/resumen_playwright.py` arma las tablas del informe. Los límites son los de Core Web Vitals
- * ("bueno") y el presupuesto de 500 ms para la API fijado en el Sprint 4.
+ * ("bueno") y el presupuesto de 500 ms para la API fijado en la etapa final.
  *
  * Nota: Lighthouse (laboratorio, con red y CPU simuladas) está en `green-audit.yml`; estas pruebas miden
  * con la red real del entorno donde corren, por eso sus valores son menores y no se comparan 1 a 1.

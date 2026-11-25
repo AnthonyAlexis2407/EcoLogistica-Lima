@@ -20,7 +20,7 @@ SUPUESTOS DECLARADOS (no existe una bitácora de horas ni costos reales del equi
    conservador).
 4. Costo Real (AC): dedicación planificada constante: AC = BAC x semanas transcurridas desde el 01/09/2026 / 14 semanas
    presupuestadas.
-5. El proyecto tiene cuatro sprints; el cuarto se extiende hasta la fecha de corte, el 28/11/2026.
+5. El proyecto tiene tres sprints y una etapa final; el cuarto se extiende hasta la fecha de corte, el 28/11/2026.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ SPRINTS = [
     ("Sprint 1", date(2026, 9, 22), 24),
     ("Sprint 2", date(2026, 10, 6), 68),
     ("Sprint 3", date(2026, 10, 20), 94),
-    ("Sprint 4 (cierre)", date(2026, 11, 28), 116),
+    ("Etapa final", date(2026, 11, 28), 116),
 ]
 
 # (id, puntos, crédito, índice del sprint en que se acredita); un ítem puede acreditarse en dos momentos (50 % y luego el resto).
@@ -51,7 +51,7 @@ GANADO = [
     # Sprint 2 y 3: avances parciales de accesibilidad y de reducción de recómputo
     ("EN-007", 3, 0.5, 1),
     ("EN-009", 3, 0.5, 2),
-    # Sprint 4 (hasta el 28/11): implementación completa y verificada con pruebas
+    # Etapa final (hasta el 28/11): implementación completa y verificada con pruebas
     ("EN-002", 5, 0.5, 3), ("EN-007", 3, 0.5, 3), ("EN-009", 3, 0.5, 3),
     ("US-005", 13, 1.0, 3), ("US-007", 5, 1.0, 3), ("US-008", 8, 1.0, 3), ("US-009", 3, 1.0, 3),
     ("US-010", 5, 1.0, 3), ("EN-005", 5, 1.0, 3), ("EN-001", 8, 1.0, 3), ("US-002", 8, 1.0, 3),
@@ -117,7 +117,7 @@ def tablas() -> None:
     for f in filas:
         print(f"| {f['sprint']} ({f['fin']:%d/%m}) | {f['pv_pts']} | {f['ev_pts']:g} | {d(f['pv'])} | {d(f['ev'])} | {d(f['ac'])} | "
               f"{d(f['sv'])} | {d(f['cv'])} | {d(f['spi'], 3)} | {d(f['cpi'], 3)} |")
-    print("\nPeriodo actual (Sprint 4, hasta el cierre) = acumulado actual - acumulado del Sprint 3:")
+    print("\nPeriodo actual (Etapa final, hasta el cierre) = acumulado actual - acumulado del Sprint 3:")
     a, b = filas[-1], filas[-2]
     pv_p, ev_p, ac_p = a["pv"] - b["pv"], a["ev"] - b["ev"], a["ac"] - b["ac"]
     print(f"PV={d(pv_p)} EV={d(ev_p)} AC={d(ac_p)} SV={d(ev_p - pv_p)} CV={d(ev_p - ac_p)} "
@@ -368,7 +368,7 @@ def grafico_retrospectiva():
             y = 86 + j * 54
             cuerpo += f'<rect x="{x + 12}" y="{y}" width="206" height="44" fill="#fffbe6" stroke="#9ca3af" rx="3"/>'
             cuerpo += _texto_lineas(x + 20, y + 26, [nota], tam=11)
-    return _marco(ancho, alto, "Tablero de retrospectiva del cierre (Sprint 4)", cuerpo)
+    return _marco(ancho, alto, "Tablero de retrospectiva del cierre (Etapa final)", cuerpo)
 
 
 def escribir_graficos(carpeta: Path) -> None:

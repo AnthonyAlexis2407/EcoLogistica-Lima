@@ -1,4 +1,4 @@
-# Monitoreo de producción: una prueba de humo cada hora contra la URL pública (acción 8 de la Retrospectiva del Sprint 4).
+# Monitoreo de producción: una prueba de humo cada hora contra la URL pública (acción 8 de la Retrospectiva de la etapa final).
 # Mide si la aplicación responde y deja el resultado de cada hora en el historial de ejecuciones de Actions, de donde se
 # calcula la disponibilidad real (RNF-003). Los flujos programados solo corren desde la rama por defecto (main).
 name: Monitoreo de producción
