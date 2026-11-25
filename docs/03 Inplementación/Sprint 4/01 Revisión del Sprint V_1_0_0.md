@@ -2,7 +2,7 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
-**Sprint:** Etapa final (calidad, automatización, implementación final y cierre; periodo 21/10/2026 al 28/11/2026)  
+**Sprint:** Sprint 4 (calidad, automatización, implementación final y cierre; periodo 21/10/2026 al 28/11/2026)  
 **Fecha de revisión:** 16/11/2026 (actualizada el 17/11/2026 tras el despliegue en producción y el 28/11/2026 con el cierre del sprint)  
 **Versión del documento:** 2.0.0
 
@@ -12,7 +12,7 @@
 
 **Objetivo.** Probar la aplicación de punta a punta en tres navegadores, automatizar la calidad y el despliegue con GitHub Actions, medir la usabilidad con la escala SUS y dejar la aplicación lista para publicarse en producción.
 
-| Indicador | Sprint 3 (20/10/2026) | Etapa final (16/11/2026) | Fuente |
+| Indicador | Sprint 3 (20/10/2026) | Sprint 4 (16/11/2026) | Fuente |
 |---|---|---|---|
 | Pruebas E2E (Playwright) | no existían | **130 de 130 pasan** (Chromium, Firefox, WebKit, móvil y humo) | [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) |
 | Pruebas unitarias del frontend | 60 | **70** pasan | Vitest, flujo `Tests` |
@@ -26,7 +26,7 @@
 
 ### Actualización de cierre (28/11/2026)
 
-El proyecto tiene tres sprints y una etapa final, por lo que este sprint se extendió hasta la fecha de corte para **implementar todo lo que faltaba del backlog**. Antes de programar se auditó el producto contra los criterios de aceptación de los documentos de requisitos y reglas de negocio ([Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)); las brechas halladas se cerraron con código y pruebas.
+El proyecto tiene cuatro sprints, por lo que este sprint se extendió hasta la fecha de corte para **implementar todo lo que faltaba del backlog**. Antes de programar se auditó el producto contra los criterios de aceptación de los documentos de requisitos y reglas de negocio ([Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)); las brechas halladas se cerraron con código y pruebas.
 
 | Indicador | 16/11/2026 | 28/11/2026 | Fuente |
 |---|---|---|---|
@@ -153,6 +153,6 @@ La demostración técnica de este sprint es **reproducible y automatizada**: la 
 
 | Versión | Fecha | Cambio |
 |---|---|---|
-| 1.0.0 | 16/11/2026 | Etapa final: primera revisión con historias completadas, habilitadores técnicos, demostración reproducible y pendientes. |
+| 1.0.0 | 16/11/2026 | Sprint 4: primera revisión con historias completadas, habilitadores técnicos, demostración reproducible y pendientes. |
 | 1.1.0 | 17/11/2026 | Se registran el Pull Request #4 fusionado, el despliegue automático en producción con su prueba de humo y las cifras de `main`; los pendientes se redactan con su causa y su tratamiento. |
 | 2.0.0 | 28/11/2026 | El sprint se extiende hasta el cierre del proyecto: se registra la implementación de todo el backlog, las nuevas cifras de pruebas, la demostración ampliada y los pendientes reales. |

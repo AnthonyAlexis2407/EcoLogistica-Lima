@@ -93,10 +93,10 @@
 | 2 | Activar la protección de `main` (Pull Request con 1 revisor y CI en verde) y añadir SonarQube a `ci.yml` | Herramientas / Procesos | Equipo completo | 30/10/2026 | Un Pull Request fusionado con CI verde y revisor |
 | 3 | Agregar `npm run lint` con ESLint y ejecutarlo en CI | Herramientas | Perez Ordoñez Anthony Alexis | 30/10/2026 | 0 errores de lint en CI |
 | 4 | Probar con NVDA o VoiceOver el recorrido de inicio de sesión, alta de vehículo y alta de pedido; implementar la trampa de foco en los modales | Personas / Herramientas | Tovar Arias Michael Aldo | 30/10/2026 | Documento 05 versión 1.1.0 con el resultado |
-| 5 | Ejecutar el spike EN-001 con tope de 3 días y criterio de salida: GA, Búsqueda Tabú y OR-Tools medidos frente a 45 s con 50 pedidos; revisar el avance de la ruta crítica en cada revisión de sprint | Procesos | Fernandez Condor Jhon Smith | Primera semana de la etapa final | Script versionado con datos, tiempos y conclusión |
-| 6 | Realizar la prueba de penetración de EN-002 e implementar el cifrado de campos y la anonimización de EN-008 | Procesos | Equipo completo | Cierre de la etapa final | Informe de prueba y pruebas automatizadas de cada criterio |
-| 7 | Fijar versiones del backend, revisar `pip-audit` y desplegar con TLS, CSP, HSTS y `ENVIRONMENT=production` | Herramientas | Fernandez Condor Jhon Smith | Cierre de la etapa final | Documento 04 versión 1.2.0 con A02 en "Limpio" |
-| 8 | Rotar la revisión: quien corrige un hallazgo no lo evalúa | Personas | Equipo completo | Desde la etapa final | Campo "revisor" en cada Pull Request |
+| 5 | Ejecutar el spike EN-001 con tope de 3 días y criterio de salida: GA, Búsqueda Tabú y OR-Tools medidos frente a 45 s con 50 pedidos; revisar el avance de la ruta crítica en cada revisión de sprint | Procesos | Fernandez Condor Jhon Smith | Primera semana del Sprint 4 | Script versionado con datos, tiempos y conclusión |
+| 6 | Realizar la prueba de penetración de EN-002 e implementar el cifrado de campos y la anonimización de EN-008 | Procesos | Equipo completo | Cierre del Sprint 4 | Informe de prueba y pruebas automatizadas de cada criterio |
+| 7 | Fijar versiones del backend, revisar `pip-audit` y desplegar con TLS, CSP, HSTS y `ENVIRONMENT=production` | Herramientas | Fernandez Condor Jhon Smith | Cierre del Sprint 4 | Documento 04 versión 1.2.0 con A02 en "Limpio" |
+| 8 | Rotar la revisión: quien corrige un hallazgo no lo evalúa | Personas | Equipo completo | Desde el Sprint 4 | Campo "revisor" en cada Pull Request |
 
 ## Control de versiones
 

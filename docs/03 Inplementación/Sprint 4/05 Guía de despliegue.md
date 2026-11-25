@@ -2,7 +2,7 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
-**Sprint:** Etapa final  
+**Sprint:** Sprint 4  
 **Versión del documento:** 2.0.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md)

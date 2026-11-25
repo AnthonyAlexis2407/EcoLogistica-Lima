@@ -2,7 +2,7 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis
-**Sprint:** Etapa final (calidad, automatización, implementación final y cierre; periodo 21/10/2026 al 28/11/2026)
+**Sprint:** Sprint 4 (calidad, automatización, implementación final y cierre; periodo 21/10/2026 al 28/11/2026)
 **Fecha de verificación:** 24/11/2026 (actualizada al corte del 28/11/2026)
 **Versión del documento:** 2.0.0
 
@@ -103,4 +103,4 @@ Este documento responde a una pregunta: **¿el proyecto cumple lo que se pidió?
 | Versión | Fecha | Cambio |
 |---|---|---|
 | 1.0.0 | 24/11/2026 | Primera matriz de cumplimiento: 10 RF, 10 RNF y 5 estándares verificados contra el código, las pruebas y los informes. |
-| 2.0.0 | 28/11/2026 | Se actualiza tras la implementación final: los 10 requisitos funcionales y las 10 reglas de negocio cumplen; 8 de 10 requisitos no funcionales cumplen y 2 cumplen en pruebas pero no en la nube gratuita. Se añaden las reglas de negocio y los límites abiertos. El documento pasa a la carpeta de la etapa final. |
+| 2.0.0 | 28/11/2026 | Se actualiza tras la implementación final: los 10 requisitos funcionales y las 10 reglas de negocio cumplen; 8 de 10 requisitos no funcionales cumplen y 2 cumplen en pruebas pero no en la nube gratuita. Se añaden las reglas de negocio y los límites abiertos. El documento pasa a la carpeta del Sprint 4. |

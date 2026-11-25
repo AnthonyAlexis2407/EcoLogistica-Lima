@@ -1,5 +1,5 @@
 /**
- * Capturas de pantalla de las pantallas clave, usadas como evidencia de la demostración de la etapa final.
+ * Capturas de pantalla de las pantallas clave, usadas como evidencia de la demostración del Sprint 4.
  *
  * Solo se ejecutan a demanda (`E2E_EVIDENCIAS=1`), para no añadir ruido a la suite habitual:
  *   E2E_EVIDENCIAS=1 npx playwright test --project=chromium e2e/evidencias.spec.ts

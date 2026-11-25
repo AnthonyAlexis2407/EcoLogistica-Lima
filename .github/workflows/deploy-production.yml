@@ -3,7 +3,7 @@
 # Los datos sensibles NO están en el código: se leen de GitHub Secrets (Settings > Secrets and variables > Actions).
 #   - RENDER_DEPLOY_HOOK_URL : URL secreta del "Deploy Hook" del servicio en Render (dispara el despliegue).
 #   - PRODUCTION_URL         : URL pública de la aplicación desplegada (por ejemplo https://ecologistica-lima.onrender.com).
-# Guía de configuración paso a paso: docs/03 Inplementación/Etapa final/05 Guía de despliegue.md
+# Guía de configuración paso a paso: docs/03 Inplementación/Sprint 4/05 Guía de despliegue.md
 name: Deploy Production
 
 on:

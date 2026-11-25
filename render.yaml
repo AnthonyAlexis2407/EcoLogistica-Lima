@@ -1,5 +1,5 @@
 # Plano (Blueprint) de Render para EcoLogística Lima: un único servicio Docker que sirve la API y el frontend.
-# Guía paso a paso: docs/03 Inplementación/Etapa final/05 Guía de despliegue.md
+# Guía paso a paso: docs/03 Inplementación/Sprint 4/05 Guía de despliegue.md
 services:
   - type: web
     name: ecologistica-lima

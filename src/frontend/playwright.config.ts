@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Pruebas End-to-End de EcoLogística Lima (Etapa final).
+ * Pruebas End-to-End de EcoLogística Lima (Sprint 4).
  *
  * La aplicación bajo prueba es la imagen de producción: FastAPI sirviendo el frontend compilado.
  * - Local o CI: `E2E_BASE_URL` por defecto `http://localhost:8000`.

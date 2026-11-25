@@ -6,7 +6,7 @@
 - **Fecha de Corte:** 28/11/2026
 - **Versión:** 2.0.0
 
-**Periodo reportado:** Etapa final (21/10/2026 al 28/11/2026), comparado con el periodo anterior, Sprint 3 (06/10/2026 al 20/10/2026). El proyecto tiene tres sprints y una etapa final; el cuarto se extendió hasta la fecha de corte para cerrar todo el alcance. Líder del proyecto: Perez Ordoñez Anthony Alexis.
+**Periodo reportado:** Sprint 4 (21/10/2026 al 28/11/2026), comparado con el periodo anterior, Sprint 3 (06/10/2026 al 20/10/2026). El proyecto tiene cuatro sprints; el cuarto se extendió hasta la fecha de corte para cerrar todo el alcance. Líder del proyecto: Perez Ordoñez Anthony Alexis.
 
 > **Cómo leer este reporte.** Es un resumen ejecutivo. Los cálculos de cronograma y costo están en el [Reporte de Variación](02%20Reporte%20de%20Variaci%C3%B3n%20V_1_0_0.md) y en el [Reporte de Valor Ganado (EVM)](03%20Reporte%20de%20An%C3%A1lisis%20de%20Valor%20Ganado%20-%20EVM%20V_1_0_0.md). Los valores de costo se **estiman** con los supuestos declarados en el EVM porque el equipo no llevó una bitácora de horas.
 
@@ -21,13 +21,13 @@
   - **Datos y seguridad (RNF-002, RNF-008):** datos personales y de ubicación cifrados con AES-SIV, anonimización en 5 días hábiles, suite de pruebas ofensivas automáticas, HSTS y base PostgreSQL de producción.
   - **Pruebas automáticas:** 175 del backend (93,4 % de cobertura) más 3 contra PostgreSQL real, 108 del frontend y **{E2E} ejecuciones E2E** en Chromium, Firefox, WebKit y móvil; los flujos de GitHub Actions en verde.
   - **Producción:** aplicación publicada en <https://ecologistica-lima.onrender.com> con despliegue automático.
-  - **Documentación de cierre:** [Matriz de cumplimiento](../03%20Inplementaci%C3%B3n/Etapa%20final/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md) y los siete documentos de esta carpeta.
+  - **Documentación de cierre:** [Matriz de cumplimiento](../03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md) y los siete documentos de esta carpeta.
 - **Cambios al alcance (adiciones, eliminaciones o modificaciones):**
   - **Sin eliminaciones ni diferimientos:** los 20 ítems del backlog (116 puntos) están implementados; dos de ellos, EN-003 (failover) y EN-006 (escalado), cumplen su medida en pruebas con dos instancias pero no en la nube gratuita y por eso ganan el 50 % de sus puntos.
   - **Modificaciones:** los reportes se entregan en tres formatos (CSV, Excel y PDF); la persistencia pasa de SQLite a PostgreSQL en producción; la caché de resultados vive en el proceso y no en Redis.
   - **Adiciones:** administración de usuarios, conductores, parámetros y zonas protegidas, y el portal de privacidad (solicitudes de eliminación), necesarios para cumplir RF-008, RN-003 y RN-008.
 - **Información de calidad (defectos o incidentes detectados):**
-  - **Brechas frente a los criterios de aceptación (auditoría de requisitos):** se hallaron brechas en casi todos los requisitos funcionales y no funcionales; **todas se cerraron** con código y pruebas (ver la [Matriz de cumplimiento](../03%20Inplementaci%C3%B3n/Etapa%20final/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)).
+  - **Brechas frente a los criterios de aceptación (auditoría de requisitos):** se hallaron brechas en casi todos los requisitos funcionales y no funcionales; **todas se cerraron** con código y pruebas (ver la [Matriz de cumplimiento](../03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)).
   - **Defecto de seguridad hallado y corregido:** el inicio de sesión revelaba si un correo existía (el mensaje de intentos restantes solo aparecía para cuentas reales). Ahora un correo desconocido recibe la misma respuesta, el mismo contador de intentos y el mismo bloqueo, y el tiempo de respuesta se iguala con un cálculo bcrypt de relleno.
   - **Incidente del service worker:** la PWA no se registraba porque el arranque diferido de la aplicación ocurre después del evento `load`; se detectó con la prueba E2E sin conexión y se corrigió.
   - **Incidente de dependencias (CI):** `npm audit` marcó `picomatch` en herramientas de desarrollo; se resolvió el 17/11/2026 (PR #6).
@@ -45,8 +45,8 @@
 
 ## 3. Información de Costos
 
-- **Fondos ejecutados en este periodo:** USD 8.941,74 estimados para la etapa final. El acumulado estimado es **USD 20.176,24**, el 89,8 % del presupuesto hasta la conclusión (BAC) de USD 22.469,00.
-- **Causa raíz de la variación (mano de obra, materiales o estimaciones):** el costo se estima con la dedicación planificada constante (BAC × semanas transcurridas ÷ 14 semanas) porque no existe bitácora de horas. La variación de costo acumulada es **+USD 1.033,72** (CPI 1,051): el valor ganado, USD 21.209,96, es el 94,4 % del BAC con el 89,8 % del costo. En el periodo, la etapa final ganó USD 18.595,03 con un costo estimado de USD 8.941,74 (CPI del periodo 2,080), porque concentró la implementación de casi todo el alcance.
+- **Fondos ejecutados en este periodo:** USD 8.941,74 estimados para el Sprint 4. El acumulado estimado es **USD 20.176,24**, el 89,8 % del presupuesto hasta la conclusión (BAC) de USD 22.469,00.
+- **Causa raíz de la variación (mano de obra, materiales o estimaciones):** el costo se estima con la dedicación planificada constante (BAC × semanas transcurridas ÷ 14 semanas) porque no existe bitácora de horas. La variación de costo acumulada es **+USD 1.033,72** (CPI 1,051): el valor ganado, USD 21.209,96, es el 94,4 % del BAC con el 89,8 % del costo. En el periodo, el Sprint 4 ganó USD 18.595,03 con un costo estimado de USD 8.941,74 (CPI del periodo 2,080), porque concentró la implementación de casi todo el alcance.
 - **Impacto en el presupuesto general o reserva de contingencia:** el costo estimado no supera el presupuesto aprobado. La reserva de contingencia de USD 2.696,28 (12 %) no se usó. La estimación a la conclusión es **USD 21.445,02** (EAC), USD 1.023,98 por debajo del BAC.
 - **Acciones correctivas o preventivas planificadas:** registrar las horas reales por integrante y sprint desde la primera iteración del próximo proyecto; mantener la reserva intacta; presupuestar aparte el plan de pago de la plataforma (base de datos y varias instancias), que hoy es gratuito y no forma parte del BAC.
 
@@ -62,7 +62,7 @@
 ## 5. Riesgos, Incidentes y Comentarios
 
 - **Nuevos riesgos identificados:**
-  - **RSK-17:** la base PostgreSQL gratuita de Render caduca a los 30 días y borra los datos (probabilidad 3, impacto 3, severidad 9). Mitigación: pasar a un plan de pago para operar y conservar un respaldo; está advertido en la [Guía de despliegue](../03%20Inplementaci%C3%B3n/Etapa%20final/05%20Gu%C3%ADa%20de%20despliegue.md).
+  - **RSK-17:** la base PostgreSQL gratuita de Render caduca a los 30 días y borra los datos (probabilidad 3, impacto 3, severidad 9). Mitigación: pasar a un plan de pago para operar y conservar un respaldo; está advertido en la [Guía de despliegue](../03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md).
   - **RSK-18:** perder o cambiar `DATA_ENCRYPTION_KEY` deja ilegibles los datos personales cifrados (probabilidad 2, impacto 5, severidad 10). Mitigación: guardar la clave en un gestor de secretos y no rotarla sin migrar los datos.
   - **RSK-15 y RSK-16** (video de cierre y dependencia de las teselas de OpenStreetMap) siguen vigentes con sus mitigaciones.
 - **Nuevos incidentes (Issues) surgidos:**
