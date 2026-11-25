@@ -944,3 +944,6 @@ tbody tr:hover {
 /* Pestañas con contraste suficiente en todos los motores (WCAG 1.4.3). */
 .pestanas .btn-secondary { color: #111827; background: #ffffff; border: 1px solid #4b5563; }
 .pestanas .btn-primary { color: #ffffff; background: #065f46; }
+.pestanas .btn { transition: none !important; }
+.pestanas .btn-secondary { color: #111827 !important; background: #ffffff !important; }
+.pestanas .btn-primary { color: #ffffff !important; background: #065f46 !important; }

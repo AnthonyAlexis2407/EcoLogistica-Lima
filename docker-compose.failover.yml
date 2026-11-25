@@ -59,7 +59,7 @@ services:
       api2:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/api/health/ready"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/health/ready"]
       interval: 2s
       timeout: 3s
       retries: 20
