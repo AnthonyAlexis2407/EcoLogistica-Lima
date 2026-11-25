@@ -19,7 +19,7 @@
   - **Portal y notificaciones (RF-009):** avisos de asignación con hora estimada, salida en ruta, retraso, reprogramación y entrega, aislados por bodega (RN-010).
   - **Dashboard, reportes y administración (RF-005, RF-006):** filtros por distrito y fechas, combustible ahorrado, reportes CSV, Excel y PDF (el auditor los recibe sin datos personales), administración de usuarios, conductores, parámetros del algoritmo y zonas protegidas.
   - **Datos y seguridad (RNF-002, RNF-008):** datos personales y de ubicación cifrados con AES-SIV, anonimización en 5 días hábiles, suite de pruebas ofensivas automáticas, HSTS y base PostgreSQL de producción.
-  - **Pruebas automáticas:** 175 del backend (93,4 % de cobertura) más 3 contra PostgreSQL real, 108 del frontend y **{E2E} ejecuciones E2E** en Chromium, Firefox, WebKit y móvil; los flujos de GitHub Actions en verde.
+  - **Pruebas automáticas:** 175 del backend (93,4 % de cobertura) más 3 contra PostgreSQL real, 108 del frontend y **254 ejecuciones E2E** en Chromium, Firefox, WebKit y móvil; los flujos de GitHub Actions en verde.
   - **Producción:** aplicación publicada en <https://ecologistica-lima.onrender.com> con despliegue automático.
   - **Documentación de cierre:** [Matriz de cumplimiento](../03%20Inplementaci%C3%B3n/Sprint%204/06%20Matriz%20de%20cumplimiento%20V_1_0_0.md) y los siete documentos de esta carpeta.
 - **Cambios al alcance (adiciones, eliminaciones o modificaciones):**

@@ -4,7 +4,7 @@
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
 **Sprint:** Sprint 4  
 **Fecha de la ejecución analizada:** 17/11/2026 (rama `main`, tras fusionar el Pull Request #4)  
-**Versión del documento:** 1.1.0
+**Versión del documento:** 2.0.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Usabilidad](04%20Usabilidad%20V_1_0_0.md) · [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)
 
@@ -51,6 +51,10 @@ src/frontend/
 │   ├── disponibilidad.spec.ts  códigos HTTP, uptime y resiliencia ante fallas
 │   ├── movil.spec.ts           diseño adaptable en un móvil emulado
 │   ├── smoke.spec.ts           prueba de humo del entorno desplegado
+│   ├── conductor.spec.ts       app del conductor: firma, 3 toques, sin conexión, reprogramación, idempotencia
+│   ├── accesibilidad.spec.ts   axe-core WCAG 2.2 AA en todas las pantallas, foco atrapado y teclado
+│   ├── administracion.spec.ts  administración, permisos por rol, reportes sin datos personales
+│   ├── pwa.spec.ts             manifiesto, service worker y apertura sin red
 │   └── evidencias.spec.ts      capturas de pantalla a demanda (E2E_EVIDENCIAS=1)
 ├── .auth/                      sesiones guardadas (ignorada por Git)
 ├── playwright-report/          informe HTML (ignorada por Git)
@@ -328,6 +332,29 @@ La comprobación manual del 17/11/2026 coincide: la página de inicio responde 2
 
 Los artefactos se conservan 14 días en GitHub Actions; si caducan, basta ejecutar de nuevo el flujo `Tests`.
 
+## 5.1 Pruebas añadidas en el cierre y ejecución final
+
+| Archivo | Qué verifica | Requisito |
+|---|---|---|
+| `conductor.spec.ts` (proyectos `rutas-*`, en serie) | Ruta completa del conductor con firma; entrega en 3 toques y menos de 20 s; firma o foto obligatoria; entrega sin conexión que se sincroniza al volver la red; reprogramación; idempotencia; avisos a la bodega y compensación | RF-004, RF-008, RF-009, RF-010, RN-007, RNF-004, RNF-010 |
+| `accesibilidad.spec.ts` | axe-core (WCAG 2.0, 2.1 y 2.2, A y AA) en todas las pantallas y pestañas; foco atrapado, Escape y retorno del foco; menú con teclado | RNF-007 |
+| `administracion.spec.ts` | Conductores, parámetros y zonas; permisos por rol; reportes del auditor sin direcciones; Excel y PDF; HSTS | RF-006, RF-008, RNF-008 |
+| `pwa.spec.ts` | Manifiesto instalable, service worker y reapertura sin red (Chromium) | RNF-010 |
+
+**Resultado de la ejecución final** (flujo `Tests`, rama `feature/cierre-final`, todos los trabajos en verde): **254 ejecuciones, 248 pasan a la primera, 4 pasan tras un reintento (inestables) y 2 se omiten por diseño** (la apertura sin red con service worker solo se ejecuta en Chromium); **0 fallos**.
+
+| Proyecto | Pruebas | Pasan | Inestables | Omitidas |
+|---|---|---|---|---|
+| Chromium | 69 | 69 | 0 | 0 |
+| Firefox | 69 | 67 | 1 | 1 |
+| WebKit | 69 | 68 | 0 | 1 |
+| Rutas y conductor (3 navegadores) | 39 | 36 | 3 | 0 |
+| Móvil (Pixel 7) | 5 | 5 | 0 | 0 |
+| Humo | 3 | 3 | 0 | 0 |
+| **Total** | **254** | **248** | **4** | **2** |
+
+Las cuatro pruebas inestables pasaron en el reintento que configura `playwright.config.ts` en CI; no se ocultan y quedan como candidatas a revisar.
+
 ## 6. Conclusiones y límites
 
 - La suite cumple lo pedido: tres navegadores, flujos críticos al 100 %, métricas exactas de rendimiento por debajo de los límites, resiliencia verificada y reportes como artefactos.
@@ -347,4 +374,5 @@ Los artefactos se conservan 14 días en GitHub Actions; si caducan, basta ejecut
 | Versión | Fecha | Cambio |
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Primera versión: configuración, 130 ejecuciones E2E en tres navegadores y móvil, Web Vitals, tiempos de la API, uptime y resiliencia. |
+| 2.0.0 | 28/11/2026 | Se añaden las pruebas del conductor, accesibilidad, administración y PWA y la ejecución final (254 ejecuciones). |
 | 1.1.0 | 17/11/2026 | Cifras actualizadas con la ejecución en `main` tras fusionar el Pull Request #4; se añaden el uptime y el tiempo de respuesta del entorno desplegado y el resultado de la prueba de humo en producción. |

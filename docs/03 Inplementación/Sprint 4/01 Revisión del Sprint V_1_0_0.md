@@ -36,7 +36,7 @@ El proyecto tiene cuatro sprints, por lo que este sprint se extendió hasta la f
 | Requisitos no funcionales que cumplen (de 10) | 2 | **8** (los otros 2 cumplen en pruebas, no en la nube gratuita) | Matriz de cumplimiento |
 | Pruebas del backend | cobertura mínima del 80 % | **175 pruebas, 93,4 % de cobertura**, y 3 contra PostgreSQL real en CI | flujo `Tests` |
 | Pruebas unitarias del frontend | 70 | **108** | Vitest, flujo `Tests` |
-| Pruebas E2E (Playwright) | 130 | **{E2E}** (Chromium, Firefox, WebKit, móvil y humo) | [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) |
+| Pruebas E2E (Playwright) | 130 | **254** (Chromium, Firefox, WebKit, móvil y humo) | [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) |
 
 ## Historias de Usuario completadas en este Sprint
 

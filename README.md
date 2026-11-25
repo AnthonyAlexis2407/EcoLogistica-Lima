@@ -187,7 +187,9 @@ docker compose -f docker-compose.failover.yml up --build -d --wait && python scr
 | Sprint 03 · 07 Registro de Impedimentos | 3.2.0 | 09/11/2026 | Solo impedimentos ajenos a la intervención del equipo |
 | Green IT · 01 Informe de reducción del impacto ambiental | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, glosario y referencias cruzadas |
 | Green IT · 02 Estándares de ingeniería de software | 1.0.0 | 10/11/2026 | Primera versión; redacción simplificada, guía del YAML y referencias cruzadas |
-| Sprint 4 · 01 Revisión, 02 Retrospectiva, 03 Análisis Playwright, 04 Usabilidad y 05 Guía de despliegue | 1.1.0 | 17/11/2026 | Primera versión del 16/11; actualizada con el despliegue en producción y las cifras de `main` |
+| Sprint 4 · 03 Análisis Playwright | 2.0.0 | 28/11/2026 | Pruebas del cierre y ejecución final |
+| Sprint 4 · 04 Usabilidad | 1.2.0 | 28/11/2026 | Selector de mapa aplicado |
+| Sprint 4 · versiones iniciales de 01, 02 y 05 | 1.1.0 | 17/11/2026 | Primera versión del 16/11; actualizada con el despliegue en producción y las cifras de `main` |
 | Sprint 4 · 01 Revisión, 02 Retrospectiva y 05 Guía de despliegue | 2.0.0 | 28/11/2026 | Cierre del sprint: implementación final, retrospectiva de cierre y PostgreSQL |
 | Sprint 4 · 06 Matriz de cumplimiento | 2.0.0 | 28/11/2026 | Cumplimiento final de requisitos, reglas de negocio y estándares |
 | Sprint 4 · 07 Estudio de algoritmos | 1.0.0 | 28/11/2026 | Primera versión |

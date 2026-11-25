@@ -27,7 +27,7 @@ Umbrales: 🟢 cumple la meta · 🟡 cumple con reservas o con trabajo pendient
 | Motor de rutas (RF-003, RF-007) | Adaptativo | 🟢 Verde | 1.000 pedidos en alrededor de 1 s; umbral: ≤ 45.000 ms (RNF-001); re-optimización en milisegundos |
 | Mapa, dashboard, reportes, CO₂ y notificaciones (RF-004, 005, 006, 009, 010) | Adaptativo | 🟢 Verde | Los diez requisitos funcionales cumplen sus criterios de aceptación con pruebas automáticas |
 | Calidad de código | Adaptativo | 🟢 Verde | Backend 93,4 % de cobertura (meta 80 %); 0 hallazgos de Ruff, Bandit, ESLint y `tsc`; 0 bugs y 0 vulnerabilidades en SonarQube (21/10/2026) |
-| Pruebas E2E (3 navegadores + móvil) | Adaptativo | 🟢 Verde | {E2E} ejecuciones, 100 % de éxito, incluidas la app del conductor sin conexión y la accesibilidad con axe-core |
+| Pruebas E2E (3 navegadores + móvil) | Adaptativo | 🟢 Verde | 254 ejecuciones, 0 fallos, incluidas la app del conductor sin conexión y la accesibilidad con axe-core |
 | CI/CD (flujos de GitHub Actions) | Adaptativo | 🟢 Verde | `CI`, `Tests` (con PostgreSQL real y conmutación por falla), `Deploy Production` y Green IT |
 | Rendimiento y disponibilidad en producción | Adaptativo | 🟡 Ámbar | Mediana 295 ms (meta < 500 ms) y 30 de 30 sondeos correctos, pero muestra corta y una sola instancia en el plan gratuito; el RTO se midió con dos instancias en CI |
 | Usabilidad (SUS) | Adaptativo | 🟡 Ámbar | SUS 79,4 (A-), pero con datos **simulados**; meta ≥ 68. Entregar una parada toma 3 toques y menos de 20 s |
