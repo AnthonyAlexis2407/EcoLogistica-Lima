@@ -6,6 +6,8 @@
  * en serie y al final (ver playwright.config.ts). Cada una arma su propia ruta por la API y la deja cerrada o cancelada.
  */
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+
+test.use({ serviceWorkers: 'allow' });
 import { archivoSesion, autorizacion, sufijo, USUARIOS } from './datos';
 
 test.describe.configure({ mode: 'serial' });

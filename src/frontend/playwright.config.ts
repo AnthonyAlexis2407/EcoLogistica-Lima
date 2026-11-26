@@ -33,6 +33,9 @@ export default defineConfig({
     baseURL,
     locale: 'es-PE',
     timezoneId: 'America/Lima',
+    // El service worker de la PWA cachea navegaciones y solapa la intercepción de red (page.route) en WebKit;
+    // solo pwa.spec.ts y conductor.spec.ts lo necesitan y lo habilitan por archivo.
+    serviceWorkers: 'block',
     // Evidencias para depurar fallos con el Trace Viewer.
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',

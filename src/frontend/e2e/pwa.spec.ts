@@ -5,6 +5,8 @@
  * manifiesto y de los iconos (el service worker offline depende del motor y de la política del navegador).
  */
 import { expect, test } from '@playwright/test';
+
+test.use({ serviceWorkers: 'allow' });
 import { archivoSesion } from './datos';
 
 test('el manifiesto declara una app instalable con iconos', async ({ request }) => {
