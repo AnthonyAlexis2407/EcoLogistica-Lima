@@ -7,8 +7,8 @@ Uso (desde la raíz del repositorio):
 Todos los datos de entrada están en este archivo (sección DATOS) para que el cálculo sea verificable y repetible.
 
 SUPUESTOS DECLARADOS (no existe una bitácora de horas ni costos reales del equipo):
-1. Presupuesto hasta la conclusión (BAC): USD 22.469,00 del Documento 04 de Planificación (sin la reserva de contingencia
-   de USD 2.696,28, que se gestiona aparte).
+1. Presupuesto hasta la conclusión (BAC): S/ 84.258,75 del Documento 04 de Planificación (sin la reserva de contingencia
+   de S/ 10.111,05, que se gestiona aparte).
 2. Valor Planificado (PV): el BAC se reparte en proporción a los puntos de historia del backlog (116 puntos) según la
    iteración de la hoja de ruta (Acta de constitución y Artefactos Jira). Las épicas transversales (EL-6, 53 puntos) se
    reparten en partes casi iguales entre las cuatro iteraciones.
@@ -29,8 +29,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
-BAC = 22469.00
-RESERVA = 2696.28
+BAC = 84258.75
+RESERVA = 10111.05
 PUNTOS_TOTALES = 116
 INICIO = date(2026, 9, 1)
 SEMANAS_PRESUPUESTADAS = 14
@@ -111,8 +111,8 @@ def d(v: float, dec: int = 2) -> str:
 
 def tablas() -> None:
     filas = calcular()
-    print(f"BAC = USD {d(BAC)} · valor por punto = USD {d(BAC / PUNTOS_TOTALES)} · {PUNTOS_TOTALES} puntos\n")
-    print("| Sprint (fin) | PV acum. (pts) | EV acum. (pts) | PV (USD) | EV (USD) | AC (USD) | SV | CV | SPI | CPI |")
+    print(f"BAC = S/ {d(BAC)} · valor por punto = S/ {d(BAC / PUNTOS_TOTALES)} · {PUNTOS_TOTALES} puntos\n")
+    print("| Sprint (fin) | PV acum. (pts) | EV acum. (pts) | PV (S/) | EV (S/) | AC (S/) | SV | CV | SPI | CPI |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     for f in filas:
         print(f"| {f['sprint']} ({f['fin']:%d/%m}) | {f['pv_pts']} | {f['ev_pts']:g} | {d(f['pv'])} | {d(f['ev'])} | {d(f['ac'])} | "
@@ -187,7 +187,7 @@ def grafico_evm(filas):
     for clave, valores in series.items():
         cuerpo += _linea([pos(i, v) for i, v in enumerate(valores)], COLOR[clave])
     cuerpo += _leyenda([("PV planificado", COLOR["pv"]), ("EV ganado", COLOR["ev"]), ("AC real (estimado)", COLOR["ac"])], 90, 305)
-    cuerpo += f'<text x="{x0 - 55}" y="{(y0 + y1) / 2}" font-size="10" fill="#374151" transform="rotate(-90 {x0 - 55} {(y0 + y1) / 2})">USD acumulados</text>'
+    cuerpo += f'<text x="{x0 - 55}" y="{(y0 + y1) / 2}" font-size="10" fill="#374151" transform="rotate(-90 {x0 - 55} {(y0 + y1) / 2})">S/ acumulados</text>'
     return _marco(ancho, alto, "Tendencia de valor ganado (EVM acumulado)", cuerpo)
 
 

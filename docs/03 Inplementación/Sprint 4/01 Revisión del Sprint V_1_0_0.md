@@ -31,7 +31,7 @@ El proyecto tiene cuatro sprints, por lo que este sprint se extendió hasta la f
 | Indicador | 16/11/2026 | 28/11/2026 | Fuente |
 |---|---|---|---|
 | Ítems del backlog en "Hecho" (de 20) | 2 (US-001 y US-003) | **18**, con EN-003 y EN-006 en curso al 50 % | [Reporte de EVM](../../04%20Cierre/03%20Reporte%20de%20An%C3%A1lisis%20de%20Valor%20Ganado%20-%20EVM%20V_1_0_0.md) |
-| Valor ganado acumulado | USD 2.614,93 (11,6 % del BAC) | **USD 21.209,96 (94,4 %)** | Reporte de EVM |
+| Valor ganado acumulado | S/ 9.805,99 (11,6 % del BAC) | **S/ 79.537,35 (94,4 %)** | Reporte de EVM |
 | Requisitos funcionales que cumplen (de 10) | 3 | **10** | [Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md) |
 | Requisitos no funcionales que cumplen (de 10) | 2 | **8** (los otros 2 cumplen en pruebas, no en la nube gratuita) | Matriz de cumplimiento |
 | Pruebas del backend | cobertura mínima del 80 % | **175 pruebas, 93,4 % de cobertura**, y 3 contra PostgreSQL real en CI | flujo `Tests` |

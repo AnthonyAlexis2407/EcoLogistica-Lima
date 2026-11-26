@@ -45,9 +45,9 @@
 
 ## 3. Información de Costos
 
-- **Fondos ejecutados en este periodo:** USD 8.941,74 estimados para el Sprint 4. El acumulado estimado es **USD 20.176,24**, el 89,8 % del presupuesto hasta la conclusión (BAC) de USD 22.469,00.
-- **Causa raíz de la variación (mano de obra, materiales o estimaciones):** el costo se estima con la dedicación planificada constante (BAC × semanas transcurridas ÷ 14 semanas) porque no existe bitácora de horas. La variación de costo acumulada es **+USD 1.033,72** (CPI 1,051): el valor ganado, USD 21.209,96, es el 94,4 % del BAC con el 89,8 % del costo. En el periodo, el Sprint 4 ganó USD 18.595,03 con un costo estimado de USD 8.941,74 (CPI del periodo 2,080), porque concentró la implementación de casi todo el alcance.
-- **Impacto en el presupuesto general o reserva de contingencia:** el costo estimado no supera el presupuesto aprobado. La reserva de contingencia de USD 2.696,28 (12 %) no se usó. La estimación a la conclusión es **USD 21.445,02** (EAC), USD 1.023,98 por debajo del BAC.
+- **Fondos ejecutados en este periodo:** S/ 33.531,53 estimados para el Sprint 4. El acumulado estimado es **S/ 75.660,90**, el 89,8 % del presupuesto hasta la conclusión (BAC) de S/ 84.258,75.
+- **Causa raíz de la variación (mano de obra, materiales o estimaciones):** el costo se estima con la dedicación planificada constante (BAC × semanas transcurridas ÷ 14 semanas) porque no existe bitácora de horas. La variación de costo acumulada es **+S/ 3.876,45** (CPI 1,051): el valor ganado, S/ 79.537,35, es el 94,4 % del BAC con el 89,8 % del costo. En el periodo, el Sprint 4 ganó S/ 69.731,36 con un costo estimado de S/ 33.531,53 (CPI del periodo 2,080), porque concentró la implementación de casi todo el alcance.
+- **Impacto en el presupuesto general o reserva de contingencia:** el costo estimado no supera el presupuesto aprobado. La reserva de contingencia de S/ 10.111,05 (12 %) no se usó. La estimación a la conclusión es **S/ 80.418,82** (EAC), S/ 3.839,93 por debajo del BAC.
 - **Acciones correctivas o preventivas planificadas:** registrar las horas reales por integrante y sprint desde la primera iteración del próximo proyecto; mantener la reserva intacta; presupuestar aparte el plan de pago de la plataforma (base de datos y varias instancias), que hoy es gratuito y no forma parte del BAC.
 
 ## 4. Proyección (Look Ahead)
@@ -57,7 +57,7 @@
   - Video MP4 de 5 minutos (1 minuto de presentación de la idea y 4 de demostración funcional) en `docs/05 Video proyecto`.
   - Fusionar el Pull Request del cierre y apuntar el servicio de Render a la rama `main`.
   - Completar la tabla de la demostración con el docente y registrar la aceptación de las historias.
-- **Costos planificados para el próximo periodo:** USD 458,55 estimados, correspondientes a 2 días a la dedicación planificada (USD 1.604,93 por semana).
+- **Costos planificados para el próximo periodo:** S/ 1.719,56 estimados, correspondientes a 2 días a la dedicación planificada (S/ 6.018,49 por semana).
 
 ## 5. Riesgos, Incidentes y Comentarios
 

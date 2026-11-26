@@ -132,6 +132,13 @@ Carpeta `docs/03 Inplementación/reduccion del impacto ambiental/`; cada documen
 - [01 Informe de reducción del impacto ambiental](docs/03%20Inplementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md): ocho optimizaciones con código ANTES y DESPUÉS, mediciones con Lighthouse y cálculo SWDM v4.
 - [02 Estándares de ingeniería de software y guía de desarrollo verde](docs/03%20Inplementaci%C3%B3n/reduccion%20del%20impacto%20ambiental/02%20Estandares%20Ingenier%C3%ADa%20de%20software%20V_1_0_0.md): ISO/IEC 25010, GSF, W3C WSG, matriz de mapeo y flujos de CI/CD.
 
+## Instalación y ejecución local
+
+1. Backend: `cd src/backend && pip install -r requirements.txt && python -m app.seed && uvicorn app.main:app --port 8000` (variables opcionales: `SECRET_KEY`, `DATA_ENCRYPTION_KEY`, `DATABASE_URL`; ver `src/backend/README.md`).
+2. Frontend: `cd src/frontend && npm ci && npm run dev` (o `npm run build` y la API lo sirve desde el mismo origen).
+3. Cuentas de demostración (solo con datos semilla): `admin@ecologistica.pe / Admin2026!`, `operador@ecologistica.pe / Operador2026!`, `bodega@tienda.pe / Bodega2026!`, `conductor@ecologistica.pe / Conductor2026!`, `auditor@ecologistica.pe / Auditor2026!`.
+4. Despliegue: [Guía de despliegue](docs/03%20Inplementaci%C3%B3n/Sprint%204/05%20Gu%C3%ADa%20de%20despliegue.md). Los montos del proyecto están en soles (S/).
+
 ## Cómo verificar el proyecto
 
 ```bash
@@ -175,6 +182,7 @@ docker compose -f docker-compose.failover.yml up --build -d --wait && python scr
 | Inicio · 11 Base de datos | 1.3.0 | 28/11/2026 | Modelo implementado (15 tablas) y clasificación de datos personales |
 | Inicio · 12 Modelo C4 | 1.4.0 | 28/11/2026 | Estado de implementación final y componentes nuevos |
 | Planificación · 02 Artefactos Jira | 1.1.0 | 05/10/2026 | Estado real de Jira |
+| Planificación · 04 Presupuesto del proyecto | 1.1.0 | 28/11/2026 | Montos convertidos de dólares a soles (S/ 3,75 por USD) |
 | Planificación · 03 Registro de riesgos | 1.5.0 | 28/11/2026 | Se añaden RSK-17 y RSK-18 y se actualiza el estado de los riesgos |
 | Sprint 01 · Informe de estado | 1.1.0 | 20/10/2026 | Se retira la demostración del informe |
 | Sprint 02 · Informe de estado, Revisión y Retrospectiva | 2.2.0 | 20/10/2026 | Criterios por ruta, cierre de sprint y rutas |
