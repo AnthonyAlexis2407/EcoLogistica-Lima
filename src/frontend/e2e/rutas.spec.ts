@@ -146,6 +146,9 @@ test.describe('API de rutas, indicadores y reportes', () => {
   });
 
   test('RNF-001: 50 pedidos se planifican en menos de 45 s y se midió el CO₂ evitado', async ({ request }, testInfo) => {
+    // Las ventanas horarias son restricciones duras (8 h): 50 paradas de 10 min no caben en un solo vehículo, por lo que
+    // la prueba garantiza una flota suficiente (varios vehículos con capacidad amplia).
+    for (let k = 0; k < 4; k++) await asegurarFlota(request);
     await crearPedidos(request, 50, 40);
     const cabeceras = await autorizacion(request, 'operador');
 
