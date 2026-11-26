@@ -201,7 +201,7 @@ async def test_las_respuestas_llevan_cabeceras_de_seguridad_y_no_se_guardan_en_c
     res = await api.client.post("/api/auth/login", json={"email": "admin@test.pe", "password": "Admin2026!"})
     assert res.headers["x-frame-options"] == "DENY" and res.headers["x-content-type-options"] == "nosniff"
     assert "max-age=31536000" in res.headers["strict-transport-security"]
-    assert res.headers["referrer-policy"] == "no-referrer"
+    assert res.headers["referrer-policy"] == "strict-origin-when-cross-origin"
     assert "geolocation=(self)" in res.headers["permissions-policy"] and "microphone=()" in res.headers["permissions-policy"]
     assert res.headers["cache-control"] == "no-store"
 

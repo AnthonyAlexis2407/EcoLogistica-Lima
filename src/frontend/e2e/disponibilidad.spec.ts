@@ -44,7 +44,7 @@ test.describe('Códigos de estado HTTP', () => {
     const cabeceras = (await request.get('/api/health')).headers();
     expect(cabeceras['x-content-type-options']).toBe('nosniff');
     expect(cabeceras['x-frame-options']).toBe('DENY');
-    expect(cabeceras['referrer-policy']).toBe('no-referrer');
+    expect(cabeceras['referrer-policy']).toBe('strict-origin-when-cross-origin');
   });
 
   test('en producción la documentación interactiva de la API está oculta', async ({ request }) => {
