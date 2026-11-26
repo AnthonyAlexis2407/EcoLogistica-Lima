@@ -17,7 +17,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-ORDEN = ["chromium", "firefox", "webkit", "rutas-chromium", "rutas-firefox", "rutas-webkit", "movil", "smoke"]
+ORDEN = ["chromium", "firefox", "webkit", "rutas-chromium", "conductor-chromium", "rutas-firefox", "conductor-firefox", "rutas-webkit", "conductor-webkit", "movil", "smoke"]
 SALIDA: list[str] = []
 
 

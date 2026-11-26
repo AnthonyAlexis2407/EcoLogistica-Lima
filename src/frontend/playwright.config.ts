@@ -67,25 +67,44 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
       testMatch: /smoke\.spec\.ts/,
     },
-    // Rutas (RF-003): optimizar toma todos los pedidos pendientes de la base compartida, por eso estos proyectos corren
-    // en serie y solo cuando terminaron todos los demás (cada uno depende del anterior).
+    // Rutas (RF-003) y conductor (RF-004): optimizar toma todos los pedidos pendientes de la base compartida y ambos
+    // archivos limpian rutas y pedidos, por eso cada archivo es su propio proyecto y todos corren en cadena (uno a la vez),
+    // solo cuando terminaron los demás.
     {
       name: 'rutas-chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['setup', 'chromium', 'firefox', 'webkit'],
-      testMatch: /(rutas|conductor)\.spec\.ts/,
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'conductor-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['rutas-chromium'],
+      testMatch: /conductor\.spec\.ts/,
     },
     {
       name: 'rutas-firefox',
       use: { ...devices['Desktop Firefox'] },
-      dependencies: ['rutas-chromium'],
-      testMatch: /(rutas|conductor)\.spec\.ts/,
+      dependencies: ['conductor-chromium'],
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'conductor-firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['rutas-firefox'],
+      testMatch: /conductor\.spec\.ts/,
     },
     {
       name: 'rutas-webkit',
       use: { ...devices['Desktop Safari'] },
-      dependencies: ['rutas-firefox'],
-      testMatch: /(rutas|conductor)\.spec\.ts/,
+      dependencies: ['conductor-firefox'],
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'conductor-webkit',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['rutas-webkit'],
+      testMatch: /conductor\.spec\.ts/,
     },
     {
       name: 'movil',
