@@ -90,6 +90,9 @@ describe('RutasPage', () => {
       expect(mapaDoble.L.marker).toHaveBeenCalledTimes(2); // una marca por parada
       expect(mapaDoble.mapa.fitBounds).toHaveBeenCalled();
     });
+    expect(mapaDoble.L.polyline).toHaveBeenCalledTimes(1); // un recorrido por ruta
+    expect(mapaDoble.L.marker).toHaveBeenCalledTimes(2); // una marca por parada
+    expect(mapaDoble.mapa.fitBounds).toHaveBeenCalled();
   });
 
   it('optimizar muestra el CO₂ evitado, la compensación, el tiempo y los pedidos sin asignar', async () => {
