@@ -84,6 +84,12 @@ describe('RutasPage', () => {
     expect(screen.getByText('En ventana')).toBeInTheDocument();
     expect(screen.getByText('Fuera de ventana')).toBeInTheDocument();
     expect(screen.getByText(/espera 12 min/)).toBeInTheDocument();
+    // El mapa se dibuja en un efecto posterior al render de la lista: se espera en lugar de asumir el orden.
+    await waitFor(() => {
+      expect(mapaDoble.L.polyline).toHaveBeenCalledTimes(1); // un recorrido por ruta
+      expect(mapaDoble.L.marker).toHaveBeenCalledTimes(2); // una marca por parada
+      expect(mapaDoble.mapa.fitBounds).toHaveBeenCalled();
+    });
     expect(mapaDoble.L.polyline).toHaveBeenCalledTimes(1); // un recorrido por ruta
     expect(mapaDoble.L.marker).toHaveBeenCalledTimes(2); // una marca por parada
     expect(mapaDoble.mapa.fitBounds).toHaveBeenCalled();

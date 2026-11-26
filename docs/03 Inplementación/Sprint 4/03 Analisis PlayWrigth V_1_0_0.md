@@ -275,7 +275,7 @@ La prueba falla si cualquier ruta supera esos límites o devuelve un código dis
 | Ruta de la API que no existe | 404 en JSON con `detail` | Sí |
 | Datos sin sesión o con token falso | 401 | Sí |
 | Cuerpo inválido (placa vacía, capacidad negativa, combustible inexistente) | 422, nunca un error del servidor | Sí |
-| Cabeceras de seguridad | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` | Sí |
+| Cabeceras de seguridad | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` | Sí |
 | Documentación de la API en producción | Oculta (no aparece Swagger ni el esquema OpenAPI) | Sí |
 
 ### 4.2 Uptime
