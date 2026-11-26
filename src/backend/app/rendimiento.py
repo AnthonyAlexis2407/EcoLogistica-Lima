@@ -25,7 +25,6 @@ CABECERAS_SEGURIDAD = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Referrer-Policy": "no-referrer",
     # HSTS (RNF-002): el navegador solo usa HTTPS con este sitio; se ignora si la respuesta llega por HTTP plano.
     "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
     # El móvil del conductor necesita su ubicación y la cámara (evidencia de entrega); nada más.
