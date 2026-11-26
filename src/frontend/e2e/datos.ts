@@ -20,6 +20,14 @@ export const USUARIOS = {
     email: process.env.E2E_BODEGA_EMAIL ?? 'bodega@tienda.pe',
     password: process.env.E2E_BODEGA_PASSWORD ?? 'Bodega2026!',
   },
+  conductor: {
+    email: process.env.E2E_CONDUCTOR_EMAIL ?? 'conductor@ecologistica.pe',
+    password: process.env.E2E_CONDUCTOR_PASSWORD ?? 'Conductor2026!',
+  },
+  auditor: {
+    email: process.env.E2E_AUDITOR_EMAIL ?? 'auditor@ecologistica.pe',
+    password: process.env.E2E_AUDITOR_PASSWORD ?? 'Auditor2026!',
+  },
 } as const;
 
 export type Rol = keyof typeof USUARIOS;

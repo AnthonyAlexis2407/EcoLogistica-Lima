@@ -7,11 +7,14 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.config import settings
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
+_es_sqlite = "sqlite" in settings.DATABASE_URL
+_opciones = (
+    {"connect_args": {"check_same_thread": False}}
+    # PostgreSQL: conexiones verificadas antes de usarse (recuperación tras una conmutación, RNF-003).
+    if _es_sqlite else {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 10}
 )
+
+engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG, **_opciones)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,

@@ -1,0 +1,65 @@
+# Entorno de alta disponibilidad para medir la conmutación por falla (RNF-003): dos instancias de la API detrás de un
+# balanceador, con una base PostgreSQL compartida. El balanceador reenvía a la instancia sana en cuanto la otra cae.
+#
+#   docker compose -f docker-compose.failover.yml up --build -d --wait
+#   python scripts/medir_rto.py            # detiene una instancia y mide cuánto tarda el servicio en responder otra vez
+#   docker compose -f docker-compose.failover.yml down -v
+#
+# El mismo esquema se ejecuta en GitHub Actions (trabajo «Conmutación por falla» de tests.yml).
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: eco
+      POSTGRES_PASSWORD: clave-solo-para-pruebas-de-failover
+      POSTGRES_DB: ecologistica
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eco -d ecologistica"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api1:
+    build: .
+    image: ecologistica-lima:failover
+    environment: &entorno
+      ENVIRONMENT: production
+      SECRET_KEY: clave-solo-para-pruebas-de-failover-no-usar-en-produccion
+      DATA_ENCRYPTION_KEY: clave-de-cifrado-solo-para-pruebas-de-failover
+      DATABASE_URL: postgresql://eco:clave-solo-para-pruebas-de-failover@postgres:5432/ecologistica
+      SEED_DEMO_DATA: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck: &salud
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/api/health/ready',timeout=3)"]
+      interval: 2s
+      timeout: 4s
+      retries: 30
+
+  api2:
+    image: ecologistica-lima:failover
+    environment:
+      <<: *entorno
+      SEED_DEMO_DATA: "false" # solo la primera instancia carga los datos de demostración
+    depends_on:
+      api1:
+        condition: service_healthy
+    healthcheck: *salud
+
+  balanceador:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx-failover.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api1:
+        condition: service_healthy
+      api2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/health/ready"]
+      interval: 2s
+      timeout: 3s
+      retries: 20

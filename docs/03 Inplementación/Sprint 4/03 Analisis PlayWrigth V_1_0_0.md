@@ -4,7 +4,7 @@
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
 **Sprint:** Sprint 4  
 **Fecha de la ejecución analizada:** 17/11/2026 (rama `main`, tras fusionar el Pull Request #4)  
-**Versión del documento:** 1.1.0
+**Versión del documento:** 2.0.0
 
 [← Volver al README principal](../../../README.md) · [Revisión del Sprint](01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md) · [Usabilidad](04%20Usabilidad%20V_1_0_0.md) · [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md)
 
@@ -51,6 +51,10 @@ src/frontend/
 │   ├── disponibilidad.spec.ts  códigos HTTP, uptime y resiliencia ante fallas
 │   ├── movil.spec.ts           diseño adaptable en un móvil emulado
 │   ├── smoke.spec.ts           prueba de humo del entorno desplegado
+│   ├── conductor.spec.ts       app del conductor: firma, 3 toques, sin conexión, reprogramación, idempotencia
+│   ├── accesibilidad.spec.ts   axe-core WCAG 2.2 AA en todas las pantallas, foco atrapado y teclado
+│   ├── administracion.spec.ts  administración, permisos por rol, reportes sin datos personales
+│   ├── pwa.spec.ts             manifiesto, service worker y apertura sin red
 │   └── evidencias.spec.ts      capturas de pantalla a demanda (E2E_EVIDENCIAS=1)
 ├── .auth/                      sesiones guardadas (ignorada por Git)
 ├── playwright-report/          informe HTML (ignorada por Git)
@@ -143,7 +147,7 @@ Por tema de prueba (pasan / total):
 | `movil.spec.ts` | — | — | — | 4/4 | — |
 | `smoke.spec.ts` | — | — | — | — | 3/3 |
 
-La rúbrica pide 100 % de éxito en los flujos críticos en los tres navegadores: se cumple. Para que el análisis sea honesto, la sección 2.4 cuenta lo que falló antes de llegar a este resultado.
+El curso pide 100 % de éxito en los flujos críticos en los tres navegadores: se cumple. Para que el análisis sea honesto, la sección 2.4 cuenta lo que falló antes de llegar a este resultado.
 
 ### 2.2 Casos críticos cubiertos
 
@@ -226,7 +230,7 @@ Además, Vitest recogía por error los archivos de `e2e/` como pruebas unitarias
 
 ## 3. Monitoreo de rendimiento
 
-Las pruebas de [`rendimiento.spec.ts`](../../../src/frontend/e2e/rendimiento.spec.ts) miden con las APIs estándar del navegador (`PerformanceObserver` y *Navigation Timing*), sin herramientas externas, y guardan cada medición en `test-results/metricas/`. Los límites son los de Core Web Vitals ("bueno") y el presupuesto de 500 ms para la API que fija la rúbrica.
+Las pruebas de [`rendimiento.spec.ts`](../../../src/frontend/e2e/rendimiento.spec.ts) miden con las APIs estándar del navegador (`PerformanceObserver` y *Navigation Timing*), sin herramientas externas, y guardan cada medición en `test-results/metricas/`. Los límites son los de Core Web Vitals ("bueno") y el presupuesto de 500 ms para la API que fija el curso.
 
 ### 3.1 Web Vitals de la pantalla de inicio de sesión
 
@@ -249,7 +253,7 @@ Cada ruta se llama 15 veces con sesión de administrador (la de salud, sin sesi�
 | `/api/vehiculos/` | Chromium / Firefox / WebKit | 3,7 / 4,0 / 6,4 ms | 5,0 / 4,8 / 14,2 ms | 5,0 / 4,8 / 14,2 ms | 200 |
 | `/api/pedidos/` | Chromium / Firefox / WebKit | 3,9 / 3,9 / 4,2 ms | 4,9 / 5,9 / 6,0 ms | 4,9 / 5,9 / 6,0 ms | 200 |
 | `/api/vehiculos/count` | Chromium / Firefox / WebKit | 2,9 / 2,9 / 3,0 ms | 3,2 / 3,2 / 4,0 ms | 3,2 / 3,2 / 4,0 ms | 200 |
-| **Límite de la rúbrica** | | **< 500 ms** | **< 800 ms** | | |
+| **Límite del curso** | | **< 500 ms** | **< 800 ms** | | |
 
 La prueba falla si cualquier ruta supera esos límites o devuelve un código distinto de 200. Además, una prueba comprueba que la API comprime con Brotli y responde **304** cuando los datos no cambiaron (cabecera `ETag`), lo que ahorra transferencia ([Green IT](../reduccion%20del%20impacto%20ambiental/01%20Informe%20de%20reduccion%20del%20impacto%20ambiental%20V_1_0_0.md)).
 
@@ -287,7 +291,7 @@ Cada navegador hace 30 sondeos seguidos a `/api/health`, uno cada 150 ms:
 
 **Uptime del entorno desplegado (Render, <https://ecologistica-lima.onrender.com>).** Medido el 17/11/2026 desde internet con 30 sondeos a `/api/health`, uno cada 2 segundos:
 
-| Sondeos | Correctos | Disponibilidad | Tiempo de respuesta mediano | p95 | Mínimo | Máximo | Límite de la rúbrica |
+| Sondeos | Correctos | Disponibilidad | Tiempo de respuesta mediano | p95 | Mínimo | Máximo | Límite del curso |
 |---|---|---|---|---|---|---|---|
 | 30 | 30 | **100,0 %** | **295 ms** | 383 ms | 232 ms | 474 ms | < 500 ms |
 
@@ -328,6 +332,29 @@ La comprobación manual del 17/11/2026 coincide: la página de inicio responde 2
 
 Los artefactos se conservan 14 días en GitHub Actions; si caducan, basta ejecutar de nuevo el flujo `Tests`.
 
+## 5.1 Pruebas añadidas en el cierre y ejecución final
+
+| Archivo | Qué verifica | Requisito |
+|---|---|---|
+| `conductor.spec.ts` (proyectos `rutas-*`, en serie) | Ruta completa del conductor con firma; entrega en 3 toques y menos de 20 s; firma o foto obligatoria; entrega sin conexión que se sincroniza al volver la red; reprogramación; idempotencia; avisos a la bodega y compensación | RF-004, RF-008, RF-009, RF-010, RN-007, RNF-004, RNF-010 |
+| `accesibilidad.spec.ts` | axe-core (WCAG 2.0, 2.1 y 2.2, A y AA) en todas las pantallas y pestañas; foco atrapado, Escape y retorno del foco; menú con teclado | RNF-007 |
+| `administracion.spec.ts` | Conductores, parámetros y zonas; permisos por rol; reportes del auditor sin direcciones; Excel y PDF; HSTS | RF-006, RF-008, RNF-008 |
+| `pwa.spec.ts` | Manifiesto instalable, service worker y reapertura sin red (Chromium) | RNF-010 |
+
+**Resultado de la ejecución final** (flujo `Tests`, rama `feature/cierre-final`, todos los trabajos en verde): **254 ejecuciones, 248 pasan a la primera, 4 pasan tras un reintento (inestables) y 2 se omiten por diseño** (la apertura sin red con service worker solo se ejecuta en Chromium); **0 fallos**.
+
+| Proyecto | Pruebas | Pasan | Inestables | Omitidas |
+|---|---|---|---|---|
+| Chromium | 69 | 69 | 0 | 0 |
+| Firefox | 69 | 67 | 1 | 1 |
+| WebKit | 69 | 68 | 0 | 1 |
+| Rutas y conductor (3 navegadores) | 39 | 36 | 3 | 0 |
+| Móvil (Pixel 7) | 5 | 5 | 0 | 0 |
+| Humo | 3 | 3 | 0 | 0 |
+| **Total** | **254** | **248** | **4** | **2** |
+
+Las cuatro pruebas inestables pasaron en el reintento que configura `playwright.config.ts` en CI; no se ocultan y quedan como candidatas a revisar.
+
 ## 6. Conclusiones y límites
 
 - La suite cumple lo pedido: tres navegadores, flujos críticos al 100 %, métricas exactas de rendimiento por debajo de los límites, resiliencia verificada y reportes como artefactos.
@@ -347,4 +374,5 @@ Los artefactos se conservan 14 días en GitHub Actions; si caducan, basta ejecut
 | Versión | Fecha | Cambio |
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Primera versión: configuración, 130 ejecuciones E2E en tres navegadores y móvil, Web Vitals, tiempos de la API, uptime y resiliencia. |
+| 2.0.0 | 28/11/2026 | Se añaden las pruebas del conductor, accesibilidad, administración y PWA y la ejecución final (254 ejecuciones). |
 | 1.1.0 | 17/11/2026 | Cifras actualizadas con la ejecución en `main` tras fusionar el Pull Request #4; se añaden el uptime y el tiempo de respuesta del entorno desplegado y el resultado de la prueba de humo en producción. |

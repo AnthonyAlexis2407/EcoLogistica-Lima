@@ -2,11 +2,11 @@
 
 **Nombre del Proyecto:** EcoLogística Lima - Optimizador de Rutas Sostenibles para DistriRápido S.A.C.  
 **Líder del Proyecto:** Perez Ordoñez Anthony Alexis  
-**Sprint:** Sprint 4 (calidad, automatización y cierre; periodo 21/10/2026 al 16/11/2026)  
-**Fecha de revisión:** 16/11/2026 (actualizada el 17/11/2026 tras el despliegue en producción)  
-**Versión del documento:** 1.1.0
+**Sprint:** Sprint 4 (calidad, automatización, implementación final y cierre; periodo 21/10/2026 al 28/11/2026)  
+**Fecha de revisión:** 16/11/2026 (actualizada el 17/11/2026 tras el despliegue en producción y el 28/11/2026 con el cierre del sprint)  
+**Versión del documento:** 2.0.0
 
-[← Volver al README principal](../../../README.md) · [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) · [Usabilidad](04%20Usabilidad%20V_1_0_0.md)
+[← Volver al README principal](../../../README.md) · [Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md) · [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) · [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) · [Usabilidad](04%20Usabilidad%20V_1_0_0.md)
 
 ## Resumen del sprint
 
@@ -23,6 +23,20 @@
 | Disponibilidad | sin medir | **100 %** en 90 sondeos (contenedor) y en 30 sondeos a producción | Análisis Playwright |
 | Usabilidad (SUS) | sin medir | **79,4** (A-), datos simulados con fines académicos | [Usabilidad](04%20Usabilidad%20V_1_0_0.md) |
 | Producción | no existía | **Publicada en Render**: <https://ecologistica-lima.onrender.com>; despliegue automático desde `main` con prueba de humo (3 de 3) | [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) |
+
+### Actualización de cierre (28/11/2026)
+
+El proyecto tiene cuatro sprints, por lo que este sprint se extendió hasta la fecha de corte para **implementar todo lo que faltaba del backlog**. Antes de programar se auditó el producto contra los criterios de aceptación de los documentos de requisitos y reglas de negocio ([Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md)); las brechas halladas se cerraron con código y pruebas.
+
+| Indicador | 16/11/2026 | 28/11/2026 | Fuente |
+|---|---|---|---|
+| Ítems del backlog en "Hecho" (de 20) | 2 (US-001 y US-003) | **18**, con EN-003 y EN-006 en curso al 50 % | [Reporte de EVM](../../04%20Cierre/03%20Reporte%20de%20An%C3%A1lisis%20de%20Valor%20Ganado%20-%20EVM%20V_1_0_0.md) |
+| Valor ganado acumulado | S/ 9.805,99 (11,6 % del BAC) | **S/ 79.537,35 (94,4 %)** | Reporte de EVM |
+| Requisitos funcionales que cumplen (de 10) | 3 | **10** | [Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md) |
+| Requisitos no funcionales que cumplen (de 10) | 2 | **8** (los otros 2 cumplen en pruebas, no en la nube gratuita) | Matriz de cumplimiento |
+| Pruebas del backend | cobertura mínima del 80 % | **175 pruebas, 93,4 % de cobertura**, y 3 contra PostgreSQL real en CI | flujo `Tests` |
+| Pruebas unitarias del frontend | 70 | **108** | Vitest, flujo `Tests` |
+| Pruebas E2E (Playwright) | 130 | **254** (Chromium, Firefox, WebKit, móvil y humo) | [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) |
 
 ## Historias de Usuario completadas en este Sprint
 
@@ -48,6 +62,25 @@ Trabajo de calidad y entrega que no tiene ficha propia en Jira; cada uno se veri
 
 **Pull Request de cierre del sprint.** El trabajo del sprint se integró en `main` con el [Pull Request #4](https://github.com/AnthonyAlexis2407/EcoLogistica-Lima/pull/4), fusionado el 17/11/2026 (commit de fusión `9fc4653`). `main` solo recibe cambios por Pull Request, por lo que cada commit enlazado arriba queda dentro de ese historial verificable.
 
+### Trabajo completado entre el 17/11 y el 28/11/2026
+
+Cada fila enlaza el código y las pruebas que lo verifican; el detalle por requisito está en la [Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md).
+
+| Ítem del backlog | Resultado verificado | Evidencia |
+|---|---|---|
+| **US-005** Rutas optimizadas y **EN-001/EN-005** motor | Ventanas horarias, capacidad de peso y volumen, Pico y Placa y zonas protegidas (rodeadas) como restricciones duras; caché de matrices y planes; estados de la ruta; estudio comparativo de algoritmos ejecutado | [`optimizador.py`](../../../src/backend/app/optimizador.py), [`servicios.py`](../../../src/backend/app/servicios.py), [`test_optimizador.py`](../../../src/backend/tests/test_optimizador.py), [`spike_algoritmos.py`](../../../scripts/spike_algoritmos.py) |
+| **US-002, EN-004, EN-010** conductores, entrega de baja fricción y app sin conexión | Alta y baja de conductores, entrega con firma o foto en 3 toques, reprogramación, PWA instalable, cola de acciones idempotente y sincronización al volver la red | [`conductor_router.py`](../../../src/backend/app/routers/conductor_router.py), [`ConductorPage.tsx`](../../../src/frontend/src/pages/ConductorPage.tsx), [`offline.ts`](../../../src/frontend/src/offline.ts), [`sw.js`](../../../src/frontend/public/sw.js), [`conductor.spec.ts`](../../../src/frontend/e2e/conductor.spec.ts), [`pwa.spec.ts`](../../../src/frontend/e2e/pwa.spec.ts) |
+| **US-006** Re-optimización ante incidencias | Vía cerrada, accidente, avería (redistribuye en otros vehículos) y pedido cancelado; retraso que rompe una ventana dispara el recálculo automático; cada recálculo mide su tiempo | `reoptimizar_ruta` en [`servicios.py`](../../../src/backend/app/servicios.py), [`test_ciclo_ruta.py`](../../../src/backend/tests/test_ciclo_ruta.py) |
+| **US-004** Notificaciones | Avisos de asignación con hora estimada, salida en ruta, retraso, reprogramación y entrega en el portal de la bodega; sin canal queda pendiente de contacto | [`notificaciones_router.py`](../../../src/backend/app/routers/notificaciones_router.py), [`NotificacionesPage.tsx`](../../../src/frontend/src/pages/NotificacionesPage.tsx) |
+| **US-007 a US-010** mapa, dashboard, reportes y compensación | Mapa del operador y del conductor; filtros por distrito y fechas; combustible ahorrado; reportes CSV, Excel y PDF (el auditor sin datos personales); emisión y árboles al completar la ruta | [`indicadores_router.py`](../../../src/backend/app/routers/indicadores_router.py), [`reportes_router.py`](../../../src/backend/app/routers/reportes_router.py), [`DashboardPage.tsx`](../../../src/frontend/src/pages/DashboardPage.tsx), [`RutasPage.tsx`](../../../src/frontend/src/pages/RutasPage.tsx) |
+| **EN-002** Seguridad | Suite de pruebas ofensivas automáticas; el inicio de sesión ya no revela si un correo existe; HSTS y política de permisos | [`test_seguridad_ofensiva.py`](../../../src/backend/tests/test_seguridad_ofensiva.py), [`auth.py`](../../../src/backend/app/auth.py) |
+| **EN-008** Cifrado y anonimización | Datos personales y de ubicación cifrados con AES-SIV; solicitudes de eliminación con plazo de 5 días hábiles y anonimización | [`cifrado.py`](../../../src/backend/app/cifrado.py), [`admin_router.py`](../../../src/backend/app/routers/admin_router.py), [Documento 11, sección 6](../../01%20Inicio/11.%20Base%20de%20datos%20V_1_0_0.md) |
+| **EN-007** Accesibilidad | axe-core sin incumplimientos WCAG 2.2 AA en todas las pantallas; diálogos con foco atrapado y cierre con Escape | [`accesibilidad.spec.ts`](../../../src/frontend/e2e/accesibilidad.spec.ts), [`Modal.tsx`](../../../src/frontend/src/components/Modal.tsx) |
+| **EN-009** Caché | Una corrida repetida usa menos del 70 % de la CPU (medido) | [`test_escalabilidad.py`](../../../src/backend/tests/test_escalabilidad.py) |
+| **EN-003 y EN-006** (50 %) Conmutación por falla y escalado | Dos instancias detrás de un balanceador con PostgreSQL; RTO medido; degradación de 250 a 1.000 pedidos medida. Falta habilitarlo en la nube (plan de pago) | [`docker-compose.failover.yml`](../../../docker-compose.failover.yml), [`medir_rto.py`](../../../scripts/medir_rto.py), `test_escalabilidad.py` |
+| **Datos persistentes en producción** (RSK-13) | La producción usa una base PostgreSQL gestionada; las pruebas del flujo completo corren contra PostgreSQL real en CI | [`render.yaml`](../../../render.yaml), [`test_postgres.py`](../../../src/backend/tests/test_postgres.py) |
+| **Monitoreo** (acción 8 de la Retrospectiva) | Prueba de humo cada hora contra producción, con el tiempo de respuesta en el resumen | [`monitoreo.yml`](../../../.github/workflows/monitoreo.yml) |
+
 ## Demostración del trabajo completado
 
 ### Qué se demostró y en qué entorno
@@ -69,6 +102,9 @@ La demostración técnica de este sprint es **reproducible y automatizada**: la 
 4. **Permisos por rol:** el operador consulta pero no modifica; cada bodega solo ve lo suyo ([`roles.spec.ts`](../../../src/frontend/e2e/roles.spec.ts)).
 5. **Rendimiento y disponibilidad:** Web Vitals, tiempos de la API por debajo de 500 ms, 100 % de uptime y resistencia a caídas de red ([Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md)).
 6. **Móvil:** ninguna pantalla se desplaza en horizontal en un Pixel 7 emulado.
+7. **App del conductor:** iniciar la ruta, entregar con firma en 3 toques, reprogramar y trabajar sin conexión con sincronización posterior ([`conductor.spec.ts`](../../../src/frontend/e2e/conductor.spec.ts) y [`pwa.spec.ts`](../../../src/frontend/e2e/pwa.spec.ts)).
+8. **Accesibilidad:** axe-core en todas las pantallas, foco atrapado en los diálogos y menú operable con teclado ([`accesibilidad.spec.ts`](../../../src/frontend/e2e/accesibilidad.spec.ts)).
+9. **Administración y privacidad:** conductores, parámetros del algoritmo, zonas protegidas, reportes sin datos personales para el auditor y solicitudes de eliminación ([`administracion.spec.ts`](../../../src/frontend/e2e/administracion.spec.ts)).
 
 ### Retroalimentación recibida
 
@@ -86,6 +122,7 @@ La demostración técnica de este sprint es **reproducible y automatizada**: la 
 4. **Ayudas de usabilidad:** abrir el formulario de pedido y mostrar la explicación de coordenadas.
 5. **Informe Playwright:** abrir el informe HTML y mostrar los tres navegadores en verde y las métricas.
 6. **Automatización:** mostrar los flujos `CI` y `Tests` en verde y la imagen de producción.
+7. **Ciclo completo:** como operador optimizar, asignar un conductor y registrar una vía cerrada; como conductor entregar con firma, probar el modo sin conexión y terminar la ruta; como bodega ver los avisos; como administrador ver los indicadores y descargar un reporte.
 
 ### Registro de la demostración en vivo
 
@@ -97,23 +134,20 @@ La demostración técnica de este sprint es **reproducible y automatizada**: la 
 
 | Elemento | Estado | Justificación | Tratamiento posterior |
 |---|---|---|---|
-| **Aceptación del Product Owner** de US-001 y US-003 | Pendiente | Requiere agendar la reunión de demostración con el docente | Acción 2 de la [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) (20/11/2026) |
-| **Despliegue público** en Render | **Completado**: servicio *Live* y `deploy-production.yml` en verde. Ajuste restante: apuntar el servicio a la rama `main` (hoy sigue en `feature/sprint-4`, ya fusionada) | Configuración en el panel de Render | Acción 1 (18/11/2026), guiada por la [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) |
-| **EN-001**: motor de optimización dentro de 45 s | No iniciado (RSK-05, ruta crítica) | El sprint se dedicó a pruebas E2E, CI/CD y despliegue; el spike necesita un tope de tiempo y un criterio de salida | Acción 4 (spike de 3 días, 20/11/2026) |
-| **EN-002**: prueba de penetración | Parcial | Falta la prueba de penetración; las pruebas E2E ya verifican bloqueo, roles, cabeceras y `/docs` oculto | Acción de la [Retrospectiva del Sprint 3](../Sprint%2003/02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) |
-| **EN-008**: cifrado y anonimización de datos personales | No iniciado | Sin cambios | Backlog |
-| **EN-009**: reducción de recómputo con caché | Parcial | La caché HTTP (ETag y 304) está hecha y probada; la caché de resultados depende del motor (EN-001) | Tras EN-001 |
-| **Datos persistentes en producción** | Deuda técnica (RSK-13) | SQLite en el disco temporal del plan gratuito reinicia los datos | Acción 6: migrar a PostgreSQL |
-| **SUS con usuarios reales** | Deuda de validación | La evaluación de este sprint usa datos simulados | Acción 3 (20/11/2026) |
-| **SonarQube dentro de `ci.yml`** y versiones fijas del backend | Deuda técnica | SonarQube se ejecuta en local | Acción 7 (23/11/2026) |
-| **Prueba con lector de pantalla** y trampa de foco en modales | Deuda de accesibilidad | Requiere una sesión con NVDA o VoiceOver, que no cupo en este sprint | [Sprint 3, WCAG](../Sprint%2003/05%20WCAG%20V_1_0_0.md) |
-| **Backlog sin iniciar** | 14 ítems: US-002, US-004 a US-010, EN-003 a EN-007 y EN-010, entre ellos el motor y el mapa | Dependen de EN-001 | Se recortará el alcance con el docente si el spike no avanza (RSK-09) |
-
+| **Aceptación del Product Owner** de las historias | Pendiente | Requiere agendar la reunión de demostración con el docente | Acción 2 de la [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md) |
+| **Rama de producción** en Render | Pendiente (acción del equipo) | El servicio sigue apuntando a `feature/sprint-4`; el Blueprint nuevo agrega la base PostgreSQL y la clave de cifrado | Cambiar la rama a `main` y sincronizar el Blueprint, según la [Guía de despliegue](05%20Gu%C3%ADa%20de%20despliegue.md) |
+| **EN-003 y EN-006** en la nube | Parcial (50 %) | Cumplen su medida con dos instancias en CI; el plan gratuito de Render ofrece una instancia | Plan de pago de la plataforma |
+| **SUS con usuarios reales** | Deuda de validación | La evaluación de este sprint usa datos simulados | Acción 3 de la Retrospectiva |
+| **Prueba con lector de pantalla** y en un Android físico de gama baja | Deuda de validación | Requiere una sesión con NVDA o VoiceOver y un dispositivo real | Mantenimiento |
+| **Auditoría de seguridad externa** | Deuda | La suite ofensiva automática no sustituye a un tercero | Mantenimiento |
+| **SonarQube dentro de `ci.yml`** y versiones fijas del backend | Deuda técnica | SonarQube se ejecuta en local | Mantenimiento |
+| **Correo y SMS reales** | Deuda | El canal real es el portal; el correo por SMTP está listo, sin configurar | Contratar proveedor |
 ## Referencias cruzadas
 
 - Plan de mejora: [Retrospectiva](02%20Retrospectiva%20del%20Sprint%20V_1_0_0.md). Evidencia técnica: [Análisis Playwright](03%20Analisis%20PlayWrigth%20V_1_0_0.md) y [Usabilidad](04%20Usabilidad%20V_1_0_0.md).
 - Sprint anterior: [Revisión del Sprint 3](../Sprint%2003/01%20Revisi%C3%B3n%20del%20Sprint%20V_1_0_0.md). Estado de los ítems: [Artefactos Jira](../../02%20Planificaci%C3%B3n/02%20Artefactos%20Jira%20V_1_0_0.md) y [Registro de riesgos](../../02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md).
-- Documentos actualizados en este sprint: [10. Stack tecnológico](../../01%20Inicio/10.%20Stack%20tecnol%C3%B3gico%20V_1_0_0.md) (1.4.0), [12. Modelo C4](../../01%20Inicio/12.%20Modelo%20C4%20V_1_0_0.md) (1.2.0) y [03 Registro de riesgos](../../02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md) (1.3.0).
+- Documentos actualizados en este sprint: [06. Requisitos funcionales](../../01%20Inicio/06.%20Requisitos%20funcionales%20V_1_0_0.md) (1.2.0), [07. Requisitos no funcionales](../../01%20Inicio/07.%20Requisitos%20no%20funcionales%20V_1_0_0.md) (1.2.0), [10. Stack tecnológico](../../01%20Inicio/10.%20Stack%20tecnol%C3%B3gico%20V_1_0_0.md) (1.6.0), [11. Base de datos](../../01%20Inicio/11.%20Base%20de%20datos%20V_1_0_0.md) (1.3.0), [12. Modelo C4](../../01%20Inicio/12.%20Modelo%20C4%20V_1_0_0.md) (1.4.0) y [03 Registro de riesgos](../../02%20Planificaci%C3%B3n/03%20Registro%20de%20riesgos%20V_1_0_0.md) (1.5.0).
+- Cierre del proyecto: [Matriz de cumplimiento](06%20Matriz%20de%20cumplimiento%20V_1_0_0.md) y los siete documentos de [`docs/04 Cierre`](../../04%20Cierre/01%20Reporte%20de%20Estado%20V_1_0_0.md).
 
 ## Control de versiones
 
@@ -121,3 +155,4 @@ La demostración técnica de este sprint es **reproducible y automatizada**: la 
 |---|---|---|
 | 1.0.0 | 16/11/2026 | Sprint 4: primera revisión con historias completadas, habilitadores técnicos, demostración reproducible y pendientes. |
 | 1.1.0 | 17/11/2026 | Se registran el Pull Request #4 fusionado, el despliegue automático en producción con su prueba de humo y las cifras de `main`; los pendientes se redactan con su causa y su tratamiento. |
+| 2.0.0 | 28/11/2026 | El sprint se extiende hasta el cierre del proyecto: se registra la implementación de todo el backlog, las nuevas cifras de pruebas, la demostración ampliada y los pendientes reales. |

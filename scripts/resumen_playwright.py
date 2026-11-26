@@ -17,7 +17,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-ORDEN = ["chromium", "firefox", "webkit", "movil", "smoke"]
+ORDEN = ["chromium", "firefox", "webkit", "rutas-chromium", "conductor-chromium", "rutas-firefox", "conductor-firefox", "rutas-webkit", "conductor-webkit", "movil", "smoke"]
 SALIDA: list[str] = []
 
 
@@ -135,6 +135,16 @@ def tablas_de_metricas(carpeta: Path) -> None:
             m = json.loads(ruta.read_text(encoding="utf-8"))
             emitir(f"| {m['navegador']} | {m['sondeos']} | {m['correctos']} | {m['disponibilidadPorcentaje']:.1f} % | "
                    f"{m['latenciaMedianaMs']} | {m['latenciaMaximaMs']} |")
+
+    optimizaciones = sorted(metricas.glob("*-optimizacion.json"))
+    if optimizaciones:
+        emitir("\n### Motor de rutas frente al SLA de 45 s (RNF-001); cada corrida incluye 50 pedidos propios y los pendientes previos\n")
+        emitir("| Navegador | Pedidos | Rutas | Sin asignar | Cálculo (ms) | Respuesta HTTP (ms) | Ahorro de km | Ahorro de CO₂ | CO₂ evitado (kg) |")
+        emitir("|---|---|---|---|---|---|---|---|---|")
+        for ruta in optimizaciones:
+            m = json.loads(ruta.read_text(encoding="utf-8"))
+            emitir(f"| {m['navegador']} | {m['pedidos']} | {m['rutas']} | {m['sinAsignar']} | {m['tiempoCalculoMs']} | "
+                   f"{m['tiempoRespuestaMs']} | {m['ahorroKmPct']} % | {m['ahorroCo2Pct']} % | {m['co2EvitadoKg']} |")
 
 
 def main() -> None:

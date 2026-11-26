@@ -5,14 +5,44 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
-import { healthApi } from './api';
+import { healthApi, notificacionesApi } from './api';
 import LoginPage from './pages/LoginPage';
-import { LayoutDashboard, Truck, Package, LogOut, Leaf, Shield } from 'lucide-react';
+import {
+  LayoutDashboard, Truck, Package, LogOut, Leaf, Shield, Route as RutaIcono, Bell, Settings, Navigation,
+} from 'lucide-react';
 
 // Code splitting (Informe Green IT, optimización 4): las pantallas autenticadas se descargan bajo demanda.
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const VehiculosPage = lazy(() => import('./pages/VehiculosPage'));
 const PedidosPage = lazy(() => import('./pages/PedidosPage'));
+const RutasPage = lazy(() => import('./pages/RutasPage'));
+const ConductorPage = lazy(() => import('./pages/ConductorPage'));
+const NotificacionesPage = lazy(() => import('./pages/NotificacionesPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+
+// Qué puede ver cada rol (Documento 08): el menú y las rutas se limitan igual que el servidor lo hace con la API.
+const ACCESO: Record<string, string[]> = {
+  '/': ['ADMIN_FLOTA', 'OPERADOR', 'AUDITOR'],
+  '/vehiculos': ['ADMIN_FLOTA', 'OPERADOR'],
+  '/pedidos': ['ADMIN_FLOTA', 'OPERADOR', 'BODEGA'],
+  '/rutas': ['ADMIN_FLOTA', 'OPERADOR', 'AUDITOR'],
+  '/conductor': ['CONDUCTOR'],
+  '/notificaciones': ['ADMIN_FLOTA', 'OPERADOR', 'BODEGA', 'CONDUCTOR', 'AUDITOR'],
+  '/administracion': ['ADMIN_FLOTA'],
+};
+
+function inicioDe(rol: string | undefined): string {
+  if (rol === 'CONDUCTOR') return '/conductor';
+  if (rol === 'BODEGA') return '/pedidos';
+  return '/';
+}
+
+function Permitida({ ruta, children }: { ruta: string; children: React.ReactNode }) {
+  const { user } = useAuth();
+  if (!user || !ACCESO[ruta].includes(user.rol)) return <Navigate to={inicioDe(user?.rol)} replace />;
+  return <>{children}</>;
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   if (isLoading) {
@@ -26,16 +56,30 @@ const pageTitles: Record<string, string> = {
   '/': 'Dashboard',
   '/vehiculos': 'Gestión de Flota Vehicular',
   '/pedidos': 'Gestión de Pedidos',
+  '/rutas': 'Rutas Optimizadas',
+  '/conductor': 'Mi ruta',
+  '/notificaciones': 'Notificaciones',
+  '/administracion': 'Administración',
 };
 
 function AppLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [apiOnline, setApiOnline] = useState<boolean | null>(null);
+  const [noLeidas, setNoLeidas] = useState(0);
+  const { token } = useAuth();
 
   useEffect(() => {
     healthApi.check().then(() => setApiOnline(true)).catch(() => setApiOnline(false));
   }, []);
+
+  // Avisos sin leer (RF-009): se consultan al cambiar de pantalla.
+  useEffect(() => {
+    if (!token) return;
+    notificacionesApi.mias(token).then((r) => setNoLeidas(r.noLeidas)).catch(() => {});
+  }, [token, location.pathname]);
+
+  const veRuta = (ruta: string) => !!user && ACCESO[ruta].includes(user.rol);
   const title = pageTitles[location.pathname] || 'EcoLogística Lima';
 
   const initials = user?.nombre
@@ -70,18 +114,49 @@ function AppLayout() {
         </div>
 
         <nav className="sidebar-nav">
-          <div className="sidebar-section-title">Principal</div>
-          <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-            <LayoutDashboard size={18} /> Dashboard
-          </NavLink>
+          {veRuta('/') && (
+            <>
+              <div className="sidebar-section-title">Principal</div>
+              <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+                <LayoutDashboard size={18} /> Dashboard
+              </NavLink>
+            </>
+          )}
 
-          <div className="sidebar-section-title">Módulos Sprint 2</div>
-          <NavLink to="/vehiculos" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-            <Truck size={18} /> Vehículos
+          <div className="sidebar-section-title">Operación</div>
+          {veRuta('/conductor') && (
+            <NavLink to="/conductor" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <Navigation size={18} /> Mi ruta
+            </NavLink>
+          )}
+          {veRuta('/vehiculos') && (
+            <NavLink to="/vehiculos" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <Truck size={18} /> Vehículos
+            </NavLink>
+          )}
+          {veRuta('/pedidos') && (
+            <NavLink to="/pedidos" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <Package size={18} /> Pedidos
+            </NavLink>
+          )}
+          {veRuta('/rutas') && (
+            <NavLink to="/rutas" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <RutaIcono size={18} /> Rutas
+            </NavLink>
+          )}
+          <NavLink to="/notificaciones" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+            <Bell size={18} /> Notificaciones
+            {noLeidas > 0 && (
+              <span className="badge badge-amber" style={{ marginLeft: 'auto', fontSize: '0.65rem' }} aria-label={`${noLeidas} sin leer`}>
+                {noLeidas}
+              </span>
+            )}
           </NavLink>
-          <NavLink to="/pedidos" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-            <Package size={18} /> Pedidos
-          </NavLink>
+          {veRuta('/administracion') && (
+            <NavLink to="/administracion" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <Settings size={18} /> Administración
+            </NavLink>
+          )}
 
           <div className="sidebar-section-title">Seguridad</div>
           <div className="sidebar-link" style={{ cursor: 'default' }}>
@@ -113,17 +188,22 @@ function AppLayout() {
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981', display: 'inline-block' }}></span>
               {apiOnline === null ? 'Verificando API…' : apiOnline ? 'API conectada' : 'API sin conexión'}
             </div>
-            <span className="badge badge-teal">Sprint 2</span>
-            <span className="badge badge-green">v2.1.0</span>
+            <span className="badge badge-teal">Versión final</span>
+            <span className="badge badge-green">v4.0.0</span>
           </div>
         </header>
 
         <main className="page-content">
           <Suspense fallback={<div className="loading-spinner"><div className="spinner" /></div>}>
             <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/vehiculos" element={<VehiculosPage />} />
-              <Route path="/pedidos" element={<PedidosPage />} />
+              <Route path="/" element={<Permitida ruta="/"><DashboardPage /></Permitida>} />
+              <Route path="/vehiculos" element={<Permitida ruta="/vehiculos"><VehiculosPage /></Permitida>} />
+              <Route path="/pedidos" element={<Permitida ruta="/pedidos"><PedidosPage /></Permitida>} />
+              <Route path="/rutas" element={<Permitida ruta="/rutas"><RutasPage /></Permitida>} />
+              <Route path="/conductor" element={<Permitida ruta="/conductor"><ConductorPage /></Permitida>} />
+              <Route path="/notificaciones" element={<Permitida ruta="/notificaciones"><NotificacionesPage /></Permitida>} />
+              <Route path="/administracion" element={<Permitida ruta="/administracion"><AdminPage /></Permitida>} />
+              <Route path="*" element={<Navigate to={inicioDe(user?.rol)} replace />} />
             </Routes>
           </Suspense>
         </main>
@@ -151,7 +231,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/login" element={user ? <Navigate to={inicioDe(user.rol)} replace /> : <LoginPage />} />
       <Route
         path="/*"
         element={

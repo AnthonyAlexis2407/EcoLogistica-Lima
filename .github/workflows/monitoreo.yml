@@ -1,0 +1,67 @@
+# Monitoreo de producción: una prueba de humo cada hora contra la URL pública (acción 8 de la Retrospectiva del Sprint 4).
+# Mide si la aplicación responde y deja el resultado de cada hora en el historial de ejecuciones de Actions, de donde se
+# calcula la disponibilidad real (RNF-003). Los flujos programados solo corren desde la rama por defecto (main).
+name: Monitoreo de producción
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monitoreo-produccion
+  cancel-in-progress: false
+
+jobs:
+  humo:
+    name: Prueba de humo en producción
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obtener código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Instalar dependencias y Chromium
+        working-directory: src/frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Esperar a que la aplicación responda (el plan gratuito se duerme tras 15 minutos)
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+        run: |
+          if [ -z "$PRODUCTION_URL" ]; then echo "::error::Falta el secreto PRODUCTION_URL"; exit 1; fi
+          for i in $(seq 1 40); do
+            if curl -fsS "$PRODUCTION_URL/api/health/ready" > /dev/null; then exit 0; fi
+            sleep 15
+          done
+          echo "::error::La aplicación no respondió en 10 minutos"
+          exit 1
+
+      - name: Prueba de humo (Playwright)
+        working-directory: src/frontend
+        env:
+          E2E_BASE_URL: ${{ secrets.PRODUCTION_URL }}
+          CI: "true"
+        run: npx playwright test --project=smoke --reporter=line
+
+      - name: Medir el tiempo de respuesta de la API
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+        run: |
+          tiempo=$(curl -fsS -o /dev/null -w "%{time_total}" "$PRODUCTION_URL/api/health/ready")
+          echo "### Monitoreo de producción" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Resultado: la aplicación respondió." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Tiempo de respuesta de /api/health/ready: ${tiempo} s" >> "$GITHUB_STEP_SUMMARY"

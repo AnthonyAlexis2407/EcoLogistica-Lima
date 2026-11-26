@@ -11,6 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import (
     create_access_token,
+    fallo_de_correo_desconocido,
+    gastar_tiempo_de_verificacion,
     get_current_user,
     get_optional_user,
     hash_password,
@@ -19,6 +21,7 @@ from app.auth import (
     reset_login_attempts,
     verify_password,
 )
+from app.config import settings
 from app.database import get_db
 from app.models import Usuario
 from app.schemas import LoginRequest, Token, UsuarioCreate, UsuarioOut
@@ -27,6 +30,10 @@ router = APIRouter(prefix="/api/auth", tags=["Autenticación"])
 
 # Registro de eventos de seguridad (OWASP A09). No se escriben correos ni contraseñas (Ley N° 29733).
 security_log = logging.getLogger("ecologistica.security")
+
+_MENSAJE_BLOQUEO = (
+    f"Cuenta bloqueada por múltiples intentos fallidos. Intente nuevamente en {settings.LOCKOUT_MINUTES} minutos"
+)
 
 
 @router.post("/register", response_model=UsuarioOut, status_code=status.HTTP_201_CREATED)
@@ -83,15 +90,21 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
 
     if not user:
+        # Se responde igual que ante una cuenta real (mismos intentos, mismo bloqueo, mismo tiempo): no se puede
+        # averiguar qué correos están registrados.
+        gastar_tiempo_de_verificacion(payload.password)
+        restantes, bloqueado = fallo_de_correo_desconocido(payload.email)
         security_log.warning("login_fallido motivo=usuario_inexistente")
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+        if bloqueado:
+            raise HTTPException(status_code=status.HTTP_423_LOCKED, detail=_MENSAJE_BLOQUEO)
+        raise HTTPException(status_code=401, detail=f"Credenciales inválidas. Intentos restantes: {restantes}")
 
     # Verificar lockout
     if is_account_locked(user):
         security_log.warning("login_rechazado motivo=cuenta_bloqueada usuario_id=%s", user.usuario_id)
         raise HTTPException(
             status_code=status.HTTP_423_LOCKED,
-            detail=f"Cuenta bloqueada por múltiples intentos fallidos. Intente nuevamente en {user.locked_until}",
+            detail=_MENSAJE_BLOQUEO,
         )
 
     # Verificar contraseña
@@ -100,7 +113,7 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
         # Persistir el contador ANTES de lanzar la excepción: get_db hace rollback
         # ante cualquier excepción y, sin este commit, el bloqueo nunca se acumulaba.
         await db.commit()
-        remaining = max(0, 3 - user.login_attempts)
+        remaining = max(0, settings.MAX_LOGIN_ATTEMPTS - user.login_attempts)
         security_log.warning(
             "login_fallido motivo=clave_incorrecta usuario_id=%s intentos=%s bloqueada=%s",
             user.usuario_id, user.login_attempts, remaining == 0,

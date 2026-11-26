@@ -47,9 +47,26 @@ function optimizarPrimerPintado(): Plugin {
   }
 }
 
+/**
+ * Lista de archivos que el service worker guarda al instalarse (`precache.json`), para abrir la app del conductor sin
+ * conexión desde la primera visita (RNF-010). Incluye el shell, los módulos comunes y las pantallas del conductor; las
+ * pantallas de administración y de planificación no se precargan: no son necesarias en el móvil sin señal.
+ */
+function listaDePrecache(): Plugin {
+  const omitir = /(Admin|Dashboard|Vehiculos|Pedidos|Rutas)Page|\.map$/
+  return {
+    name: 'lista-de-precache',
+    apply: 'build',
+    generateBundle(_, paquete) {
+      const archivos = Object.keys(paquete).filter((f) => f.startsWith('assets/') && !omitir.test(f)).map((f) => `/${f}`)
+      this.emitFile({ type: 'asset', fileName: 'precache.json', source: JSON.stringify(archivos) })
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), optimizarPrimerPintado()],
+  plugins: [react(), optimizarPrimerPintado(), listaDePrecache()],
   build: {
     rollupOptions: {
       output: {

@@ -21,7 +21,7 @@ test.describe('Móvil sin sesión', () => {
 test.describe('Móvil con sesión', () => {
   test.use({ storageState: archivoSesion('admin') });
 
-  for (const [ruta, titulo] of [['/', 'Dashboard'], ['/vehiculos', 'Gestión de Flota Vehicular'], ['/pedidos', 'Gestión de Pedidos']]) {
+  for (const [ruta, titulo] of [['/', 'Dashboard'], ['/vehiculos', 'Gestión de Flota Vehicular'], ['/pedidos', 'Gestión de Pedidos'], ['/rutas', 'Rutas Optimizadas']]) {
     test(`${ruta} no se desplaza en horizontal`, async ({ page }) => {
       await page.goto(ruta);
       await expect(page.getByRole('heading', { name: titulo })).toBeVisible();

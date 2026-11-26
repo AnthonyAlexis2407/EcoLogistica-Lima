@@ -13,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:8000';
 
 // Las capturas de evidencia (e2e/evidencias.spec.ts) solo se ejecutan a demanda con E2E_EVIDENCIAS=1.
-const ignorarEscritorio = process.env.E2E_EVIDENCIAS === '1' ? /(movil|smoke)\.spec\.ts/ : /(movil|smoke|evidencias)\.spec\.ts/;
+const ignorarEscritorio = process.env.E2E_EVIDENCIAS === '1' ? /(movil|smoke|rutas|conductor)\.spec\.ts/ : /(movil|smoke|rutas|conductor|evidencias)\.spec\.ts/;
 
 export default defineConfig({
   testDir: './e2e',
@@ -33,6 +33,9 @@ export default defineConfig({
     baseURL,
     locale: 'es-PE',
     timezoneId: 'America/Lima',
+    // El service worker de la PWA cachea navegaciones y solapa la intercepción de red (page.route) en WebKit;
+    // solo pwa.spec.ts y conductor.spec.ts lo necesitan y lo habilitan por archivo.
+    serviceWorkers: 'block',
     // Evidencias para depurar fallos con el Trace Viewer.
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
@@ -63,6 +66,45 @@ export default defineConfig({
       name: 'smoke',
       use: { ...devices['Desktop Chrome'] },
       testMatch: /smoke\.spec\.ts/,
+    },
+    // Rutas (RF-003) y conductor (RF-004): optimizar toma todos los pedidos pendientes de la base compartida y ambos
+    // archivos limpian rutas y pedidos, por eso cada archivo es su propio proyecto y todos corren en cadena (uno a la vez),
+    // solo cuando terminaron los demás.
+    {
+      name: 'rutas-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup', 'chromium', 'firefox', 'webkit'],
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'conductor-chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['rutas-chromium'],
+      testMatch: /conductor\.spec\.ts/,
+    },
+    {
+      name: 'rutas-firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['conductor-chromium'],
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'conductor-firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['rutas-firefox'],
+      testMatch: /conductor\.spec\.ts/,
+    },
+    {
+      name: 'rutas-webkit',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['conductor-firefox'],
+      testMatch: /rutas\.spec\.ts/,
+    },
+    {
+      name: 'conductor-webkit',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['rutas-webkit'],
+      testMatch: /conductor\.spec\.ts/,
     },
     {
       name: 'movil',

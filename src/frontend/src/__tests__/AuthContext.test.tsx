@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../AuthContext';
-import { authApi } from '../api';
+import { ApiError, authApi } from '../api';
 
-vi.mock('../api', () => ({
+vi.mock('../api', async (original) => ({
+  ...(await original<typeof import('../api')>()),
   authApi: { me: vi.fn(), login: vi.fn() },
 }));
 
@@ -51,6 +52,27 @@ describe('AuthProvider', () => {
 
     await waitFor(() => expect(screen.getByTestId('token')).toHaveTextContent('sin-token'));
     expect(localStorage.getItem('token')).toBeNull();
+  });
+
+  it('sin red conserva la sesión con el último perfil guardado (RNF-010)', async () => {
+    localStorage.setItem('token', 'tok-ok');
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    vi.mocked(authApi.me).mockRejectedValue(new TypeError('Failed to fetch'));
+    render(<AuthProvider><Sonda /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId('estado')).toHaveTextContent('listo'));
+    expect(screen.getByTestId('usuario')).toHaveTextContent('Ana');
+    expect(localStorage.getItem('token')).toBe('tok-ok');
+  });
+
+  it('si el servidor rechaza el token (401) cierra la sesión aunque haya un perfil guardado', async () => {
+    localStorage.setItem('token', 'tok-vencido');
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    vi.mocked(authApi.me).mockRejectedValue(new ApiError(401, 'Token inválido o expirado'));
+    render(<AuthProvider><Sonda /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId('estado')).toHaveTextContent('listo'));
+    expect(screen.getByTestId('usuario')).toHaveTextContent('anonimo');
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('usuario')).toBeNull();
   });
 
   it('login guarda el token y logout lo borra', async () => {
